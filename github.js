@@ -18,7 +18,7 @@ if (!Config.github) {
 	return;
 } else if (Config.github === {}) {
 	gitConfig.port = 3420;
-	gitConfig.secret = "4ef37a45915ef37b02792967d75438387a92aca";
+	gitConfig.secret = "";
 } else {
 	gitConfig = {
 		port: Config.github.port,
