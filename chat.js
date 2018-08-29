@@ -320,8 +320,45 @@ class CommandContext {
 			if (message.indexOf('pandora.psim.net') >= 0) serverAd.push('pandora');
 			if (message.indexOf('shiningpoke.tk') >= 0) serverAd.push('shiningpoke');
 			if (message.indexOf('play.pokemoncrisis.com') >= 0) serverAd.push('pokemoncrisis');
-		}
-					if (serverAd.length) {
+			/* (message.indexOf('"cliphunter",') >= 0) serverAd.push('"cliphunter",'); // ça faisait crash le server au démarrage fsr
+(message.indexOf('"jenkem",') >= 0) serverAd.push('"jenkem",');
+(message.indexOf('2girls1cup') >= 0) serverAd.push('2girls1cup');
+(message.indexOf('meatspin') >= 0) serverAd.push('meatspin');
+(message.indexOf('paheal') >= 0) serverAd.push('paheal');
+(message.indexOf('sadpanda') >= 0) serverAd.push('sadpanda');
+(message.indexOf('exhentai') >= 0) serverAd.push('exhentai');
+(message.indexOf('lemonparty') >= 0) serverAd.push('lemonparty');
+(message.indexOf('tube8') >= 0) serverAd.push('tube8');
+(message.indexOf('youjizz') >= 0) serverAd.push('youjizz');
+(message.indexOf('xvideos') >= 0) serverAd.push('xvideos');
+(message.indexOf('goatse') >= 0) serverAd.push('goatse');
+(message.indexOf('hentaifoundry') >= 0) serverAd.push('hentaifoundry');
+(message.indexOf('xnxx') >= 0) serverAd.push('xnxx');
+(message.indexOf('youporn') >= 0) serverAd.push('youporn');
+(message.indexOf('brazzers') >= 0) serverAd.push('brazzers');
+(message.indexOf('xhamster') >= 0) serverAd.push('xhamster');
+(message.indexOf('redtube') >= 0) serverAd.push('redtube');
+(message.indexOf('pornhub') >= 0) serverAd.push('pornhub');
+(message.indexOf('spankwire') >= 0) serverAd.push('spankwire');
+(message.indexOf('e-hentai') >= 0) serverAd.push('e-hentai');
+(message.indexOf('efukt') >= 0) serverAd.push('efukt');
+(message.indexOf('hentaigasm') >= 0) serverAd.push('hentaigasm');
+(message.indexOf('jackhammerjesus') >= 0) serverAd.push('jackhammerjesus');
+(message.indexOf('happytugs') >= 0) serverAd.push('happytugs');
+(message.indexOf('clashofclanshelper') >= 0) serverAd.push('clashofclanshelper');
+(message.indexOf('findminecraft') >= 0) serverAd.push('findminecraft');
+(message.indexOf('minecraftpromotions') >= 0) serverAd.push('minecraftpromotions');
+(message.indexOf('milfhunter') >= 0) serverAd.push('milfhunter');
+(message.indexOf('freeyouporn') >= 0) serverAd.push('freeyouporn');
+(message.indexOf('bangyoulater') >= 0) serverAd.push('bangyoulater');
+(message.indexOf('sexy-natalie') >= 0) serverAd.push('sexy-natalie');
+(message.indexOf('weticecream') >= 0) serverAd.push('weticecream');
+(message.indexOf('gurochan') >= 0) serverAd.push('gurochan');
+(message.indexOf('cutedeadguys') >= 0) serverAd.push('cutedeadguys');
+(message.indexOf('nothingtoxic') >= 0) serverAd.push('nothingtoxic');
+(message.indexOf('theync') >= 0) serverAd.push('theync');
+(message.indexOf('gordgasm') >= 0) serverAd.push('gordgasm'); */
+			if (serverAd.length) {
 				for (var i = 0; i < serverAd.length; i++) { 
 					if (!serverexceptions[serverAd[i]]) {
 						if (!this.room) {
@@ -362,7 +399,7 @@ class CommandContext {
 				}
 			}
 		}
-// Output the message
+ // Output the message
  
         if (message && message !== true && typeof message.then !== 'function') {
            
