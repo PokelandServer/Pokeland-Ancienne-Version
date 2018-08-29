@@ -724,13 +724,13 @@ class CommandContext {
 		this.room.sendModsByUser(this.user, data);
 	}
 
-	privateModCommand() {
+	privateModAction() {
 		throw new Error(`this.privateModCommand has been renamed to this.privateModAction, which no longer writes to modlog.`);
 	}
 	/**
 	 * @param {string} msg
 	 */
-	privateModAction(msg) {
+	privateModCommand(msg) {
 		this.room.sendMods(msg);
 		this.roomlog(msg);
 	}
