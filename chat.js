@@ -46,6 +46,30 @@ const BROADCAST_TOKEN = '!';
 
 const FS = require('./lib/fs');
 
+
+const fs = require('fs');
+const path = require('path');
+const parseEmoticons = require('./chat-plugins/emoticons').parseEmoticons;
+
+function getServersAds (text) {
+	var aux = text.toLowerCase();
+	var serversAds = [];
+	var spamindex;
+	var actualAd = '';
+	while (aux.indexOf(".psim.us") > -1) {
+		spamindex = aux.indexOf(".psim.us");
+		actualAd = '';
+		for (var i = spamindex - 1; i >= 0; i--) {
+			if (aux.charAt(i).replace(/[^a-z0-9]/g, '') === '') break;
+			actualAd = aux.charAt(i) + actualAd;
+		}
+		if (actualAd.length) serversAds.push(toId(actualAd));
+		aux = aux.substr(spamindex + ".psim.us".length);
+	}
+	return serversAds;
+}
+
+
 let Chat = module.exports;
 
 // Matches U+FE0F and all Emoji_Presentation characters. More details on
@@ -280,7 +304,7 @@ class CommandContext {
 				} else {
 					return this.errorReply(`The command "${this.cmdToken}${this.fullCmd}" does not exist. To send a message starting with "${this.cmdToken}${this.fullCmd}", type "${this.cmdToken}${this.cmdToken}${this.fullCmd}".`);
 				}
-			} else if (!VALID_COMMAND_TOKENS.includes(message.charAt(0)) && VALID_COMMAND_TOKENS.includes(message.trim().charAt(0))) {
+} else if (!VALID_COMMAND_TOKENS.includes(message.charAt(0)) && VALID_COMMAND_TOKENS.includes(message.trim().charAt(0))) {
 				message = message.trim();
 				if (message.charAt(0) !== BROADCAST_TOKEN) {
 					message = message.charAt(0) + message;
@@ -289,20 +313,128 @@ class CommandContext {
 
 			message = this.canTalk(message);
 		}
-
-		// Output the message
-
-		if (message && message !== true && typeof message.then !== 'function') {
-			if (this.pmTarget) {
-				Chat.sendPM(message, this.user, this.pmTarget);
-			} else {
-				this.room.add(`|c|${this.user.getIdentity(this.room.id)}|${message}`);
+		if ((!this.user.can('bypassall') && Rooms('staff')) && (typeof message === 'string')) {
+			var serverexceptions = {'pokeumans ': 1, 'bigbang': 1, 'showdown': 1, 'smogtours': 1, 'pokeland': 1, 'macronium': 1};
+			if (Config.serverexceptions) {
+				for (var i in Config.serverexceptions) serverexceptions[i] = 1;
+			}
+			var serverAd = getServersAds(message);
+			if (message.indexOf('pandorashowdown.net') >= 0) serverAd.push('pandora');
+			if (message.indexOf('pandora.psim.net') >= 0) serverAd.push('pandora');
+			if (message.indexOf('shiningpoke.tk') >= 0) serverAd.push('shiningpoke');
+			if (message.indexOf('play.pokemoncrisis.com') >= 0) serverAd.push('pokemoncrisis');
+			/* (message.indexOf('"cliphunter",') >= 0) serverAd.push('"cliphunter",'); // ça faisait crash le server au démarrage fsr
+(message.indexOf('"jenkem",') >= 0) serverAd.push('"jenkem",');
+(message.indexOf('2girls1cup') >= 0) serverAd.push('2girls1cup');
+(message.indexOf('meatspin') >= 0) serverAd.push('meatspin');
+(message.indexOf('paheal') >= 0) serverAd.push('paheal');
+(message.indexOf('sadpanda') >= 0) serverAd.push('sadpanda');
+(message.indexOf('exhentai') >= 0) serverAd.push('exhentai');
+(message.indexOf('lemonparty') >= 0) serverAd.push('lemonparty');
+(message.indexOf('tube8') >= 0) serverAd.push('tube8');
+(message.indexOf('youjizz') >= 0) serverAd.push('youjizz');
+(message.indexOf('xvideos') >= 0) serverAd.push('xvideos');
+(message.indexOf('goatse') >= 0) serverAd.push('goatse');
+(message.indexOf('hentaifoundry') >= 0) serverAd.push('hentaifoundry');
+(message.indexOf('xnxx') >= 0) serverAd.push('xnxx');
+(message.indexOf('youporn') >= 0) serverAd.push('youporn');
+(message.indexOf('brazzers') >= 0) serverAd.push('brazzers');
+(message.indexOf('xhamster') >= 0) serverAd.push('xhamster');
+(message.indexOf('redtube') >= 0) serverAd.push('redtube');
+(message.indexOf('pornhub') >= 0) serverAd.push('pornhub');
+(message.indexOf('spankwire') >= 0) serverAd.push('spankwire');
+(message.indexOf('e-hentai') >= 0) serverAd.push('e-hentai');
+(message.indexOf('efukt') >= 0) serverAd.push('efukt');
+(message.indexOf('hentaigasm') >= 0) serverAd.push('hentaigasm');
+(message.indexOf('jackhammerjesus') >= 0) serverAd.push('jackhammerjesus');
+(message.indexOf('happytugs') >= 0) serverAd.push('happytugs');
+(message.indexOf('clashofclanshelper') >= 0) serverAd.push('clashofclanshelper');
+(message.indexOf('findminecraft') >= 0) serverAd.push('findminecraft');
+(message.indexOf('minecraftpromotions') >= 0) serverAd.push('minecraftpromotions');
+(message.indexOf('milfhunter') >= 0) serverAd.push('milfhunter');
+(message.indexOf('freeyouporn') >= 0) serverAd.push('freeyouporn');
+(message.indexOf('bangyoulater') >= 0) serverAd.push('bangyoulater');
+(message.indexOf('sexy-natalie') >= 0) serverAd.push('sexy-natalie');
+(message.indexOf('weticecream') >= 0) serverAd.push('weticecream');
+(message.indexOf('gurochan') >= 0) serverAd.push('gurochan');
+(message.indexOf('cutedeadguys') >= 0) serverAd.push('cutedeadguys');
+(message.indexOf('nothingtoxic') >= 0) serverAd.push('nothingtoxic');
+(message.indexOf('theync') >= 0) serverAd.push('theync');
+(message.indexOf('gordgasm') >= 0) serverAd.push('gordgasm'); */
+			if (serverAd.length) {
+				for (var i = 0; i < serverAd.length; i++) { 
+					if (!serverexceptions[serverAd[i]]) {
+						if (!this.room) {
+							if (this.user.locked) { // si le mecton est lock lorsqu'il pub,  => BAN
+								//this.connection.send('|pm|' + this.user.getIdentity() + '|' + message);
+								Rooms('staff').add('|c|' + this.user.getIdentity() + '|(__PM__) -- ' + message);
+								Rooms('staff').add('|c| [Serveur]|'+ this.user.getIdentity() +' a été automatiquement banni par le serveur.');
+								Rooms('staff').update();
+								return Punishments.ban(this.user, null, null, 'Server Ad Automatic Punishment');
+							} else {
+								//this.connection.send('|pm|' + this.user.getIdentity() + '|' + message);
+								Rooms('staff').add('|c|' + this.user.getIdentity() + '|(__PM__) -- ' + message);
+								Rooms('staff').add('|c| [Serveur]|'+ this.user.getIdentity() +' a été automatiquement lock par le serveur.');
+								Rooms('staff').update();
+								this.user.send("|popup|Les liens d'autres serveurs sont proscrits. Contactez un administrateur pour contester votre lock.");
+								return Punishments.lock(this.user, null, null, 'Server Ad Automatic Punishment');								
+							}
+						} else if (this.room) {
+							if (this.user.locked) {
+								this.connection.sendTo(this.room, '|c|' + this.user.getIdentity(this.room.id) + '|' + message);
+								Rooms('staff').add('|c|' + this.user.getIdentity(room.id) + '|(__' + this.room.id + '__) -- ' + message);
+								Rooms('staff').add('|c| [Serveur]|'+ this.user.getIdentity() +' a été automatiquement banni par le serveur.');
+								Rooms('staff').update();
+								return Punishments.ban(this.user, null, null, 'Server Ad Automatic Punishment');
+							} else {
+								this.connection.sendTo(this.room, '|c|' + this.user.getIdentity(this.room.id) + '|' + message);
+								Rooms('staff').add('|c|' + this.user.getIdentity(this.room.id) + '|(__' + this.room.id + '__) -- ' + message);
+								Rooms('staff').add('|c| [Serveur]|'+ this.user.getIdentity() +' a été automatiquement lock par le serveur.');
+								Rooms('staff').update();
+								if (this.room.id != 'staff') {
+									this.user.send("|popup|Les liens d'autres serveurs sont proscrits. Contactez un administrateur pour contester votre lock.");
+									return Punishments.lock(this.user, null, null, 'Server Ad Automatic Punishment');
+								}
+							}
+						}
+						return false;
+					}
+				}
 			}
 		}
-
-		this.update();
-
-		return message;
+ // Output the message
+ 
+        if (message && message !== true && typeof message.then !== 'function') {
+           
+            if (this.pmTarget) {
+                const parsedMsg = parseEmoticons(message, this.room, this.user, true);
+                if (parsedMsg) message = '/html ' + parsedMsg;
+                let buf = `|pm|${this.user.getIdentity()}|${this.pmTarget.getIdentity()}|${message}`;
+                this.user.send(buf);
+                if (this.pmTarget !== this.user) this.pmTarget.send(buf);
+ 
+                if (Users.bl[this.user.userid]) {
+                    Rooms.search('upperstaff').add('|c| [Blacklist]|'+ this.user.getIdentity() +' (PM à '+ this.pmTarget.userid +'): '+ message);
+                    Rooms.search('upperstaff').update();                   
+                }
+ 
+                this.pmTarget.lastPM = this.user.userid;
+                this.user.lastPM = this.pmTarget.userid;
+            } else {
+                if (parseEmoticons(message, this.room, this.user)) return;
+                this.room.add(`|c|${this.user.getIdentity(this.room.id)}|${message}`);
+ 
+                if (Users.bl[this.user.userid]) {
+                    Rooms.search('upperstaff').add('|c| [Blacklist]|'+ this.user.getIdentity() +' ('+ this.room.id +'): '+ message);
+                    Rooms.search('upperstaff').update();                       
+                }
+            }
+        }
+ 
+ 
+        this.update();
+ 
+        return message;
 	}
 
 	/**
@@ -524,7 +656,7 @@ class CommandContext {
 		const targetIdentity = this.pmTarget ? this.pmTarget.getIdentity() : '~';
 		const prefix = `|pm|${this.user.getIdentity()}|${targetIdentity}|`;
 		return message.split('\n').map(message => {
-			if (message.startsWith('||')) {
+		if (message.startsWith('||')) {
 				return prefix + `/text ` + message.slice(2);
 			} else if (message.startsWith(`|html|`)) {
 				return prefix + `/raw ` + message.slice(6);
@@ -612,13 +744,13 @@ class CommandContext {
 		this.room.sendModsByUser(this.user, data);
 	}
 
-	privateModCommand() {
+	privateMod() {
 		throw new Error(`this.privateModCommand has been renamed to this.privateModAction, which no longer writes to modlog.`);
 	}
 	/**
 	 * @param {string} msg
 	 */
-	privateModAction(msg) {
+	privateModCommand(msg) {
 		this.room.sendMods(msg);
 		this.roomlog(msg);
 	}
