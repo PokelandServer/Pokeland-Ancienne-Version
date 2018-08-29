@@ -71,7 +71,7 @@ exports.commands = {
 
 		var rep = '**'+ user.name +' a signalé**: '+ target.trim();
 
-		if (user.isStaff) return this.errorReply('Impossible de signaler quelqu\'un et/ou quelque chose en faisant partie du staff.')
+		if (user.isStaff) return this.errorReply('Impossible de signaler quelqu\'un et/ou quelque chose en faisant partie du staff. Pure crétin.')
 
 		Rooms.get('staff').add('|c| [Serveur]|' + rep);
 		Rooms.get('staff').update();
