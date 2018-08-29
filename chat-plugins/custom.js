@@ -84,6 +84,11 @@ exports.commands = {
 
 		this.parse('/eval this.add(' +target+ ');')
 	},
+			update: function(target, room, user) {
+		if (!this.can('eval')) return;
+
+		this.parse('/bush git pull')
+	},
 
 			/*champions : 'champions',
 			'!champions': true,
