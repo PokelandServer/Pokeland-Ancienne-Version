@@ -14,7 +14,7 @@ exports.commands = {
 		
 			this.sendReplyBox(
 				'<div style="max-height: 200px ; overflow-y: scroll"><font size="3pt"><justify><u><b><i>' + // menu scroll avec le max height
-				'Toutes les commandes du serveur</u></i> (Total: ' + arr.length + ')' +
+				'Toutes les commandes du serveur Pokéland</u></i> (Total: ' + arr.length + ')' +
 				'</b></justify></font><br /><br />' +
 				arr.join(', ') + 
 				'</div>'
