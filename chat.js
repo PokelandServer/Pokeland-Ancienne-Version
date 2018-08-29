@@ -44,6 +44,9 @@ const MAX_PARSE_RECURSION = 10;
 const VALID_COMMAND_TOKENS = '/!';
 const BROADCAST_TOKEN = '!';
 
+const FS = require('./lib/fs');
+
+
 const fs = require('fs');
 const path = require('path');
 const parseEmoticons = require('./chat-plugins/emoticons').parseEmoticons;
