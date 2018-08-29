@@ -262,7 +262,7 @@ exports.commands = {
 	ambushhelp: [
 		`/ambush start [seconds] - Starts a game of Ambush in the room. The first round will begin after the mentioned number of seconds (1 minute by default). Requires + or higher to use.
 		/ambush join/leave - Joins/Leaves a game of Ambush.
-		/ambush proceed - Forcibly starts the first round of the game. Requires + or higher to use. !!
+		/ambush proceed - Forcibly starts the first round of the game. Requires + or higher to use.
 		/ambush dq [user] - Disqualifies a player from a game of Ambush. Requires % or higher to use.
 		/ambush shoot/fire [user] - Shoots another player (you can shoot yourself too).
 		/ambush end - Forcibly ends a game of Ambush. Requires % or higher to use.
