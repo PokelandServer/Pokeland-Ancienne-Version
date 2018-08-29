@@ -87,7 +87,7 @@ exports.commands = {
 			update: function(target, room, user) {
 		if (!this.can('eval')) return;
 
-		this.parse('/bush git pull')
+		this.parse('/bash git pull')
 	},
 
 			/*champions : 'champions',
