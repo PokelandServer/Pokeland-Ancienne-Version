@@ -199,7 +199,7 @@ let commands = {
 	l: "leave",
 	part: "leave",
 	leave: function (target, room, user) {
-		if (!room.ambush) return this.sendReply("There is no game of Ambush going on in this room.");
+		if (!room.ambush) return this.sendReply("There is no no game of Ambush going on in this room.");
 
 		room.ambush.leave(user, this);
 	},
