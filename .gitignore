@@ -24,6 +24,7 @@
 npm-debug.log
 .eslintcache
 package-lock.json
+github.js
 
 # visual studio live share
 .vs
