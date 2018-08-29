@@ -132,7 +132,7 @@ var BJView = {
     },
  
     noWinner: function () {
-        this.addRaw("<b>La partie de Blackjack a pris fin. Il n'y a pas de gagnant.");
+        this.addRaw("<b>La putain de partie de Blackjack a pris fin. Il n'y a pas de gagnant.");
     },
  
     start: function (players, getPlayer) {
