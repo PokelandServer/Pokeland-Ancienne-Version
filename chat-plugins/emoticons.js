@@ -285,7 +285,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	':messi:': 'https://cdn.discordapp.com/emojis/464470584231723009.png?v=1',
 	':triggered:': 'https://image.noelshack.com/fichiers/2018/30/6/1532787295-bloggif-5b5633650149e.png',
 	'feelsouaf': 'https://cdn.discordapp.com/attachments/434757343943589888/474555786304159744/tenor-1.gif',
-	'#baltazar': 'https://i.imgur.com/6EB30Jt.png',
+	'#gaspar': 'https://i.imgur.com/6EB30Jt.png',
 	});
 }
 
