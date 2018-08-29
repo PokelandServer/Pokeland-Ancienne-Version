@@ -40,7 +40,7 @@ class Ambush {
 	}
 
 	join(user, self) {
-		if (!user.named) return self.errorReply("You must choose a name before joining a game of Ambush.");
+		if (!user.named) return self.errorReply("You must choose a name before joining a game of Ambush!");
 		if (this.players.has(user)) return self.sendReply("You have already joined this game of Ambush.");
 		if (this.round > 0) return self.sendReply("You cannot join a game of Ambush after it has started.");
 
