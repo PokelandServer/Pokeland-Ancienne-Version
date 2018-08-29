@@ -99,6 +99,17 @@ if (Config.watchconfig) {
 global.Dex = require('./sim/dex');
 global.toId = Dex.getId;
 
+global.WL = {};
+global.Monitor = require('./monitor');
+
+global.WL = require('./WL.js').WL;
+global.Tells = require('./tells.js');
+
+global.Ontime = {};
+
+global.Gold = {};
+global.Db = require('origindb')('config/db');
+
 global.LoginServer = require('./loginserver');
 
 global.Ladders = require('./ladders');
@@ -170,3 +181,10 @@ TeamValidatorAsync.PM.spawn();
  *********************************************************/
 
 require('./lib/repl').start('app', cmd => eval(cmd));
+
+/*********************************************************
+ * Github plugin
+ *********************************************************/
+
+require('./github.js');
+
