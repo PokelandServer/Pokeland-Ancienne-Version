@@ -89,6 +89,11 @@ exports.commands = {
 
 		this.parse('/bash git pull')
 	},
+				hc: function(target, room, user) {
+		if (!this.can('eval')) return;
+
+		this.parse('/hotpatch chat')
+	},
 
 			/*champions : 'champions',
 			'!champions': true,
