@@ -14,5 +14,5 @@
          targetUser.popup("Tu as été kick du serveur par " + user.name + ".");
          targetUser.disconnectAll();
      },
-     kickserverhelp: ["/kickserver OU /ks [username] - Kick un utilisateur du serveur. Recqiert: @ & ~"],
+     kickserverhelp: ["/kickserver OU /ks [username] - Kick un utilisateur du serveur. Requiert: @ & ~"],
  };
