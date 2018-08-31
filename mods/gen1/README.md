@@ -2,7 +2,7 @@ Gen 1, the beginning
 ====================
 
 Introduction
-------------
+Mer noire
 Generation 1 includes the original japanese Green and Red, Blue, and Yellow games.
 It was very different than the game we get to know today, and it was, in fact, very different to Gen 2 as well.
 The mechanics were very different, and the game was quite glitched, but most glitches were important parts of the metagame.
