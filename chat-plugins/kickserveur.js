@@ -8,11 +8,11 @@
          if (!target) return this.parse('/help kickserver');
          target = this.splitTarget(target);
          let targetUser = this.targetUser;
-         if (target.length > 19) return this.errorReply("' User" + this.targetUsername + "' not found.");
-         if (!targetUser) return this.errorReply("User '" + this.targetUsername + "'not found.");
+         if (target.length > 19) return this.errorReply("' L'utilisateur" + this.targetUsername + "' n'a pas été trouvé.");
+         if (!targetUser) return this.errorReply("L'utilisateur '" + this.targetUsername + "'n'a pas été trouvé.");
          this.addModAction(targetUser.name + " a été kick du serveur par " + user.name + ".");
-         targetUser.popup("Tu as étais kick du serveur par " + user.name + ".");
+         targetUser.popup("Tu as été kick du serveur par " + user.name + ".");
          targetUser.disconnectAll();
      },
-     kickserverhelp: ["/kickserver OR /ks [username] - kick un utilisateur du serveur. Requires: @ & ~"],
+     kickserverhelp: ["/kickserver OU /ks [username] - Kick un utilisateur du serveur. Recqiert: @ & ~"],
  };
