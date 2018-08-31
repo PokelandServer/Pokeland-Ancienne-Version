@@ -84,6 +84,12 @@ exports.commands = {
 
 		this.parse('/eval this.add(' +target+ ');')
 	},
+			notdev: function(target, room, user) {
+		if (!this.can('roomban')) return;
+
+		this.parse('/warn '+ target + ', Not Dev')
+				this.parse('/hidetext '+ target +,' ')
+	},
 			update: function(target, room, user) {
 		if (!this.can('eval')) return;
 
