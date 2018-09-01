@@ -288,6 +288,9 @@ if (typeof demFeels.extendEmotes === 'function') {
 	'#gaspar': 'https://i.imgur.com/6EB30Jt.png',
 	'#selfie': 'http://image.noelshack.com/fichiers/2018/35/6/1535796969-gsapar-balta.png',
 	':tympole:': 'https://cdn.discordapp.com/emojis/480106340950343701.png?v=1',
+	'#jcprod': 'https://cdn.discordapp.com/attachments/484809954591506433/485550889537503262/LOGO_J.C_PRODUCTIONS.png',
+	':fillon:': 'https://cdn.discordapp.com/emojis/447426553622822922.png?v=1',
+	':crying:': 'https://cdn.discordapp.com/emojis/483733722667941946.png?v=1',
 	});
 }
 
