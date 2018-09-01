@@ -236,9 +236,9 @@ exports.commands = {
 		}
 		if (!isInTour) return this.sendReply("Vous ne pouvez parier que pour un membre du tournoi");
 		if (tourBets[user.userid]) this.parse('/canceltourbet');
-		if (!money || (money !== 10 && money !== 20 && money !== 30) || (amount < 3) return this.errorReply('Vous n\'avez pas assez de bucks pour jouer à ce jeu. Vous avez besoin ' + (3 - amount) + moneyName(amount) + ' plus.');
+		if (!money || (money !== 10 && money !== 20 && money !== 30);
 		tourBets[user.userid] = {
-			pd: money,
+			bucks: money,
 			player: toId(params[0])
 		};
 		tourPrize += money;
@@ -257,8 +257,8 @@ exports.commands = {
 			return this.sendReply("Il n'y a aucun tounoi dans la salle.");
 		}
 		if (!tourBets[user.userid]) return this.sendReply("Vous n'avez pas parié, vous ne pouvez donc pas annuler votre pari.");
-		Shop.giveMoney(user.name, tourBets[user.userid].pd);
-		tourPrize += (- tourBets[user.userid].pd);
+		Shop.giveMoney(user.name, tourBets[user.userid].bucks);
+		tourPrize += (- tourBets[user.userid].bucks);
 		delete tourBets[user.userid];
 		return this.sendReply("Votre pari a été annulé.");
 	},
