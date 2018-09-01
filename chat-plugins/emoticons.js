@@ -287,6 +287,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	'feelsouaf': 'https://cdn.discordapp.com/attachments/434757343943589888/474555786304159744/tenor-1.gif',
 	'#gaspar': 'https://i.imgur.com/6EB30Jt.png',
 	'#selfie': 'http://image.noelshack.com/fichiers/2018/35/6/1535796969-gsapar-balta.png',
+	':tympole:': 'https://cdn.discordapp.com/emojis/480106340950343701.png?v=1',
 	});
 }
 
