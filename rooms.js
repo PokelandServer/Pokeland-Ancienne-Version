@@ -821,6 +821,15 @@ class GlobalRoom extends BasicRoom {
 		let initdata = '|updateuser|' + user.name + '|' + (user.named ? '1' : '0') + '|' + user.avatar + '\n';
 		connection.send(initdata + this.configRankList + this.formatListText);
 		if (this.chatRooms.length > 2) connection.send('|queryresponse|rooms|null'); // should display room list
+				if (this.poll) this.poll.onConnect(user, connection);
+		if (this.game && this.game.onConnect) this.game.onConnect(user, connection);
+		
+		//TEST
+		if (this.loto) user.sendTo(this.id, "|raw|"+ this.loto.infos());
+		if (this.rps) {
+			if (!this.rps.started) user.sendTo(this.id, "|raw|"+ this.rps.insInfos());
+		}
+		if
 	}
 	/**
 	 * @param {User} user
