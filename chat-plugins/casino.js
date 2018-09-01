@@ -236,7 +236,7 @@ exports.commands = {
 		}
 		if (!isInTour) return this.sendReply("Vous ne pouvez parier que pour un membre du tournoi");
 		if (tourBets[user.userid]) this.parse('/canceltourbet');
-		if (!money || (money !== 10 && money !== 20 && money !== 30);
+		if (!money || (money !== 10 && money !== 20 && money !== 30)
 		tourBets[user.userid] = {
 			bucks: money,
 			player: toId(params[0])
