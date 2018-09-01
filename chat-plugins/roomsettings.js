@@ -252,7 +252,7 @@ exports.commands = {
 			this.add(`|raw|<div class="broadcast-red"><strong>Moderated chat was set to ${modchatSetting}!</strong><br />Only users of rank ${modchatSetting} and higher can talk.</div>`);
 		}
 		if (room.battle && !room.modchat && !user.can('modchat')) room.requestModchat(null);
-		this.privateModAction(`(${user.name} set modchat to ${room.modchat})`);
+		this.privateModCommand(`(${user.name} set modchat to ${room.modchat})`);
 		this.modlog('MODCHAT', null, `to ${room.modchat}`);
 
 		if (room.chatRoomData) {
@@ -373,7 +373,7 @@ exports.commands = {
 			return this.parse("/help slowchat");
 		}
 		const slowchatSetting = (room.slowchat || "OFF");
-		this.privateModAction(`(${user.name} set slowchat to ${slowchatSetting})`);
+		this.privateModCommand(`(${user.name} set slowchat to ${slowchatSetting})`);
 		this.modlog('SLOWCHAT', null, slowchatSetting);
 
 		if (room.chatRoomData) {
@@ -406,7 +406,7 @@ exports.commands = {
 			return this.parse("/help stretchfilter");
 		}
 		const stretchSetting = (room.filterStretching ? "ON" : "OFF");
-		this.privateModAction(`(${user.name} turned the stretch filter ${stretchSetting})`);
+		this.privateModCommand(`(${user.name} turned the stretch filter ${stretchSetting})`);
 		this.modlog('STRETCH FILTER', null, stretchSetting);
 
 		if (room.chatRoomData) {
@@ -436,7 +436,7 @@ exports.commands = {
 			return this.parse("/help capsfilter");
 		}
 		const capsSetting = (room.filterCaps ? "ON" : "OFF");
-		this.privateModAction(`(${user.name} turned the caps filter ${capsSetting})`);
+		this.privateModCommand(`(${user.name} turned the caps filter ${capsSetting})`);
 		this.modlog('CAPS FILTER', null, capsSetting);
 
 		if (room.chatRoomData) {
@@ -466,7 +466,7 @@ exports.commands = {
 			return this.parse("/help emojifilter");
 		}
 		const emojiSetting = (room.filterEmojis ? "ON" : "OFF");
-		this.privateModAction(`(${user.name} turned the emoji filter ${emojiSetting})`);
+		this.privateModCommand(`(${user.name} turned the emoji filter ${emojiSetting})`);
 		this.modlog('EMOJI FILTER', null, emojiSetting);
 
 		if (room.chatRoomData) {
@@ -514,11 +514,11 @@ exports.commands = {
 			room.banwords = room.banwords.concat(words);
 			room.banwordRegex = null;
 			if (words.length > 1) {
-				this.privateModAction(`(The banwords ${words.map(w => `'${w}'`).join(', ')} were added by ${user.name}.)`);
+				this.privateModCommand(`(The banwords ${words.map(w => `'${w}'`).join(', ')} were added by ${user.name}.)`);
 				this.modlog('BANWORD', null, words.map(w => `'${w}'`).join(', '));
 				this.sendReply(`Banned phrases succesfully added.`);
 			} else {
-				this.privateModAction(`(The banword '${words[0]}' was added by ${user.name}.)`);
+				this.privateModCommand(`(The banword '${words[0]}' was added by ${user.name}.)`);
 				this.modlog('BANWORD', null, words[0]);
 				this.sendReply(`Banned phrase succesfully added.`);
 			}
@@ -549,11 +549,11 @@ exports.commands = {
 			if (!room.banwords.length) room.banwords = null;
 			room.banwordRegex = null;
 			if (words.length > 1) {
-				this.privateModAction(`(The banwords ${words.map(w => `'${w}'`).join(', ')} were removed by ${user.name}.)`);
+				this.privateModCommand(`(The banwords ${words.map(w => `'${w}'`).join(', ')} were removed by ${user.name}.)`);
 				this.modlog('UNBANWORD', null, words.map(w => `'${w}'`).join(', '));
 				this.sendReply(`Banned phrases succesfully deleted.`);
 			} else {
-				this.privateModAction(`(The banword '${words[0]}' was removed by ${user.name}.)`);
+				this.privateModCommand(`(The banword '${words[0]}' was removed by ${user.name}.)`);
 				this.modlog('UNBANWORD', null, words[0]);
 				this.sendReply(`Banned phrase succesfully deleted.`);
 			}
