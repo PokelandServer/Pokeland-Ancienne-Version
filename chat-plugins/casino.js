@@ -236,7 +236,7 @@ exports.commands = {
 		}
 		if (!isInTour) return this.sendReply("Vous ne pouvez parier que pour un membre du tournoi");
 		if (tourBets[user.userid]) this.parse('/canceltourbet');
-				if (!money || (money !== 10 && money !== 20 && money !== 30) || if (amount < 3) return this.errorReply('Vous n\'avez pas assez de bucks pour jouer à ce jeu. Vous avez besoin ' + (3 - amount) + moneyName(amount) + ' plus.');
+		if (!money || (money !== 10 && money !== 20 && money !== 30) || (amount < 3) return this.errorReply('Vous n\'avez pas assez de bucks pour jouer à ce jeu. Vous avez besoin ' + (3 - amount) + moneyName(amount) + ' plus.');
 		tourBets[user.userid] = {
 			pd: money,
 			player: toId(params[0])
