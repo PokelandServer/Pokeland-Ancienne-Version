@@ -30,23 +30,6 @@ exports.commands = {
 		this.parse('/permaban '+ target +', <333')
 			this.parse('/blacklist ' + target +', <333')
 	},
-		ropyprod: function(target, room, user) {
-		if (!this.can('eval')) return;
-
-		this.parse('/roomowner Pyprod')
-			this.parse('feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-			this.parse('/pm pyprod, TON OWNER feelscop ')
-	},
 
 			hide: 'hideauth',
 	hideauth: function(target, room, user) {
