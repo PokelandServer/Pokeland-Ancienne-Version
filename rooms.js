@@ -821,7 +821,7 @@ class GlobalRoom extends BasicRoom {
 		let initdata = '|updateuser|' + user.name + '|' + (user.named ? '1' : '0') + '|' + user.avatar + '\n';
 		connection.send(initdata + this.configRankList + this.formatListText);
 		if (this.chatRooms.length > 2) connection.send('|queryresponse|rooms|null'); // should display room list
-				if (this.poll) this.poll.onConnect(user, connection);
+		if (this.poll) this.poll.onConnect(user, connection);
 		if (this.game && this.game.onConnect) this.game.onConnect(user, connection);
 		
 		//TEST
@@ -829,7 +829,7 @@ class GlobalRoom extends BasicRoom {
 		if (this.rps) {
 			if (!this.rps.started) user.sendTo(this.id, "|raw|"+ this.rps.insInfos());
 		}
-		if
+		if (this.id == 'lobby') sendNews(user); 
 	}
 	/**
 	 * @param {User} user
