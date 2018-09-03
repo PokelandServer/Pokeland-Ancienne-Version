@@ -291,6 +291,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	'#jcprod': 'https://cdn.discordapp.com/attachments/484809954591506433/485550889537503262/LOGO_J.C_PRODUCTIONS.png',
 	':fillon:': 'https://cdn.discordapp.com/emojis/447426553622822922.png?v=1',
 	':crying:': 'https://cdn.discordapp.com/emojis/483733722667941946.png?v=1',
+	':issouka: ':'https://risibank.fr/cache/stickers/d578/57867-full.png',
 	});
 }
 
