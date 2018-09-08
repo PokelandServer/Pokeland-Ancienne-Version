@@ -292,6 +292,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	':fillon:': 'https://cdn.discordapp.com/emojis/447426553622822922.png?v=1',
 	':crying:': 'https://cdn.discordapp.com/emojis/483733722667941946.png?v=1',
 	':issouka:':'https://risibank.fr/cache/stickers/d578/57867-full.png',
+	':yeaok:' : 'https://cdn.discordapp.com/emojis/338908474027016194.png?v=1',
 	});
 }
 
