@@ -294,6 +294,9 @@ if (typeof demFeels.extendEmotes === 'function') {
 	':issouka:':'https://risibank.fr/cache/stickers/d578/57867-full.png',
 	':yeaok:' : 'https://cdn.discordapp.com/emojis/338908474027016194.png?v=1',
 		':sueur:' : 'http://image.noelshack.com/fichiers/2017/30/4/1501186885-risitasueurbestreup.png',
+	':ANGERY:' : 'https://cdn.discordapp.com/emojis/395628368596434945.png?v=1',
+	':thenkeng:' : 'https://cdn.discordapp.com/emojis/481391176818360321.png?v=1',
+	':thinking' : 'https://discordapp.com/assets/53ef346458017da2062aca5c7955946b.svg',
 	});
 }
 
