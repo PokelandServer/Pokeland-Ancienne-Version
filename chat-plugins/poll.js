@@ -14,7 +14,9 @@ function logPoll(message) {
 	let file = path.join(__dirname, '../logs/polls.txt');
 	let date = "[" + new Date().toUTCString() + "] ";
 	let msg = message + "\n";
-	fs.appendFile(file, date + msg);	
+	fs.appendFile(file, date + msg, err => {
+		console.log(err);
+	});	
 };
 
 class Poll {
