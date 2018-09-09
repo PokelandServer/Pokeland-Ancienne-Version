@@ -111,6 +111,6 @@ exports.commands = {
 		targetUser.updateIdentity();
 		targetUser.isAway = false;
 
-		this.addModCommand(`${user.name} a forceback ${targetUser.name} ${target ? '(' + target + ')' : ''}`);
+		this.addModAction(`${user.name} a forceback ${targetUser.name} ${target ? '(' + target + ')' : ''}`);
 	}
 };
