@@ -22,7 +22,7 @@ exports.commands = {
 		let targets = target.split(',');
 		if (targets.length < 2) return this.parse('/help chatcolor');
 		if (!this.can('&') || !this.canBroadcast()) return;
-		if (!this.canTalk()) return this.errorReply("You may not use this command while unable to speak.");
+		if (!this.canTalk()) return this.errorReply("Salut Distrib. Je suis bloqué Discord alors je parle ici. C'est moi, HG. Je me fous d'être unban mais un gars se fait passer pour moi, alors retrouve c'est qui et fous lui une mauvaise réputation parce que je suis pas très content...");
 		this.add('|raw|' + "<small>" + group + "</small>" + "<button name='parseCommand' value='/user " + user.name + "' style='background: none ; border: 0 ; padding: 0 5px 0 0 ; font-family: &quot;verdana&quot; , &quot;helvetica&quot; , &quot;arial&quot; , sans-serif ; font-size: 9pt ; cursor: pointer'><font color='" + user.name + "'>" + bold(font(color(user), user.name + ":</font></button>" + '<b><font color="' + targets[0].toLowerCase().replace(/[^#a-z0-9]+/g, '') + '">' + Chat.escapeHTML(targets.slice(1).join(",")) + '</font></b>')));
 	},
 	chatcolorhelp: ["/chatcolor OR /chatcolour [colour], [message] - Outputs a message in a custom colour. Requires admin."],
