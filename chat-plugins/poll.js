@@ -318,7 +318,7 @@ exports.commands = {
 
 			room.poll.end();
 			delete room.poll;
-			return this.privateModAction("(The poll was ended by " + user.name + ".)");
+			return this.privateModCommand("(The poll was ended by " + user.name + ".)");
 		},
 		endhelp: ["/poll end - Ends a poll and displays the results. Requires: % @ * # & ~"],
 
