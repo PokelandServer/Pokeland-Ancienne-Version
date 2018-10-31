@@ -298,8 +298,8 @@ if (typeof demFeels.extendEmotes === 'function') {
 	':thenkeng:' : 'https://cdn.discordapp.com/emojis/481391176818360321.png?v=1',
 	':thinking' : 'https://discordapp.com/assets/53ef346458017da2062aca5c7955946b.svg',
 	'#UWR' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019720-rose-quartz-by-sbrixynya-dawafu3.gif',
-	':Wailord:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019805-tinyfloatingwhale.gif',
-	':onion' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019812-d91.gif',
+	':wailord:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019805-tinyfloatingwhale.gif',
+	':onion:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019812-d91.gif',
 	});
 }
 
