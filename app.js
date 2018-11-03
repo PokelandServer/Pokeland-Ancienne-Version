@@ -124,6 +124,8 @@ global.Rooms = require('./rooms');
 
 global.Ontime = {};
 
+global.rankLadder = require('./rank-ladder');
+
 global.Verifier = require('./verifier');
 Verifier.PM.spawn();
 
