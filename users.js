@@ -908,6 +908,7 @@ class User {
 		}
 		Rooms.global.checkAutojoin(this);
 		Chat.loginfilter(this, null, userType);
+		Ontime[userid] = Date.now();
 		return true;
 	}
 	/**
