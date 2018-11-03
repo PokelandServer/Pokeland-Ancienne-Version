@@ -25,7 +25,7 @@ function displayTime(t) {
 exports.commands = {
 	'!ontime': true,
 	nolife: 'ontime',
-	userontime: 'ontime',
+	time: 'ontime',
 	ontime: function (target, room, user) {
 		if (!this.runBroadcast()) return;
 
@@ -46,7 +46,7 @@ exports.commands = {
 		}
 	},
 	nolifeladder: 'ontimeladder',
-	mostonline: 'ontimeladder',
+	timeladder: 'ontimeladder',
 	ontimeladder: function (target, room, user) {
 		if (!this.runBroadcast()) return;
 		let keys = Db('ontime').keys().map(name => {
