@@ -110,7 +110,6 @@ global.Ontime = {};
 global.Gold = {};
 global.Db = require('origindb')('config/db');
 
-
 global.LoginServer = require('./loginserver');
 
 global.Ladders = require('./ladders');
@@ -122,6 +121,8 @@ global.Punishments = require('./punishments');
 global.Chat = require('./chat');
 
 global.Rooms = require('./rooms');
+
+global.Ontime = {};
 
 global.Verifier = require('./verifier');
 Verifier.PM.spawn();
@@ -182,9 +183,3 @@ TeamValidatorAsync.PM.spawn();
  *********************************************************/
 
 require('./lib/repl').start('app', cmd => eval(cmd));
-
-/*********************************************************
- * Github plugin
- *********************************************************/
-
-require('./github.js');
