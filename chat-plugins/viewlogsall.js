@@ -14,29 +14,29 @@ const Autolinker = require('autolinker');
 const MAX_LINES = 1000;
 
 exports.commands = {
-	viewlogs: function (target, room, user) {
+	alllogs: function (target, room, user) {
 		if (target) {
 			let targets = target.split(',');
 			for (let u in targets) targets[u] = targets[u].trim();
-			if (!targets[1]) return this.errorReply("Please use /viewlogs with no target.");
+			if (!targets[1]) return this.errorReply("Please use /alllogs with no target.");
 			let back = '';
 			switch (toId(targets[0])) {
 			case 'month':
-				if (!targets[1]) return this.errorReply("Please use /viewlogs with no target.");
-				if (!permissionCheck(user, targets[1])) return this.errorReply("/viewlogs - Access denied.");
+				if (!targets[1]) return this.errorReply("Please use /alllogs with no target.");
+				if (!permissionCheck(user, targets[1])) return this.errorReply("/alllogs - Access denied.");
 				let months = fs.readdirSync('logs/chat/' + targets[1]);
-				back = '<button class="button" name="send" value="/viewlogs">Back</button> | ';
-				user.send("|popup||html|" + back + "Choose a month:" + generateTable(months, "/viewlogs date," + targets[1] + ","));
+				back = '<button class="button" name="send" value="/alllogs">Back</button> | ';
+				user.send("|popup||html|" + back + "Choose a month:" + generateTable(months, "/alllogs date," + targets[1] + ","));
 				return;
 			case 'date':
-				if (!targets[2]) return this.errorReply("Please use /viewlogs with no target.");
-				if (!permissionCheck(user, targets[1])) return this.errorReply("/viewlogs - Access denied.");
+				if (!targets[2]) return this.errorReply("Please use /alllogs with no target.");
+				if (!permissionCheck(user, targets[1])) return this.errorReply("/alllogs - Access denied.");
 				let days = fs.readdirSync('logs/chat/' + targets[1] + '/' + targets[2]);
-				back = '<button class="button" name="send" value="/viewlogs month,' + targets[1] + '">Back</button> | ';
-				user.send("|popup||html|" + back + "Choose a date:" + generateTable(days, "/viewlogspopup " + targets[1] + ","));
+				back = '<button class="button" name="send" value="/alllogs month,' + targets[1] + '">Back</button> | ';
+				user.send("|popup||html|" + back + "Choose a date:" + generateTable(days, "/alllogspopup " + targets[1] + ","));
 				return;
 			default:
-				this.errorReply("/viewlogs - Command not recognized.");
+				this.errorReply("/alllogs - Command not recognized.");
 				break;
 			}
 		}
@@ -76,23 +76,23 @@ exports.commands = {
 				unofficial.push(tarRoom.title);
 			}
 		});
-		if (official.length >= 1) output += roomHeader('Official Chatrooms:') + generateTable(official, '/viewlogs month,', true);
-		if (unofficial.length >= 1) output += roomHeader('Unofficial Chatrooms:') + generateTable(unofficial, '/viewlogs month,', true);
-		if (hidden.length >= 1) output += roomHeader('Hidden Chatrooms:') + generateTable(hidden, '/viewlogs month,', true);
-		if (secret.length >= 1) output += roomHeader('Secret Chatrooms:') + generateTable(secret, '/viewlogs month,', true);
-		if (roomList.length >= 1) output += '<details><summary>' + roomHeader('Rooms formerly on the server:') + '</summary>' + generateTable(roomList, '/viewlogs month,', true) + '</details>';
-		if (groupChats.length >= 1) output += '<details><summary>' + roomHeader('All Group chats:') + '</summary>' + generateTable(groupChats, '/viewlogs month,') + '</details>';
+		if (official.length >= 1) output += roomHeader('Official Chatrooms:') + generateTable(official, '/alllogs month,', true);
+		if (unofficial.length >= 1) output += roomHeader('Unofficial Chatrooms:') + generateTable(unofficial, '/alllogs month,', true);
+		if (hidden.length >= 1) output += roomHeader('Hidden Chatrooms:') + generateTable(hidden, '/alllogs month,', true);
+		if (secret.length >= 1) output += roomHeader('Secret Chatrooms:') + generateTable(secret, '/alllogs month,', true);
+		if (roomList.length >= 1) output += '<details><summary>' + roomHeader('Rooms formerly on the server:') + '</summary>' + generateTable(roomList, '/alllogs month,', true) + '</details>';
+		if (groupChats.length >= 1) output += '<details><summary>' + roomHeader('All Group chats:') + '</summary>' + generateTable(groupChats, '/alllogs month,') + '</details>';
 		user.send("|popup||wide||html|" + output);
 	},
 
-	viewlogspopup: 'viewlogs2',
-	viewlogs2: function (target, room, user, connection, cmd) {
-		if (!target) return this.sendReply("Usage: /viewlogs [room], [year-month-day / 2014-12-08] - Provides you with a temporary link to view the target rooms chat logs.");
+	alllogspopup: 'alllogs2',
+	alllogs2: function (target, room, user, connection, cmd) {
+		if (!target) return this.sendReply("Usage: /alllogs [room], [year-month-day / 2014-12-08] - Provides you with a temporary link to view the target rooms chat logs.");
 		let targetSplit = target.split(',');
-		if (!targetSplit[1]) return this.sendReply("Usage: /viewlogs [room], [year-month-day / 2014-12-08] -Provides you with a temporary link to view the target rooms chat logs.");
+		if (!targetSplit[1]) return this.sendReply("Usage: /alllogs [room], [year-month-day / 2014-12-08] -Provides you with a temporary link to view the target rooms chat logs.");
 		for (let u in targetSplit) targetSplit[u] = targetSplit[u].trim();
 		let targetRoom = targetSplit[0];
-		if (!permissionCheck(user, targetRoom)) return this.errorReply("/viewlogs - Access denied.");
+		if (!permissionCheck(user, targetRoom)) return this.errorReply("/alllogs - Access denied.");
 		let date;
 		if (toId(targetSplit[1]) === 'today' || toId(targetSplit[1]) === 'yesterday') {
 			date = new Date();
@@ -101,12 +101,12 @@ exports.commands = {
 		}
 		date = targetSplit[1].replace(/\.txt/, '');
 		let splitDate = date.split('-');
-		if (splitDate.length < 3) return this.sendReply("Usage: /viewlogs [room], [year-month-day / 2014-12-08] -Provides you with a temporary link to view the target rooms chat logs.");
+		if (splitDate.length < 3) return this.sendReply("Usage: /alllogs [room], [year-month-day / 2014-12-08] -Provides you with a temporary link to view the target rooms chat logs.");
 
 		fs.readFile('logs/chat/' + targetRoom.toLowerCase() + '/' + splitDate[0] + '-' + splitDate[1] + '/' + date + '.txt', 'utf8', (err, data) => {
 			if (err && err.code === "ENOENT") return user.send("|popup||html|<font color=\"red\">No logs found.</font>");
-			if (err) return this.errorReply("/viewlogs - Error: " + err);
-			fs.appendFileSync('logs/viewlogs.log', '[' + new Date().toUTCString() + '] ' + user.name + " viewed the logs of " + toId(targetRoom) + ". Date: " + date + '\n');
+			if (err) return this.errorReply("/alllogs - Error: " + err);
+			fs.appendFileSync('logs/alllogs.log', '[' + new Date().toUTCString() + '] ' + user.name + " viewed the logs of " + toId(targetRoom) + ". Date: " + date + '\n');
 			let filename = require('crypto').randomBytes(4).toString('hex');
 
 			if (!user.can('warn', null, Rooms(targetRoom))) {
@@ -117,8 +117,8 @@ exports.commands = {
 				data = lines.join('\n');
 			}
 
-			if (cmd === 'viewlogspopup') {
-				let back = '<button class="button" name="send" value="/viewlogs date,' + targetRoom + ',' + date.substr(0, 7) + '">Back</button> | ';
+			if (cmd === 'alllogspopup') {
+				let back = '<button class="button" name="send" value="/alllogs date,' + targetRoom + ',' + date.substr(0, 7) + '">Back</button> | ';
 				let output = back + 'Displaying room logs of room "' + Chat.escapeHTML(targetRoom) + '" on ' + Chat.escapeHTML(date) + '<br />';
 				data = data.split('\n');
 				for (let u in data) {
@@ -133,7 +133,7 @@ exports.commands = {
 			data = targetRoom + "|" + date + "|" + fs.readFileSync('config/customcolors.json', 'utf8') + "\n" + data;
 
 			fs.writeFile('static/logs/' + filename, data, err => {
-				if (err) return this.errorReply("/viewlogs - " + err);
+				if (err) return this.errorReply("/alllogs - " + err);
 				this.sendReply(
 					"|raw|You can view the logs at <a href=\"http://goldservers.info:" + Config.port +
 					"/logs/logviewer.html?file=" + filename + "\">http://goldservers.info:" + Config.port +
@@ -198,8 +198,8 @@ exports.commands = {
 				return this.errorReply(`Room "${target}" not found - check spelling?`);
 			}
 		}
-		const today = `<button class="button" name="send" value="/viewlogspopup ${tarRoom.id},${moment().format('YYYY-MM-DD')}.txt">${tarRoom} roomlog for today</button>`;
-		const past = `<button class="button" name="send" value="/viewlogs month,${(tarRoom.isPrimal ? tarRoom.title : tarRoom)}">past</button>`;
+		const today = `<button class="button" name="send" value="/alllogspopup ${tarRoom.id},${moment().format('YYYY-MM-DD')}.txt">${tarRoom} roomlog for today</button>`;
+		const past = `<button class="button" name="send" value="/alllogspopup month,${(tarRoom.isPrimal ? tarRoom.title : tarRoom)}">past</button>`;
 		return this.sendReplyBox(`${today} | ${past}`);
 	},
 	roomlogshelp: ["/roomlogs [room] - Shows buttons to view the chatroom logs of [room]."],
