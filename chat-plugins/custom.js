@@ -7,7 +7,7 @@ exports.commands = {
 		target = this.splitTarget(target);
 		var targetUser = this.targetUser;
 
-		if (!targetUser) return this.sendReply('/sendpopup [user], [message] - Vous avez manqué l utilisateur.');
+		if (!targetUser) return this.sendReply('/sendpopup [user], [message] - Vous avez manqué l utilisateur!');
 		if (!target) return this.sendReply('/sendpopup [user], [message] - vous avez manqué le message');
 
 		targetUser.popup(target);
