@@ -27,7 +27,7 @@ let proxyWhitelist = Config.proxyWhitelist || false;*/
 /*********************
  * Namefilter Magic *
  * ******************/
-/*try {
+try {
 	Config.bannedNames = fs.readFileSync('config/bannednames.txt', 'utf8').toLowerCase().split('\n');
 } catch (e) {
 	Config.bannedNames = [];
@@ -109,12 +109,12 @@ function trustedHack(name) {
 	let rankIndex = (Config.groupsranking.includes(userSymbol) ? Config.groupsranking.indexOf(userSymbol) : false);
 	if (rankIndex && rankIndex > 0) return true;
 	return false;
-}*/
+}
 
 /*********************
  * Hostfilter Magic *
  * ******************/
-/*Gold.lockedHosts = Object.create(null);
+Gold.lockedHosts = Object.create(null);
 
 function loadHostBlacklist() {
 	fs.readFile('config/lockedhosts.json', 'utf8', function (err, file) {
@@ -277,4 +277,4 @@ exports.commands = {
 		"/autolockspam on - Enables automatically locking spammers in the current room. Requires: & ~",
 		"/autolockspam off - Disables automatically locking spammers in the current room. Requires: & ~",
 	],
-};*/
+};
