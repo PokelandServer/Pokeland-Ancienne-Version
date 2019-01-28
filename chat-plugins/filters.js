@@ -8,7 +8,7 @@
  *
  * @license MIT license
  */
-/*'use strict';
+'use strict';
 
 const fs = require('fs');
 
@@ -17,7 +17,7 @@ let adRegex = new RegExp("(play.pokemonshowdown.com\\/~~)(?!(" + adWhitelist.joi
 
 let bannedMessages = Config.bannedMessages ? Config.bannedMessages : [];
 
-let proxyWhitelist = Config.proxyWhitelist || false;*/
+let proxyWhitelist = Config.proxyWhitelist || false;
 
 /*********************
  * Chatfilter Magic *
