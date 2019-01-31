@@ -229,7 +229,17 @@ exports.commands = {
 			this.add("|c|~bot|,c /tour join")
 			}
 		},		
-		wailordstreamout: function(target, room, user) {
+		endnewindigo: function(target, room, user) {
+		if ((user.userid == 'vextal') || (this.can('kill'))) {
+		this.add('|raw|<div class="broadcast-blue"><b>C\'est la fin du live de New Indigo</b></div>')}
+		},	
+		newindigo: function(target, room, user) {
+
+								if ((user.userid == 'vextal') || (this.can('kill'))) {
+			this.add('|raw|<div class="broadcast-blue"><b>New Indigo est en stream , n\'hésite pas à aller jeter un coup d\' œil à <a href="https://www.youtube.com/channel/UC7j0YTLd_K4xMa2k5jKhQTg" target="_blank" rel="noopener">https://www.youtube.com/channel/UC7j0YTLd_K4xMa2k5jKhQTg</a></b></div>')
+			}
+		},	
+	wailordstreamout: function(target, room, user) {
 		if ((user.userid == 'unwailordrandom') || (this.can('kill'))) {
 		this.add('|raw|<div class="broadcast-blue"><b>C\'est la fin du live de UnWailordRandom</b></div>')}
 		},	
