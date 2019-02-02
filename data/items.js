@@ -415,9 +415,10 @@ let BattleItems = {
 		},
 		onTryHealPriority: 1,
 		onTryHeal: function (damage, target, source, effect) {
+			/**@type {{[k: string]: number}} */
 			let heals = {drain: 1, leechseed: 1, ingrain: 1, aquaring: 1, strengthsap: 1};
 			if (heals[effect.id]) {
-				return Math.ceil((damage * 1.3) - 0.5); // Big Root rounds half down
+				return this.chainModify([0x14CC, 0x1000]);
 			}
 		},
 		num: 296,
@@ -563,7 +564,7 @@ let BattleItems = {
 	},
 	"brightpowder": {
 		id: "brightpowder",
-		name: "BrightPowder",
+		name: "Bright Powder",
 		spritenum: 51,
 		fling: {
 			basePower: 10,
@@ -1015,7 +1016,6 @@ let BattleItems = {
 	"custapberry": {
 		id: "custapberry",
 		name: "Custap Berry",
-		isUnreleased: true,
 		spritenum: 86,
 		isBerry: true,
 		naturalGift: {
@@ -1540,7 +1540,6 @@ let BattleItems = {
 	"enigmaberry": {
 		id: "enigmaberry",
 		name: "Enigma Berry",
-		isUnreleased: true,
 		spritenum: 124,
 		isBerry: true,
 		naturalGift: {
@@ -2577,6 +2576,7 @@ let BattleItems = {
 			basePower: 130,
 		},
 		onEffectiveness: function (typeMod, target, type, move) {
+			if (!target) return;
 			if (target.volatiles['ingrain'] || target.volatiles['smackdown'] || this.getPseudoWeather('gravity')) return;
 			if (move.type === 'Ground' && target.hasType('Flying')) return 0;
 		},
@@ -2613,7 +2613,6 @@ let BattleItems = {
 	"jabocaberry": {
 		id: "jabocaberry",
 		name: "Jaboca Berry",
-		isUnreleased: true,
 		spritenum: 230,
 		isBerry: true,
 		naturalGift: {
@@ -2899,27 +2898,14 @@ let BattleItems = {
 		},
 		onUpdate: function (pokemon) {
 			if (!pokemon.hp) return;
-			let moveSlot = pokemon.lastMove && pokemon.getMoveData(pokemon.lastMove.id);
-			if (moveSlot && moveSlot.pp === 0) {
-				pokemon.addVolatile('leppaberry');
-				pokemon.volatiles['leppaberry'].moveSlot = moveSlot;
+			if (pokemon.moveSlots.some(move => move.pp === 0)) {
 				pokemon.eatItem();
 			}
 		},
 		onEat: function (pokemon) {
-			let moveSlot;
-			if (pokemon.volatiles['leppaberry']) {
-				moveSlot = pokemon.volatiles['leppaberry'].moveSlot;
-				pokemon.removeVolatile('leppaberry');
-			} else {
-				let pp = 99;
-				for (const possibleMoveSlot of pokemon.moveSlots) {
-					if (possibleMoveSlot.pp < pp) {
-						moveSlot = possibleMoveSlot;
-						pp = moveSlot.pp;
-					}
-				}
-			}
+			let moveSlot = pokemon.moveSlots.find(move => move.pp === 0) ||
+				pokemon.moveSlots.find(move => move.pp < move.maxpp);
+			if (!moveSlot) return;
 			moveSlot.pp += 10;
 			if (moveSlot.pp > moveSlot.maxpp) moveSlot.pp = moveSlot.maxpp;
 			this.add('-activate', pokemon, 'item: Leppa Berry', moveSlot.move, '[consumed]');
@@ -3545,7 +3531,6 @@ let BattleItems = {
 	"micleberry": {
 		id: "micleberry",
 		name: "Micle Berry",
-		isUnreleased: true,
 		spritenum: 290,
 		isBerry: true,
 		naturalGift: {
@@ -4259,6 +4244,8 @@ let BattleItems = {
 		onChargeMove: function (pokemon, target, move) {
 			if (pokemon.useItem()) {
 				this.debug('power herb - remove charge turn for ' + move.id);
+				this.attrLastMove('[still]');
+				this.addMove('-anim', pokemon, move.name, target);
 				return false; // skip charge turn
 			}
 		},
@@ -4846,7 +4833,6 @@ let BattleItems = {
 	"rowapberry": {
 		id: "rowapberry",
 		name: "Rowap Berry",
-		isUnreleased: true,
 		spritenum: 420,
 		isBerry: true,
 		naturalGift: {
@@ -5435,6 +5421,7 @@ let BattleItems = {
 			}
 			if (stats.length) {
 				let randomStat = this.sample(stats);
+				/**@type {{[k: string]: number}} */
 				let boost = {};
 				boost[randomStat] = 2;
 				this.boost(boost);
@@ -5972,6 +5959,7 @@ let BattleItems = {
 			basePower: 10,
 			effect: function (pokemon) {
 				let activate = false;
+				/**@type {{[k: string]: number}} */
 				let boosts = {};
 				for (let i in pokemon.boosts) {
 					// @ts-ignore
@@ -5988,6 +5976,7 @@ let BattleItems = {
 		},
 		onUpdate: function (pokemon) {
 			let activate = false;
+			/**@type {{[k: string]: number}} */
 			let boosts = {};
 			for (let i in pokemon.boosts) {
 				// @ts-ignore
