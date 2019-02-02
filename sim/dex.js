@@ -61,7 +61,7 @@ const DATA_FILES = {
 	'Natures': 'natures',
 };
 
-const nullEffect = new Data.PureEffect({name: '', exists: false});
+const nullEffect = /** @type {PureEffect} */ (new Data.PureEffect({name: '', exists: false}));
 
 /** @typedef {{id: string, name: string, [k: string]: any}} DexTemplate */
 
@@ -307,10 +307,9 @@ class ModdedDex {
 		let template = this.getTemplate(id);
 		if (template.otherForms && template.otherForms.indexOf(id) >= 0) {
 			let form = id.slice(template.species.length);
-			return template.species + '-' + form[0].toUpperCase() + form.slice(1);
-		} else {
-			return template.species;
+			if (form) return template.species + '-' + form[0].toUpperCase() + form.slice(1);
 		}
+		return template.species;
 	}
 
 	/**
@@ -328,6 +327,7 @@ class ModdedDex {
 		} else if (id === 'nidoran' && name.slice(-1) === '♂') {
 			id = 'nidoranm';
 		}
+		/** @type {any} */
 		let template = this.templateCache.get(id);
 		if (template) return template;
 		if (this.data.Aliases.hasOwnProperty(id)) {
@@ -442,38 +442,45 @@ class ModdedDex {
 	 * Ensure we're working on a copy of a move (and make a copy if we aren't)
 	 *
 	 * Remember: "ensure" - by default, it won't make a copy of a copy:
-	 *     moveCopy === Dex.getMoveCopy(moveCopy)
+	 *     moveCopy === Dex.getActiveMove(moveCopy)
 	 *
 	 * If you really want to, use:
-	 *     moveCopyCopy = Dex.getMoveCopy(moveCopy.id)
+	 *     moveCopyCopy = Dex.getActiveMove(moveCopy.id)
 	 *
 	 * @param {Move | string} move - Move ID, move object, or movecopy object describing move to copy
-	 * @return {Move} movecopy object
+	 * @return {ActiveMove}
 	 */
-	getMoveCopy(move) {
+	getActiveMove(move) {
 		// @ts-ignore
-		if (move && move.isCopy) return move;
+		if (move && typeof move.hit === 'number') return move;
 		move = this.getMove(move);
-		let moveCopy = this.deepClone(move);
-		moveCopy.isCopy = true;
+		let moveCopy = /** @type {ActiveMove} */ (this.deepClone(move));
+		moveCopy.hit = 0;
 		return moveCopy;
 	}
 	/**
+	 * While this function can technically return any kind of effect at
+	 * all, that's not a feature TypeScript needs to know about.
+	 *
 	 * @param {?string | Effect} [name]
-	 * @return {Effect}
+	 * @return {PureEffect}
 	 */
 	getEffect(name) {
 		if (!name) {
 			return nullEffect;
 		}
 		if (typeof name !== 'string') {
+			// @ts-ignore
 			return name;
 		}
 		if (name.startsWith('move:')) {
+			// @ts-ignore
 			return this.getMove(name.slice(5));
 		} else if (name.startsWith('item:')) {
+			// @ts-ignore
 			return this.getItem(name.slice(5));
 		} else if (name.startsWith('ability:')) {
+			// @ts-ignore
 			return this.getAbility(name.slice(8));
 		}
 		let id = toId(name);
@@ -498,6 +505,7 @@ class ModdedDex {
 		} else {
 			effect = new Data.PureEffect({name, exists: false});
 		}
+		// @ts-ignore
 		return effect;
 	}
 	/**
@@ -670,6 +678,22 @@ class ModdedDex {
 		return nature;
 	}
 	/**
+	 * @param {PokemonSet} set
+	 * @param {string} [statName]
+	 */
+	getAwakeningValues(set, statName) {
+		if (typeof statName === 'string') statName = toId(statName);
+		/** @type {StatsTable} */
+		let avs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+		for (let ev in set.evs) {
+			// @ts-ignore
+			avs[ev] = set.evs[ev];
+		}
+		// @ts-ignore
+		if (typeof statName === 'string' && statName in avs) return avs[statName];
+		return avs;
+	}
+	/**
 	 * Given a table of base stats and a pokemon set, return the actual stats.
 	 * @param {StatsTable} baseStats
 	 * @param {PokemonSet} set
@@ -688,15 +712,15 @@ class ModdedDex {
 			let stat = baseStats['hp'];
 			modStats['hp'] = Math.floor(Math.floor(2 * stat + set.ivs['hp'] + Math.floor(set.evs['hp'] / 4) + 100) * set.level / 100 + 10);
 		}
-		return this.natureModify(modStats, set.nature);
+		return this.natureModify(modStats, set);
 	}
 	/**
 	 * @param {StatsTable} stats
-	 * @param {string | AnyObject} nature
+	 * @param {PokemonSet} set
 	 * @return {StatsTable}
 	 */
-	natureModify(stats, nature) {
-		nature = this.getNature(nature);
+	natureModify(stats, set) {
+		let nature = this.getNature(set.nature);
 		// @ts-ignore
 		if (nature.plus) stats[nature.plus] = Math.floor(stats[nature.plus] * 1.1);
 		// @ts-ignore
@@ -787,9 +811,8 @@ class ModdedDex {
 			if ("!+-".includes(ruleSpec.charAt(0))) {
 				if (ruleSpec.charAt(0) === '+' && ruleTable.has('-' + ruleSpec.slice(1))) {
 					ruleTable.delete('-' + ruleSpec.slice(1));
-				} else {
-					ruleTable.set(ruleSpec, '');
 				}
+				ruleTable.set(ruleSpec, '');
 				continue;
 			}
 			const subformat = this.getFormat(ruleSpec);
@@ -892,7 +915,7 @@ class ModdedDex {
 				// valid pokemontags
 				const validTags = [
 					// singles tiers
-					'uber', 'ou', 'uubl', 'uu', 'rubl', 'ru', 'nubl', 'nu', 'publ', 'pu', 'nfe', 'lcuber', 'lc', 'cap', 'caplc', 'capnfe',
+					'uber', 'ou', 'uubl', 'uu', 'rubl', 'ru', 'nubl', 'nu', 'publ', 'pu', 'zu', 'nfe', 'lcuber', 'lc', 'cap', 'caplc', 'capnfe',
 					//doubles tiers
 					'duber', 'dou', 'dbl', 'duu',
 					// custom tags
@@ -1041,21 +1064,21 @@ class ModdedDex {
 			return false;
 		}
 
-		/** @type {DataType[]} */
 		searchIn = searchIn || ['Pokedex', 'Movedex', 'Abilities', 'Items', 'Natures'];
 
 		let searchFunctions = {Pokedex: 'getTemplate', Movedex: 'getMove', Abilities: 'getAbility', Items: 'getItem', Natures: 'getNature'};
 		let searchTypes = {Pokedex: 'pokemon', Movedex: 'move', Abilities: 'ability', Items: 'item', Natures: 'nature'};
 		/** @type {AnyObject[] | false} */
 		let searchResults = [];
-		for (const result of searchIn) {
+		for (const table of searchIn) {
 			/** @type {AnyObject} */
 			// @ts-ignore
-			let res = this[searchFunctions[result]](target);
+			let res = this[searchFunctions[table]](target);
 			if (res.exists && res.gen <= this.gen) {
 				searchResults.push({
 					isInexact: isInexact,
-					searchType: searchTypes[result],
+					// @ts-ignore
+					searchType: searchTypes[table],
 					name: res.species ? res.species : res.name,
 				});
 			}
@@ -1077,8 +1100,9 @@ class ModdedDex {
 			maxLd = 2;
 		}
 		searchResults = false;
-		for (let i = 0; i <= searchIn.length; i++) {
-			let searchObj = this.data[searchIn[i] || 'Aliases'];
+		for (const table of [...searchIn, 'Aliases']) {
+			// @ts-ignore
+			let searchObj = this.data[table];
 			if (!searchObj) {
 				continue;
 			}
@@ -1338,11 +1362,12 @@ class ModdedDex {
 	 * @return {any}
 	 */
 	deepClone(obj) {
-		if (typeof obj === 'function') return obj;
 		if (obj === null || typeof obj !== 'object') return obj;
+		// @ts-ignore
 		if (Array.isArray(obj)) return obj.map(prop => this.deepClone(prop));
 		const clone = Object.create(Object.getPrototypeOf(obj));
 		for (const key of Object.keys(obj)) {
+			// @ts-ignore
 			clone[key] = this.deepClone(obj[key]);
 		}
 		return clone;
@@ -1423,11 +1448,14 @@ class ModdedDex {
 		// @ts-ignore
 		for (const dataType of DATA_TYPES.concat('Aliases')) {
 			if (dataType === 'Natures' && this.isBase) {
+				// @ts-ignore
 				dataCache[dataType] = BattleNatures;
 				continue;
 			}
 			let BattleData = this.loadDataFile(basePath, dataType);
+			// @ts-ignore
 			if (!BattleData || typeof BattleData !== 'object') throw new TypeError("Exported property `Battle" + dataType + "`from `" + './data/' + DATA_FILES[dataType] + "` must be an object except `null`.");
+			// @ts-ignore
 			if (BattleData !== dataCache[dataType]) dataCache[dataType] = Object.assign(BattleData, dataCache[dataType]);
 			if (dataType === 'Formats' && !parentDex) Object.assign(BattleData, this.formats);
 		}
@@ -1437,6 +1465,7 @@ class ModdedDex {
 		} else {
 			for (const dataType of DATA_TYPES) {
 				const parentTypedData = parentDex.data[dataType];
+				// @ts-ignore
 				const childTypedData = dataCache[dataType] || (dataCache[dataType] = {});
 				for (let entryId in parentTypedData) {
 					if (childTypedData[entryId] === null) {
@@ -1464,10 +1493,12 @@ class ModdedDex {
 					}
 				}
 			}
+			// @ts-ignore
 			dataCache['Aliases'] = parentDex.data['Aliases'];
 		}
 
 		// Flag the generation. Required for team validator.
+		// @ts-ignore
 		this.gen = dataCache.Scripts.gen || 7;
 		// @ts-ignore
 		this.dataCache = dataCache;
