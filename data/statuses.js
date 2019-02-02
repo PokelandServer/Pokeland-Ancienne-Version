@@ -187,12 +187,13 @@ let BattleStatuses = {
 				return;
 			}
 			this.activeTarget = pokemon;
-			this.damage(this.getDamage(pokemon, pokemon, 40), pokemon, pokemon, {
+			let damage = this.getDamage(pokemon, pokemon, 40);
+			if (typeof damage !== 'number') throw new Error("Confusion damage not dealt");
+			this.damage(damage, pokemon, pokemon, /** @type {ActiveMove} */ ({
 				id: 'confused',
 				effectType: 'Move',
-				// @ts-ignore
 				type: '???',
-			});
+			}));
 			return false;
 		},
 	},
@@ -234,7 +235,7 @@ let BattleStatuses = {
 		num: 0,
 		duration: 5,
 		durationCallback: function (target, source) {
-			if (source.hasItem('gripclaw')) return 8;
+			if (source && source.hasItem('gripclaw')) return 8;
 			return this.random(5, 7);
 		},
 		onStart: function (pokemon, source) {
@@ -244,6 +245,7 @@ let BattleStatuses = {
 		onResidual: function (pokemon) {
 			if (this.effectData.source && (!this.effectData.source.isActive || this.effectData.source.hp <= 0 || !this.effectData.source.activeTurns)) {
 				delete pokemon.volatiles['partiallytrapped'];
+				this.add('-end', pokemon, this.effectData.sourceEffect, '[partiallytrapped]', '[silent]');
 				return;
 			}
 			if (this.effectData.source.hasItem('bindingband')) {
@@ -298,6 +300,7 @@ let BattleStatuses = {
 		onStart: function (target, source, effect) {
 			this.effectData.move = effect.id;
 			target.addVolatile(effect.id, source);
+			this.attrLastMove('[still]');
 		},
 		onEnd: function (target) {
 			target.removeVolatile(this.effectData.move);
@@ -391,8 +394,8 @@ let BattleStatuses = {
 
 				// time's up; time to hit! :D
 				const move = this.getMove(posData.move);
-				if (target.fainted) {
-					this.add('-hint', '' + move.name + ' did not hit because the target is fainted.');
+				if (target.fainted || target === posData.source) {
+					this.add('-hint', '' + move.name + ' did not hit because the target is ' + (target.fainted ? 'fainted' : 'the user') + '.');
 					this.effectData.positions[i] = null;
 					continue;
 				}
@@ -403,6 +406,12 @@ let BattleStatuses = {
 
 				if (posData.source.hasAbility('infiltrator') && this.gen >= 6) {
 					posData.moveData.infiltrates = true;
+				}
+				if (posData.source.hasAbility('normalize') && this.gen >= 6) {
+					posData.moveData.type = 'Normal';
+				}
+				if (posData.source.hasAbility('adaptability') && this.gen >= 6) {
+					posData.moveData.stab = 2;
 				}
 				const hitMove = new this.Data.Move(posData.moveData);
 
@@ -520,10 +529,12 @@ let BattleStatuses = {
 		num: 0,
 		effectType: 'Weather',
 		duration: 0,
-		onTryMove: function (target, source, effect) {
-			if (effect.type === 'Fire' && effect.category !== 'Status') {
+		onTryMovePriority: 1,
+		onTryMove: function (attacker, defender, move) {
+			if (move.type === 'Fire' && move.category !== 'Status') {
 				this.debug('Primordial Sea fire suppress');
-				this.add('-fail', source, effect, '[from] Primordial Sea');
+				this.add('-fail', attacker, move, '[from] Primordial Sea');
+				this.attrLastMove('[still]');
 				return null;
 			}
 		},
@@ -593,10 +604,12 @@ let BattleStatuses = {
 		num: 0,
 		effectType: 'Weather',
 		duration: 0,
-		onTryMove: function (target, source, effect) {
-			if (effect.type === 'Water' && effect.category !== 'Status') {
+		onTryMovePriority: 1,
+		onTryMove: function (attacker, defender, move) {
+			if (move.type === 'Water' && move.category !== 'Status') {
 				this.debug('Desolate Land water suppress');
-				this.add('-fail', source, effect, '[from] Desolate Land');
+				this.add('-fail', attacker, move, '[from] Desolate Land');
+				this.attrLastMove('[still]');
 				return null;
 			}
 		},
