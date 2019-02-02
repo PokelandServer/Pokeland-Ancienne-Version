@@ -129,6 +129,8 @@ let BattleFormats = {
 			if (template.gen && template.gen !== this.gen && template.tier === 'Illegal') {
 				problems.push(set.species + ' does not exist outside of gen ' + template.gen + '.');
 			}
+			/**@type {Ability} */
+			// @ts-ignore
 			let ability = {};
 			if (set.ability) {
 				ability = this.getAbility(set.ability);
@@ -232,6 +234,7 @@ let BattleFormats = {
 			// limit one of each move
 			let moves = [];
 			if (set.moves) {
+				/**@type {{[k: string]: true}} */
 				let hasMove = {};
 				for (const moveId of set.moves) {
 					let move = this.getMove(moveId);
@@ -278,6 +281,7 @@ let BattleFormats = {
 			}
 
 			if (template.species === 'Pikachu-Cosplay') {
+				/**@type {{[k: string]: string}} */
 				let cosplay = {meteormash: 'Pikachu-Rock-Star', iciclecrash: 'Pikachu-Belle', drainingkiss: 'Pikachu-Pop-Star', electricterrain: 'Pikachu-PhD', flyingpress: 'Pikachu-Libre'};
 				for (const moveid of set.moves) {
 					if (moveid in cosplay) {
@@ -310,6 +314,7 @@ let BattleFormats = {
 		},
 		banlist: [
 			'Chansey + Charm + Seismic Toss', 'Chansey + Charm + Psywave',
+			'Blissey + Charm + Seismic Toss', 'Blissey + Charm + Psywave',
 			'Shiftry + Leaf Blade + Sucker Punch',
 		],
 	},
@@ -420,6 +425,7 @@ let BattleFormats = {
 			this.add('rule', 'Species Clause: Limit one of each Pokémon');
 		},
 		onValidateTeam: function (team, format) {
+			/**@type {{[k: string]: true}} */
 			let speciesTable = {};
 			for (const set of team) {
 				let template = this.getTemplate(set.species);
@@ -435,6 +441,7 @@ let BattleFormats = {
 		name: 'Nickname Clause',
 		desc: "Prevents teams from having more than one Pok&eacute;mon with the same nickname",
 		onValidateTeam: function (team, format) {
+			/**@type {{[k: string]: true}} */
 			let nameTable = {};
 			for (const set of team) {
 				let name = set.name;
@@ -458,6 +465,7 @@ let BattleFormats = {
 			this.add('rule', 'Item Clause: Limit one of each item');
 		},
 		onValidateTeam: function (team, format) {
+			/**@type {{[k: string]: true}} */
 			let itemTable = {};
 			for (const set of team) {
 				let item = toId(set.item);
@@ -477,7 +485,9 @@ let BattleFormats = {
 			this.add('rule', 'Ability Clause: Limit two of each ability');
 		},
 		onValidateTeam: function (team, format) {
+			/**@type {{[k: string]: number}} */
 			let abilityTable = {};
+			/**@type {{[k: string]: string}} */
 			let base = {
 				airlock: 'cloudnine',
 				battlearmor: 'shellarmor',
@@ -542,6 +552,15 @@ let BattleFormats = {
 		banlist: ['Minimize', 'Double Team'],
 		onStart: function () {
 			this.add('rule', 'Evasion Moves Clause: Evasion moves are banned');
+		},
+	},
+	accuracymovesclause: {
+		effectType: 'ValidatorRule',
+		name: 'Accuracy Moves Clause',
+		desc: "Bans moves that have a chance to lower the target's accuracy when used",
+		banlist: ['Flash', 'Kinesis', 'Leaf Tornado', 'Mirror Shot', 'Mud Bomb', 'Mud-Slap', 'Muddy Water', 'Night Daze', 'Octazooka', 'Sand Attack', 'Smokescreen'],
+		onStart: function () {
+			this.add('rule', 'Accuracy Moves Clause: Accuracy-lowering moves are banned');
 		},
 	},
 	endlessbattleclause: {
@@ -655,6 +674,18 @@ let BattleFormats = {
 		banlist: ['10,000,000 Volt Thunderbolt', 'Acid Downpour', 'All-Out Pummeling', 'Black Hole Eclipse', 'Bloom Doom', 'Breakneck Blitz', 'Catastropika', 'Clangorous Soulblaze', 'Continental Crush', 'Corkscrew Crash', 'Devastating Drake', 'Extreme Evoboost', 'Genesis Supernova', 'Gigavolt Havoc', 'Guardian of Alola', 'Hydro Vortex', 'Inferno Overdrive', 'Let\'s Snuggle Forever', 'Light That Burns the Sky', 'Malicious Moonsault', 'Menacing Moonraze Maelstrom', 'Never-Ending Nightmare', 'Oceanic Operetta', 'Pulverizing Pancake', 'Savage Spin-Out', 'Searing Sunraze Smash', 'Shattered Psyche', 'Sinister Arrow Raid', 'Soul-Stealing 7-Star Strike', 'Splintered Stormshards', 'Stoked Sparksurfer', 'Subzero Slammer', 'Supersonic Skystrike', 'Tectonic Rage', 'Twinkle Tackle'],
 		onStart: function () {
 			this.add('rule', 'CFZ Clause: Crystal-free Z-Moves are banned');
+		},
+	},
+	zmoveclause: {
+		effectType: 'ValidatorRule',
+		name: 'Z-Move Clause',
+		desc: "Bans Pok&eacute;mon from holding Z-Crystals",
+		onValidateSet: function (set) {
+			const item = this.getItem(set.item);
+			if (item.zMove) return [`${set.name || set.species}'s item ${item.name} is banned by Z-Move Clause.`];
+		},
+		onStart: function () {
+			this.add('rule', 'Z-Move Clause: Z-Moves are banned');
 		},
 	},
 	hppercentagemod: {
@@ -841,12 +872,6 @@ let BattleFormats = {
 			return this.checkLearnset(move, template, lsetData, set);
 		},
 	},
-	allowonesketch: {
-		effectType: 'ValidatorRule',
-		name: 'Allow One Sketch',
-		desc: "Allows each Pok&eacute;mon to use one move they don't normally have access to via Sketch",
-		// Implemented in team-validator.js
-	},
 	allowcap: {
 		effectType: 'ValidatorRule',
 		name: 'Allow CAP',
@@ -858,6 +883,12 @@ let BattleFormats = {
 		name: 'Allow Tradeback',
 		desc: "Allows Gen 1 pokemon to have moves from their Gen 2 learnsets",
 		// Implemented in team-validator.js
+	},
+	allowavs: {
+		effectType: 'ValidatorRule',
+		name: 'Allow AVs',
+		desc: "Tells formats with the 'letsgo' mod to take Awakening Values into consideration when calculating stats",
+		// Implemented in mods/letsgo/rulesets.js
 	},
 };
 
