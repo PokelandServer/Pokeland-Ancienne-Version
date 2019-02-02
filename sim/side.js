@@ -61,6 +61,7 @@ class Side {
 		/** @type {Pokemon[]} */
 		// @ts-ignore
 		this.active = [null];
+		/**@type {AnyObject} */
 		this.sideConditions = {};
 
 		this.pokemonLeft = 0;
@@ -154,6 +155,7 @@ class Side {
 			pokemon: [],
 		};
 		for (const pokemon of this.pokemon) {
+			/**@type {AnyObject} */
 			let entry = {
 				ident: pokemon.fullname,
 				details: pokemon.details,
@@ -190,10 +192,15 @@ class Side {
 
 	/**
 	 * @param {string | Effect} status
-	 * @param {Pokemon?} source
+	 * @param {Pokemon? | 'debug'} source
 	 * @param {Effect?} sourceEffect
+	 * @return {boolean} success
 	 */
 	addSideCondition(status, source = null, sourceEffect = null) {
+		if (!source && this.battle.event && this.battle.event.target) source = this.battle.event.target;
+		if (source === 'debug') source = this.active[0];
+		if (!source) throw new Error(`setting sidecond without a source`);
+
 		status = this.battle.getEffect(status);
 		if (this.sideConditions[status.id]) {
 			if (!status.onRestart) return false;
@@ -209,7 +216,7 @@ class Side {
 			this.sideConditions[status.id].duration = status.duration;
 		}
 		if (status.durationCallback) {
-			this.sideConditions[status.id].duration = status.durationCallback.call(this.battle, this, source, sourceEffect);
+			this.sideConditions[status.id].duration = status.durationCallback.call(this.battle, this.active[0], source, sourceEffect);
 		}
 		if (!this.battle.singleEvent('Start', status, this.sideConditions[status.id], this, source, sourceEffect)) {
 			delete this.sideConditions[status.id];
@@ -289,6 +296,7 @@ class Side {
 	 * @param {string | number} [moveText]
 	 * @param {number} [targetLoc]
 	 * @param {boolean | string} [megaOrZ]
+	 * @return {boolean | Side}
 	 */
 	chooseMove(moveText, targetLoc, megaOrZ) {
 		if (this.currentRequest !== 'move') {
@@ -319,6 +327,7 @@ class Side {
 				return this.emitChoiceError(`Can't move: Your ${pokemon.name} doesn't have a move ${moveIndex + 1}`);
 			}
 			moveid = requestMoves[moveIndex].id;
+			// @ts-ignore
 			targetType = requestMoves[moveIndex].target;
 		} else {
 			// Parse a move ID.
@@ -341,8 +350,10 @@ class Side {
 		if (autoChoose) {
 			for (const [i, move] of requestMoves.entries()) {
 				if (move.disabled) continue;
+				// @ts-ignore
 				if (i < moves.length && move.id === moves[i].id && moves[i].disabled) continue;
 				moveid = move.id;
+				// @ts-ignore
 				targetType = move.target;
 				break;
 			}
@@ -464,6 +475,7 @@ class Side {
 
 	/**
 	 * @param {string} [slotText]
+	 * @return {boolean | Side}
 	 */
 	chooseSwitch(slotText) {
 		if (this.currentRequest !== 'move' && this.currentRequest !== 'switch') {
@@ -541,6 +553,7 @@ class Side {
 
 	/**
 	 * @param {string} [data]
+	 * @return {boolean | Side}
 	 */
 	chooseTeam(data) {
 		const autoFill = !data;
@@ -592,6 +605,9 @@ class Side {
 		return true;
 	}
 
+	/**
+	 * @return {boolean | Side}
+	 */
 	chooseShift() {
 		const index = this.getChoiceIndex();
 		if (index >= this.active.length) {
@@ -736,6 +752,9 @@ class Side {
 		return index;
 	}
 
+	/**
+	 * @return {boolean | Side}
+	 */
 	choosePass() {
 		const index = this.getChoiceIndex(true);
 		if (index >= this.active.length) return false;
@@ -767,6 +786,9 @@ class Side {
 		return true;
 	}
 
+	/**
+	 * @return {boolean | Side}
+	 */
 	chooseDefault() {
 		if (!this.battle.LEGACY_API_DO_NOT_USE) throw new Error(`This is a legacy API, it's called autoChoose now`);
 		if (this.isChoiceDone()) {
