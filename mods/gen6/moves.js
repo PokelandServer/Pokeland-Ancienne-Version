@@ -10,7 +10,7 @@ let BattleMovedex = {
 	},
 	assist: {
 		inherit: true,
-		desc: "A random move among those known by the user's party members is selected for use. Does not select Assist, Belch, Bestow, Bounce, Chatter, Circle Throw, Copycat, Counter, Covet, Destiny Bond, Detect, Dig, Dive, Dragon Tail, Endure, Feint, Fly, Focus Punch, Follow Me, Helping Hand, Hold Hands, King's Shield, Mat Block, Me First, Metronome, Mimic, Mirror Coat, Mirror Move, Nature Power, Phantom Force, Protect, Rage Powder, Roar, Shadow Force, Sketch, Sky Drop, Sleep Talk, Snatch, Spiky Shield, Struggle, Switcheroo, Thief, Transform, Trick, or Whirlwind.",
+		desc: "A random move among those known by the user's party members is selected for use. Does not select Assist, Belch, Bestow, Bounce, Celebrate, Chatter, Circle Throw, Copycat, Counter, Covet, Destiny Bond, Detect, Dig, Dive, Dragon Tail, Endure, Feint, Fly, Focus Punch, Follow Me, Helping Hand, Hold Hands, King's Shield, Mat Block, Me First, Metronome, Mimic, Mirror Coat, Mirror Move, Nature Power, Phantom Force, Protect, Rage Powder, Roar, Shadow Force, Sketch, Sky Drop, Sleep Talk, Snatch, Spiky Shield, Struggle, Switcheroo, Thief, Transform, Trick, or Whirlwind.",
 	},
 	bestow: {
 		inherit: true,
@@ -26,7 +26,7 @@ let BattleMovedex = {
 	},
 	copycat: {
 		inherit: true,
-		desc: "The user uses the last move used by any Pokemon, including itself. Fails if no move has been used, or if the last move used was Assist, Baneful Bunker, Belch, Bestow, Chatter, Circle Throw, Copycat, Counter, Covet, Destiny Bond, Detect, Dragon Tail, Endure, Feint, Focus Punch, Follow Me, Helping Hand, Hold Hands, King's Shield, Mat Block, Me First, Metronome, Mimic, Mirror Coat, Mirror Move, Nature Power, Protect, Rage Powder, Roar, Sketch, Sleep Talk, Snatch, Spiky Shield, Struggle, Switcheroo, Thief, Transform, Trick, or Whirlwind.",
+		desc: "The user uses the last move used by any Pokemon, including itself. Fails if no move has been used, or if the last move used was Assist, Baneful Bunker, Belch, Bestow, Celebrate, Chatter, Circle Throw, Copycat, Counter, Covet, Destiny Bond, Detect, Dragon Tail, Endure, Feint, Focus Punch, Follow Me, Helping Hand, Hold Hands, King's Shield, Mat Block, Me First, Metronome, Mimic, Mirror Coat, Mirror Move, Nature Power, Protect, Rage Powder, Roar, Sketch, Sleep Talk, Snatch, Spiky Shield, Struggle, Switcheroo, Thief, Transform, Trick, or Whirlwind.",
 	},
 	counter: {
 		inherit: true,
@@ -151,6 +151,12 @@ let BattleMovedex = {
 	gastroacid: {
 		inherit: true,
 		desc: "Causes the target's Ability to be rendered ineffective as long as it remains active. If the target uses Baton Pass, the replacement will remain under this effect. If the target's Ability is Multitype or Stance Change, this move fails, and receiving the effect through Baton Pass ends the effect immediately.",
+		onTryHit: function (pokemon) {
+			let bannedAbilities = ['multitype', 'stancechange'];
+			if (bannedAbilities.includes(pokemon.ability)) {
+				return false;
+			}
+		},
 	},
 	heavyslam: {
 		inherit: true,
@@ -365,14 +371,26 @@ let BattleMovedex = {
 	simplebeam: {
 		inherit: true,
 		desc: "Causes the target's Ability to become Simple. Fails if the target's Ability is Multitype, Simple, Stance Change, or Truant.",
+		onTryHit: function (pokemon) {
+			let bannedAbilities = ['multitype', 'simple', 'stancechange', 'truant'];
+			if (bannedAbilities.includes(pokemon.ability)) {
+				return false;
+			}
+		},
 	},
 	skillswap: {
 		inherit: true,
 		desc: "The user swaps its Ability with the target's Ability. Fails if either the user or the target's Ability is Illusion, Multitype, Stance Change, or Wonder Guard.",
+		onTryHit: function (target, source) {
+			let bannedAbilities = ['illusion', 'multitype', 'stancechange', 'wonderguard'];
+			if (bannedAbilities.includes(target.ability) || bannedAbilities.includes(source.ability)) {
+				return false;
+			}
+		},
 	},
 	sleeptalk: {
 		inherit: true,
-		desc: "One of the user's known moves, besides this move, is selected for use at random. Fails if the user is not asleep. The selected move does not have PP deducted from it, and can currently have 0 PP. This move cannot select Assist, Belch, Bide, Chatter, Copycat, Focus Punch, Hold Hands, Me First, Metronome, Mimic, Mirror Move, Nature Power, Sketch, Sleep Talk, Struggle, Uproar, or any two-turn move.",
+		desc: "One of the user's known moves, besides this move, is selected for use at random. Fails if the user is not asleep. The selected move does not have PP deducted from it, and can currently have 0 PP. This move cannot select Assist, Belch, Bide, Celebrate, Chatter, Copycat, Focus Punch, Hold Hands, Me First, Metronome, Mimic, Mirror Move, Nature Power, Sketch, Sleep Talk, Struggle, Uproar, or any two-turn move.",
 	},
 	soak: {
 		inherit: true,
@@ -477,6 +495,12 @@ let BattleMovedex = {
 	worryseed: {
 		inherit: true,
 		desc: "Causes the target's Ability to become Insomnia. Fails if the target's Ability is Insomnia, Multitype, Stance Change, or Truant.",
+		onTryHit: function (pokemon) {
+			let bannedAbilities = ['insomnia', 'multitype', 'stancechange', 'truant'];
+			if (bannedAbilities.includes(pokemon.ability)) {
+				return false;
+			}
+		},
 	},
 };
 

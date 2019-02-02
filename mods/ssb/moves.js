@@ -59,7 +59,7 @@ let BattleMovedex = {
 			this.add('-anim', source, 'Boomburst', source);
 		},
 		onHit: function (target, source, move) {
-			this.boost({atk: 2}, source, source, 'move: Noble Howl');
+			this.boost({atk: 2}, source, source, this.getActiveMove('Noble Howl'));
 			if (!(['', 'slp', 'frz'].includes(source.status))) {
 				source.cureStatus();
 			}
@@ -184,6 +184,8 @@ let BattleMovedex = {
 		},
 		onPrepareHit: function (target, source) {
 			this.add('-anim', source, "Ingrain", target);
+		},
+		onHit: function (target, source) {
 			let didSomething = false;
 			let side = source.side;
 			if (side.faintedLastTurn) {
@@ -640,9 +642,8 @@ let BattleMovedex = {
 		onPrepareHit: function (target, source) {
 			this.add('-anim', source, 'Plasma Fists', target);
 		},
-		onEffectiveness: function (typeMod, type, move) {
+		onEffectiveness: function (typeMod, target, type, move) {
 			if (move.type !== 'Electric') return;
-			let target = this.activeTarget;
 			if (!target) return; // avoid crashing when called from a chat plugin
 			if (!target.runImmunity('Electric')) {
 				if (target.hasType('Ground')) return 0;
@@ -744,7 +745,7 @@ let BattleMovedex = {
 				});
 				// Handle pokemon with less than 4 moves
 				while (carryOver[carryOver.length - 1].pp.length < 4) {
-					carryOver[carryOver.length - 1].pp.push(100);
+					carryOver[carryOver.length - 1].pp.push(1);
 				}
 			}
 			// Generate a new team
@@ -1072,7 +1073,7 @@ let BattleMovedex = {
 		},
 		onHit: function (pokemon, move) {
 			if (this.pseudoWeather.gravity) return false;
-			this.boost({atk: 2}, pokemon, pokemon, 'move: Earth\'s Blessing');
+			this.boost({atk: 2}, pokemon, pokemon, this.getActiveMove('EarthsBlessing'));
 			this.addPseudoWeather('gravity');
 			if (['', 'slp', 'frz'].includes(pokemon.status)) return;
 			pokemon.cureStatus();
@@ -1149,35 +1150,6 @@ let BattleMovedex = {
 		secondary: null,
 		target: "normal",
 		type: "Fire",
-	},
-	// Earthbound Misfit
-	mylife: {
-		accuracy: true,
-		category: "Status",
-		desc: "Badly poisons all Pokemon on the field.",
-		shortDesc: "Badly poisons all Pokemon on the field.",
-		id: "mylife",
-		name: "My Life",
-		isNonstandard: true,
-		pp: 10,
-		priority: 0,
-		flags: {protect: 1, mirror: 1},
-		onTryMovePriority: 100,
-		onTryMove: function () {
-			this.attrLastMove('[still]');
-		},
-		onPrepareHit: function (target, source) {
-			this.add('-anim', source, "Toxic", target);
-		},
-		onHit: function (target, source) {
-			let success = false;
-			if (target.trySetStatus('tox', source)) success = true;
-			if (source.trySetStatus('tox', source)) success = true;
-			return success;
-		},
-		secondary: null,
-		target: "normal",
-		type: "Poison",
 	},
 	// explodingdaisies
 	doom: {
@@ -1523,7 +1495,7 @@ let BattleMovedex = {
 			this.add('-anim', source, "Psystrike", target);
 		},
 		ignoreImmunity: {'Psychic': true},
-		onEffectiveness: function (typeMod, type) {
+		onEffectiveness: function (typeMod, target, type) {
 			if (type === 'Dark') return 1;
 		},
 		secondary: null,
@@ -2129,7 +2101,7 @@ let BattleMovedex = {
 		onPrepareHit: function (target, source) {
 			this.add('-anim', source, 'Outrage', target);
 		},
-		onEffectiveness: function (typeMod) {
+		onEffectiveness: function (typeMod, target) {
 			return -typeMod;
 		},
 		secondary: {
@@ -2359,7 +2331,7 @@ let BattleMovedex = {
 		},
 		onPrepareHit: function (target, source) {
 			this.add('-anim', source, "Recover", source);
-			this.heal(source.maxhp, source, source, 'Blaze of Glory');
+			this.heal(source.maxhp, source, source, this.getActiveMove('Blaze of Glory'));
 			this.add('-anim', source, "Final Gambit", target);
 		},
 		selfdestruct: "ifHit",
@@ -2472,7 +2444,7 @@ let BattleMovedex = {
 			this.add('-anim', source, "Miracle Eye", target);
 		},
 		onHit: function (target, source) {
-			this.boost({atk: -2, spa: -2}, source, source, 'move: /scavenges u');
+			this.boost({atk: -2, spa: -2}, source, source, this.getActiveMove('/scavenges u'));
 			let targetBoosts = {};
 			let sourceBoosts = {};
 
@@ -2489,7 +2461,6 @@ let BattleMovedex = {
 			this.add(`c|%Meicoo|cool quiz`);
 
 			this.add('-swapboost', source, target, '[from] move: /scavenges u');
-			this.add('-message', source.name + ' switched stat changes with its target!');
 		},
 		secondary: null,
 		target: "normal",
@@ -2523,9 +2494,9 @@ let BattleMovedex = {
 			let stockpileLayers = 0;
 			if (source.volatiles['stockpile']) stockpileLayers = source.volatiles['stockpile'].layers;
 			let boosts = {};
-			boosts.def = (source.boosts.def - stockpileLayers < 0 ? 0 : source.boosts.def - stockpileLayers) * -1;
-			boosts.spd = (source.boosts.spd - stockpileLayers < 0 ? 0 : source.boosts.spd - stockpileLayers) * -1;
-			this.boost(boosts, source, source, move);
+			if (source.boosts.def > stockpileLayers) boosts.def = stockpileLayers - source.boosts.def;
+			if (source.boosts.spd > stockpileLayers) boosts.spd = stockpileLayers - source.boosts.spd;
+			if (boosts.def || boosts.spd) this.boost(boosts, source, source, move);
 		},
 		secondary: null,
 		target: "normal",
@@ -2769,7 +2740,7 @@ let BattleMovedex = {
 		effect: {
 			duration: 1,
 			onSwitchIn: function (pokemon) {
-				this.boost({spe: -1}, pokemon, pokemon.side.foe.active[0], this.getMove('pyramidingsong'));
+				this.boost({spe: -1}, pokemon, pokemon.side.foe.active[0], this.getActiveMove('pyramidingsong'));
 			},
 		},
 		forceSwitch: true,
@@ -2800,7 +2771,7 @@ let BattleMovedex = {
 			this.add('-anim', source, "Heat Crash", target);
 		},
 		onHit: function () {
-			this.add(`c|%OM|Bang Bang`);
+			this.add(`c|@OM|Bang Bang`);
 		},
 		secondary: {
 			chance: 50,
@@ -2896,6 +2867,7 @@ let BattleMovedex = {
 			// hacky way of forcing toxic to effect poison / steel types without corrosion usage
 			if (target.volatiles['substitute'] && !move.infiltrates) return;
 			if (target.hasType('Steel') || target.hasType('Poison')) {
+				if (target.status) return;
 				let status = this.getEffect(move.status);
 				target.status = status.id;
 				target.statusData = {id: status.id, target: target, source: source, stage: 0};
@@ -3414,7 +3386,7 @@ let BattleMovedex = {
 		},
 		beforeTurnCallback: function (pokemon) {
 			if (pokemon.status === 'slp' || pokemon.status === 'frz') return;
-			this.boost({def: 1, spd: 1}, pokemon, pokemon, 'mushroom army');
+			this.boost({def: 1, spd: 1}, pokemon, pokemon, this.getEffect('mushroom army'));
 			this.useMove("powder", pokemon);
 		},
 		onHit: function (pokemon) {
@@ -3503,7 +3475,7 @@ let BattleMovedex = {
 			this.add('-anim', source, "Fissure", target);
 		},
 		ignoreImmunity: {'Electric': true},
-		onEffectiveness: function (typeMod, type) {
+		onEffectiveness: function (typeMod, target, type) {
 			if (type === 'Ground') return 1;
 		},
 		secondary: null,
@@ -3605,9 +3577,9 @@ let BattleMovedex = {
 		onPrepareHit: function (target, source) {
 			this.add('-anim', source, "Gyro Ball", target);
 		},
-		onAfterMoveSecondarySelf: function () {
+		onAfterMoveSecondarySelf: function (pokemon) {
 			if (!this.pseudoWeather.trickroom) {
-				this.addPseudoWeather('trickroom');
+				this.addPseudoWeather('trickroom', pokemon);
 			}
 			this.add('-fieldactivate', 'move: Pay Day'); // Coins are scattered on the ground
 		},
@@ -4111,6 +4083,35 @@ let BattleMovedex = {
 		},
 		target: "allAdjacentFoes",
 		type: "Psychic",
+	},
+	// Zyg
+	mylife: {
+		accuracy: true,
+		category: "Status",
+		desc: "Badly poisons all Pokemon on the field.",
+		shortDesc: "Badly poisons all Pokemon on the field.",
+		id: "mylife",
+		name: "My Life",
+		isNonstandard: true,
+		pp: 10,
+		priority: 0,
+		flags: {protect: 1, mirror: 1},
+		onTryMovePriority: 100,
+		onTryMove: function () {
+			this.attrLastMove('[still]');
+		},
+		onPrepareHit: function (target, source) {
+			this.add('-anim', source, "Toxic", target);
+		},
+		onHit: function (target, source) {
+			let success = false;
+			if (target.trySetStatus('tox', source)) success = true;
+			if (source.trySetStatus('tox', source)) success = true;
+			return success;
+		},
+		secondary: null,
+		target: "normal",
+		type: "Poison",
 	},
 	// Modified Moves \\
 	// Purple Pills is immune to taunt

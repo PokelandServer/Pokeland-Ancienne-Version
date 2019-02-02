@@ -1,5 +1,6 @@
 'use strict';
 
+/**@type {{[k: string]: ModdedMoveData}} */
 exports.BattleMovedex = {
 	"skillswap": {
 		inherit: true,
@@ -26,8 +27,8 @@ exports.BattleMovedex = {
 			if (targetAbility.id !== sourceAbility.id) {
 				source.ability = targetAbility.id;
 				target.ability = sourceAbility.id;
-				source.abilityData = {id: source.ability.id, target: source};
-				target.abilityData = {id: target.ability.id, target: target};
+				source.abilityData = {id: source.ability, target: source};
+				target.abilityData = {id: target.ability, target: target};
 			}
 			if (sourceAlly && sourceAlly.ability !== source.ability) {
 				let volatile = sourceAlly.innate = 'ability' + source.ability;
@@ -58,9 +59,9 @@ exports.BattleMovedex = {
 				}
 			}
 			this.singleEvent('Start', targetAbility, source.abilityData, source);
-			if (sourceAlly) this.singleEvent('Start', sourceAlly.innate, sourceAlly.volatiles[sourceAlly.innate], sourceAlly);
+			if (sourceAlly && sourceAlly.innate) this.singleEvent('Start', targetAbility, sourceAlly.volatiles[sourceAlly.innate], sourceAlly);
 			this.singleEvent('Start', sourceAbility, target.abilityData, target);
-			if (targetAlly) this.singleEvent('Start', targetAlly.innate, targetAlly.volatiles[targetAlly.innate], targetAlly);
+			if (targetAlly && targetAlly.innate) this.singleEvent('Start', sourceAbility, targetAlly.volatiles[targetAlly.innate], targetAlly);
 		},
 	},
 };
