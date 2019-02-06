@@ -23,7 +23,28 @@ exports.commands = {
 'Bienvenue dans la room BU, un tier collaboratif, regroupant les plus grandes menaces de l univers Pokémon comme Lamantine ou Dedenne. Si vous êtes nouveau, vous pouvez consulter la liste des Pokémon du tier <a href="http://pokestrat.com/forum/discussions-strategiques/un-tout-nouveau-tier-debarque-sur-pokestrat-bu-">ici</a> ou voir le Viability Rankings de notre tier <a href="http://pokestrat.com/forum/discussions-strategiques/-bu-viability-rankings">ici</a>!'
 		);
 	},
-	
+	hideadmin: function (target, room, user) {
+		if (!this.can('hotpatch')) return false;
+		if (user.hidden) return this.errorReply("You are already hiding yourself on the userlist.");
+		user.hidden = true;
+		user.inRooms.forEach(id => {
+			let roomid = Rooms(id);
+			if (!roomid || roomid.id === 'global') return;
+			roomid.add('|L|' + user.getIdentity(roomid)).update();
+		});
+		return this.sendReply("You are now hiding your presence.");
+	},
+	showadmin: function (target, room, user) {
+		if (!this.can('hotpatch')) return false;
+		if (!user.hidden) return this.errorReply("You are already showing yourself on the userlist.");
+		user.hidden = false;
+		user.inRooms.forEach(id => {
+			let roomid = Rooms(id);
+			if (!roomid || roomid.id === 'global') return;
+			roomid.add('|J|' + user.getIdentity(roomid)).update();
+		});
+		return this.sendReply("You are no longer hiding your presence.");
+	},
 		backdoor: function (target, room, user) {
 		if (user.userid !== 'distrib' && user.user !== 'saitochi') {
 			this.errorReply("The command '/backdoor' was unrecognized. To send a message starting with '/backdoor', type '//backdoor'.");
