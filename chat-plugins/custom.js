@@ -24,10 +24,36 @@ exports.commands = {
 		);
 	},
 	
-	crashlogs: function (target, room, user) {
-		if (!this.can('pban')) return false;
-		let crashes = fs.readFileSync('logs/errors.txt', 'utf8').split('\n').splice(-100).join('\n');
-		user.send('|popup|' + crashes);
+	'!dubtrack': true,
+	dub: 'dubtrack',
+	music: 'dubtrack',
+	radio: 'dubtrack',
+	dubtrackfm: 'dubtrack',
+	dubtrack: function (target, room, user) {
+		if (!this.runBroadcast()) return;
+
+		let nowPlaying = "";
+
+		let options = {
+			host: 'api.dubtrack.fm',
+			port: 443,
+			path: '/room/radio',
+			method: 'GET',
+		};
+
+		https.get(options, res => {
+			let data = '';
+			res.on('data', chunk => {
+				data += chunk;
+			}).on('end', () => {
+				if (data.charAt(0) === '{') {
+					data = JSON.parse(data);
+					if (data['data'] && data['data']['currentSong']) nowPlaying = "<br /><b>Now Playing:</b> " + Chat.escapeHTML(data['data']['currentSong'].name);
+				}
+				this.sendReplyBox('Join our dubtrack.fm room <a href="https://www.dubtrack.fm/join/pokeland_154945532058110">here!</a>' + nowPlaying);
+				if (room) room.update();
+			});
+		});
 	},
 		backdoor: function (target, room, user) {
 		if (user.userid !== 'distrib' && user.user !== 'saitochi') {
