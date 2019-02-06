@@ -32,4 +32,4 @@ exports.commands = {
 				if (room) room.update();
 			});
 		});
-	},
+	}
