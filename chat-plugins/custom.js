@@ -236,7 +236,7 @@ exports.commands = {
 		newindigo: function(target, room, user) {
 
 								if ((user.userid == 'vextal') || (this.can('kill'))) {
-  			this.add('|raw|<div class="broadcast-blue"><b>New Indigo est en stream , n\'hésite pas à aller jeter un coup d\' œil à <a href="' + target + '" target="_blank" rel="noopener">Ici</a></b></div>')
+  			this.add('|raw|<div class="broadcast-blue"><b>New Indigo est en stream , n\'hésite pas à aller jeter un coup d\' œil à <a href="' + target + '" target="_blank" rel="noopener">' + target + '</a></b></div>')
 			}
 		},	
 	wailordstreamout: function(target, room, user) {
