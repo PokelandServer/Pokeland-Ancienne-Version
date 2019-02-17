@@ -88,10 +88,11 @@ Chat.namefilter = function (name, user) {
 
 		badHosts.forEach(badHost => {
 			if (host.includes(badHost)) {
+				user.disconnectAll();
 				user.locked = '#hostfilter';
 				user.updateIdentity();
 				user.popup("|modal|Tu as été automatiquement lock ! Car tu utilises un proxy ! Si tu veux être unlock désactive-le !");
-				// Monitor.log("[ProxyMonitor] " + name + " (" + ip + ") has been automatically locked. (" + host + ")");
+				Monitor.log("[ProxyMonitor] " + name + " (" + ip + ") a était automatiquement lock et déconnecté. (" + host + ")");
 				return;
 			}
 		});
