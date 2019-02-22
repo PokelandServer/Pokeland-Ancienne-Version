@@ -325,7 +325,7 @@ exports.commands = {
         new: 'create',
         create: function (target, room, user) {
             if (!this.can('broadcast', null, room)) return false;
-                if (room.id !== 'casino' || 'lobby') return this.sendReply('|html|Il n\'est possible de jouer au Blackjack que dans le <button name = "send" value = "/join casino">Casino</button>');
+                if (room.id !== 'casino') return this.sendReply('|html|Il n\'est possible de jouer au Blackjack que dans le <button name = "send" value = "/join casino">Casino</button>');
    
             if (room.bj) return this.sendReply("Une partie de Blackjack a déjà été lancée.");
  
