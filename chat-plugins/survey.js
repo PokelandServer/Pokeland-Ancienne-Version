@@ -342,8 +342,8 @@ exports.commands = {
 		},
 
 		show: 'display',
-		display: function (target, room, user, connection) {
-			if (!room.survey) return this.errorReply("Pas de sondage en cours..");
+		display: function (target, room, user, connection, cmd, message) {
+			if (!room.survey) return this.errorReply("Pas de sondage en cours.");
 			if (!this.runBroadcast()) return;
 			room.update();
 
