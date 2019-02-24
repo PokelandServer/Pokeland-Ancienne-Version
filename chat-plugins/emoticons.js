@@ -300,6 +300,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	'#UWR' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019720-rose-quartz-by-sbrixynya-dawafu3.gif',
 	':wailord:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019805-tinyfloatingwhale.gif',
 	':onion:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019812-d91.gif',
+		'#000s' : 'https://imgur.com/kJppajQ' ,
 	});
 }
 
