@@ -909,7 +909,6 @@ class User {
 		Rooms.global.checkAutojoin(this);
 		Chat.loginfilter(this, null, userType);
 		Ontime[userid] = Date.now();
-		global.sendNews(userid, this);
 		return true;
 	}
 	/**
