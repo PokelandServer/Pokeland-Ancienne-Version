@@ -49,7 +49,7 @@ exports.commands = {
 			const eventId = toId(eventName);
 			if (!eventId) return this.errorReply("Event names must contain at least one alphanumerical character.");
 
-			this.privateModAction(`(${user.name} ${room.events[eventId] ? "edited the" : "added a"} roomevent titled "${eventName}".)`);
+			this.privateModCommand(`(${user.name} ${room.events[eventId] ? "edited the" : "added a"} roomevent titled "${eventName}".)`);
 			this.modlog('ROOMEVENT', null, `${room.events[eventId] ? "edited" : "added"} "${eventName}"`);
 			room.events[eventId] = {
 				eventName: eventName,
@@ -71,7 +71,7 @@ exports.commands = {
 			target = toId(target);
 			if (!room.events[target]) return this.errorReply(`There is no such event named '${target}'. Check spelling?`);
 			delete room.events[target];
-			this.privateModAction(`(${user.name} removed a roomevent titled "${target}".)`);
+			this.privateModCommand(`(${user.name} removed a roomevent titled "${target}".)`);
 			this.modlog('ROOMEVENT', null, `removed "${target}"`);
 
 			room.chatRoomData.events = room.events;
