@@ -1,7 +1,7 @@
 Pokémon Showdown Command API
 ========================================================================
 
-Defining a Command
+Defining a Commands
 ------------------------------------------------------------------------
 
 You can define the commands such as 'whois', then use them by typing
