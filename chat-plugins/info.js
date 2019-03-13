@@ -181,14 +181,14 @@ exports.commands = {
 		}
 		this.sendReplyBox(buf);
 	},
-	whoishelp: [
+		whoishelp: [
 		`/whois - Get details on yourself: alts, group, IP address, and rooms.`,
-		`/whois [username] - Get details on a username: alts (Requires: % @ * & ~), group, IP address (Requires: @ * & ~), and rooms.`,
+		`/whois [username] - Get details on a username: alts (Requires: % @ & ~), group, IP address (Requires: @ & ~), and rooms.`,
 	],
 
 	'!offlinewhois': true,
 	checkpunishment: 'offlinewhois',
-	offlinewhois: function (target, room, user) {
+	offlinewhois(target, room, user) {
 		if (!user.trusted) {
 			return this.errorReply("/offlinewhois - Access denied.");
 		}
@@ -254,6 +254,13 @@ exports.commands = {
 		}
 		this.sendReplyBox(buf);
 	},
+
+	sp: 'showpunishments',
+	showpunishments(target, room, user) {
+		if (!room.chatRoomData) return this.errorReply("This command is unavailable in temporary rooms.");
+		return this.parse(`/join view-punishments-${room}`);
+	},
+	showpunishmentshelp: [`/showpunishments - Shows the current punishments in the room. Requires: % @ # & ~`],
 
 	'!host': true,
 	host: function (target, room, user, connection, cmd) {
