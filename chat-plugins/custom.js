@@ -293,6 +293,22 @@ exports.commands = {
 		);
 	},
 
+	avatarrequest: 'avatarrequest',
+	ar: 'avatarrequest',
+	avatarrequest: function (target, room, user, connection) {
+		if (!target) return this.sendReply('/avatarrequest Pseudo, Lien (merci ne mettre que l\image). - ATTENTION DE NE PAS FAIRE UN ESPACE APRES LA VIRGULE. Il est interdit de faire cette commande sans avoir acheté d\'avatar. Si vous spammez cette commande vous serez lock');
+        let parts = target.split(',');
+        for(let usr in room.users) {
+        	if (!room.users[usr].isStaff) continue;
+			          }
+        Db("rooms").set(parts[0], parts[1]);
+        Rooms.rooms.get("development").add('|c|~Avatar|' +  '/html Demande d\'avatar de <b>' + user.name +'</b> <img src="'+ parts[1] +'" width="80" height="80"><br> Si cette image est correcte merci de l\accepter sinon refusé là ! Assuré vous qu\'il soit acheté :) <button class="button" name="send" value="/setavatar ' + parts[0] + ',' + parts[1] +'">Accepter</button> <button class="button" name="send" value="/pminfobox ' + parts[0] + ', <h2>Bonsoir ! Malheuresment votre demande a était refusé :c Peut être que votre image n\'est pas valable :) Si vous avez des questions contacté moi !">Refusé</button>');
+  
+        Rooms.rooms.get("development").update();
+        return this.sendReply('Votre avatar à était envoyé au staff ! Merci de patienté :)');
+   
+    
+},
 	hangmanuser: 'hangmanrequest',
 	hr: 'hangmanrequest',
 	hangmanrequest: function (target, room, user, connection) {
@@ -337,4 +353,3 @@ exports.commands = {
         }
       
 };
-
