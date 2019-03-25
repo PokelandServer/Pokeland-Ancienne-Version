@@ -1,6 +1,10 @@
 exports.commands = {
     rain: 'rainbow',
   rainbow: function(target, room, user){
+	  	  				if (room.isMuted(user)) {
+					this.errorReply(`You are muted and cannot talk in this room.`);
+					return false;
+				}
           if (user.can('mute', null, room)) {
                   var colors = ['#ED1C24', '#F26522', '#F7941D', '#F0D200', '#8DC73F', '#39B54A', '#00A651', '#00A99D', '#00AEEF', '#0072BC', '#0054A6', '#2E3192', '#662D91', '#92278F', '#EC008C', '#ED145B'];
                  if(!target) return this.sendReply('/rainbow message');
@@ -21,10 +25,6 @@ exports.commands = {
                                  room.add('|raw|<small>' + user.group + '</small><b>' + userColor + '</b>: ' + target);
                         }
           }
-	  				if (room.isMuted(user)) {
-					this.errorReply(`You are muted and cannot talk in this room.`);
-					return false;
-				}
           else return this.errorReply('You must be driver to use this command.');
   },
 rain1: 'rainbow1',
