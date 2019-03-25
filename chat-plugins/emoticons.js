@@ -159,7 +159,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	'feelsnyan':'http://i.imgur.com/sUZkR32.gif',
 	'facepalm':'http://i.imgur.com/ylrqFwJ.png',
 	'feelsjuif':'http://static2.fjcdn.com/thumbnails/comments/Yfw+youre+still+a+jew+_970e4d64b609ede3d7758d29c7bb0a61.png',
-	'feelsvieujuif':'http://static2.fjcdn.com/thumbnails/comments/Mfw+i+bought+vietnamese+quot+beats+quot+for+15+and+they+still+_477fee5bb71b44c60c551addca1901df.png',
+	'feelsvieujuif':'https://image.noelshack.com/fichiers/2019/13/1/1553536247-mfw-i-bought-vietnamese-quot-beats-quot-for-15-and-they-still-477fee5bb71b44c60c551addca1901df.png',
 	'feelsnake':'http://i.imgur.com/xoJnDUD.png',
 	'feelsteemo':'https://cdn.betterttv.net/emote/5603731ce5fc5eff1de93229/2x',
 	'feelsexy':'https://cdn.betterttv.net/emote/56396c857e538de14bd747a5/2x',
