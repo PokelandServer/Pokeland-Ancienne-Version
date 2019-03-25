@@ -29,6 +29,10 @@ exports.commands = {
   },
 rain1: 'rainbow1',
   rainbow1: function(target, room, user){
+	  if (room.isMuted(user)) {
+					this.errorReply(`You are muted and cannot talk in this room.`);
+					return false;
+				}
              if (user.can('mute', null, room)) {
                         var colors = ['#ED1C24'];
                     if(!target) return this.sendReply('/rainbow1 message');
