@@ -951,14 +951,12 @@ class Tournament {
 				this.room.addRaw('<b>Il remporte <font color="' + color + '">'+ firstMoney +'</font> points pour son clan</b> <button name="send" class="button style="border-radius: 20px; box-shadow: 1px 1px rgba(255, 255, 255, 0.3) inset, -1px -1px rgba(0, 0, 0, 0.2) inset, 2px 2px 2px rgba(0, 0, 0, 0.5);" value="/clan '+ getClan(wid) +'">'+ getClan(wid) +'</button>.');
            		
            		if ((this.room.id === 'lobby' || this.room.id === 'tournaments') && getClan(wid)) {
-           			this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(winner) + "</font> remporte " + "<font color='" + color + "'>" + "10" + "</font>" + " EXP" + " !</b>");
+           			this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(winner) + "</font> remporte " + "<font color='" + color + "'>" + "20" + "</font>" + " EXP" + " !</b>");
 
            		}
-           		WL.addExp(wid, this.room, parseInt(firstMoney+10));
-           		Users(wid).send('|raw|+'+ parseInt(firstMoney+10)+' exp');
+           		WL.ExpControl.addExp(this.players[i].userid, this.room, 20);
 
-
-           	}
+      	}
 
 			if (runnerUp) {
 				Db('money').set(rid, Db('money').get(rid, 0) + secondMoney);
