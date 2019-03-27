@@ -445,6 +445,7 @@ class UNOgame extends Rooms.RoomGame {
 
 	onWin(player) {
 		this.sendToRoom(Chat.html`|raw|<div class="broadcast-green">Congratulations to ${player.name} for winning the game of UNO!</div>`, true);
+		WL.ExpControl.addExp(this.players[i].userid, this.room, 20);
 		this.destroy();
 	}
 
