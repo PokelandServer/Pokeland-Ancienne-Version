@@ -296,7 +296,7 @@ exports.commands = {
 	live: function (target, room, user) {
 		if (!this.runBroadcast()) return;
 		this.sendReplyBox(
-'<img src="https://image.noelshack.com/fichiers/2019/12/6/1553345949-semainier-distrib-vextal.png" width="700" height="600">'
+'<img src="https://image.noelshack.com/fichiers/2019/12/6/1553345949-semainier-distrib-vextal.png" width="500" height="500">'
 		);
 	},
 
