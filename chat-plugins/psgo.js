@@ -914,7 +914,6 @@ exports.commands = {
 		card = cards[card];
 		addCard(targetUser, card.title);
 		user.popup("You have successfully given " + card.name + " to " + targetUser + ".");
-		this.logModCommand(user.name + "gave the card '" + card.name + "' to " + targetUser + ".");
 	},
 
 	takecard: function (target, room, user, connection, cmd) {
@@ -930,6 +929,5 @@ exports.commands = {
 		card = cards[card];
 		removeCard(card.title, targetUser);
 		user.popup("You have successfully taken " + card.name + " from " + targetUser + ".");
-		this.logModCommand(user.name + " took the card '" + card.name + "' from " + targetUser + ".");
 	},
 };
