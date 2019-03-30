@@ -190,7 +190,7 @@ exports.commands = {
         if (!this.runBroadcast()) return;
         if (!target) target = user.name;
         target = toId(target);
-        if (!userPacks[target] || userPacks[target].length === 0) return this.sendReply((target === user.userid ? 'Vous n'avez' : target + ' has') + ' pas de packs.');
+        if (!userPacks[target] || userPacks[target].length === 0) return this.sendReply((target === user.userid ? 'Vous n\'avez' : target + ' has') + ' pas de packs.');
         this.sendReply('|raw|<u><b>List of packs:</b></u>');
         for (let i = 0; i < userPacks[target].length; i++) {
             this.sendReply('|raw| <button name="send" value="/openpack ' + userPacks[target][i] + '"> Appuyez pour ouvrir <b>' + toTitleCase(userPacks[target][i]) + '</b> pack</button>');
