@@ -31,8 +31,8 @@ const shop = [
     ['XY-Générations', 'Obtenez 5 cartes dans le pack Générations sorti dans la série XY.', 5]
 ];
 let packShop = ['XY', 'XY-Etincelles', 'XY-Poings Furieux', 'XY-Vigueur Spectrale', 'XY-Primo Choc', 'XY-Ciel Rugissant', 'XY-Origines Antiques', 'XY-Générations', 'Double Danger', 'Eau', 'Feu', 'Combat', 'Fée', 'Dragon', 'Incolore', 'Psy', 'Electrique', 'Obscurité', 'Plante', 'OU-Pack', 'UU-Pack', 'Uber-Pack', 'PU-Pack', 'NU-Pack', 'RU-Pack', 'LC-Pack', 'BL-Pack', 'BL2-Pack', 'BL3-Pack', 'Gen1', 'Gen2', 'Gen3', 'Gen4', 'Gen5', 'Gen6', 'Métal', 'Dresseur', 'Supporter', 'Objet', 'Stade', 'EX-Pack', 'Légendaire', 'Full', 'Event'];
-const tourCardRarity = ['No Card', 'Commun', 'Peu Commun', 'Rare', 'Epique', 'Epique', 'Legendaire', 'Legendaire', 'Mythique'];
-const cardRarity = ['Commun', 'Peu commun', 'Rare', 'Epique', 'Légendaire', 'Mythique'];
+const tourCardRarity = ['No Card', 'Common', 'Uncommon', 'Rare', 'Epic', 'Epic', 'Legendary', 'Legendary', 'Mythic'];
+const cardRarity = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic'];
 let cleanShop = [];
 let cleanCard = [];
 let rareCache = []; //Used to cache cards for tours
@@ -245,7 +245,7 @@ exports.commands = {
             let cardName = cards[card].name;
             let packName = packShop[cleanShop.indexOf(toId(target))];
             this.sendReplyBox(user.name + ' a eu <font color="' + colors[cards[card].rarity] + '">' + cards[card].rarity + '</font>' +
-            '<button name="send" value="/card ' + (carte) + '"><b>' + cardName + '</b></button> depuis ' +
+            '<button name="send" value="/card ' + card + '"><b>' + cardName + '</b></button> depuis ' +
             '<button name="send" value="/buypack ' + packName + '">' + packName + ' (Pack)</button>.');
         }
         let usrIndex = userPacks[user.userid].indexOf(newPack);
@@ -334,14 +334,13 @@ exports.commands = {
     searchcard: function (target, room, user) {
         const letters = "abcdefghijklmnopqrstuvwxyz".split("");
         const categories = {
-            Rareté: ['Commun', 'Peu commun', 'Rare', 'Epique', 'Légendaire', 'Mythique'], // rarities
-            Packs: ['XY-Promo', 'XY', 'XY-Etincelles', 'XY-Poings Furieux', 'XY-Vigueur Spectrale', 'XY-Primo Choc', 'XY-Ciel Rugissant', 'XY-Origines Antiques', 'Double Danger'],
-            Types: ['Eau', 'Feu', 'Combat', 'Fée', 'Dragon', 'Incolore', 'Psy', 'Electrique', 'Obscurité', 'Plante', 'Métal'],
-            Tiers: ['OU-Pack', 'UU-Pack', 'Uber-Pack', 'PU-Pack', 'NU-Pack', 'RU-Pack', 'LC-Pack', 'BL-Pack', 'BL2-Pack', 'BL3-Pack'],
-            Génération: ['Gen1', 'Gen2', 'Gen3', 'Gen4', 'Gen5', 'Gen6'],
-            Divers: ['Dresseur', 'Supporter', 'Objet', 'Stade', 'Energie', 'Delta', 'EX-Pack', 'Méga', 'Légendaire', 'Full', 'Event'],
-        };
- 
+			Rarity: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic'], // rarities	            Rareté: ['Commun', 'Peu commun', 'Rare', 'Epique', 'Légendaire', 'Mythique'], // rarities
+			Packs: ['XY-Promo', 'XY-Base', 'XY-Flashfire', 'XY-Furious Fists', 'XY-Phantom Forces', 'XY-Primal Clash', 'XY-Roaring Skies', 'XY-Ancient Origins', 'Double Crisis'],	            Packs: ['XY-Promo', 'XY', 'XY-Etincelles', 'XY-Poings Furieux', 'XY-Vigueur Spectrale', 'XY-Primo Choc', 'XY-Ciel Rugissant', 'XY-Origines Antiques', 'Double Danger'],
+			Types: ['Water', 'Fire', 'Fighting', 'Fairy', 'Dragon', 'Colorless', 'Psychic', 'Lightning', 'Darkness', 'Grass', 'Metal'],	            Types: ['Eau', 'Feu', 'Combat', 'Fée', 'Dragon', 'Incolore', 'Psy', 'Electrique', 'Obscurité', 'Plante', 'Métal'],
+			Tiers: ['OU-Pack', 'UU-Pack', 'Uber-Pack', 'PU-Pack', 'NU-Pack', 'RU-Pack', 'LC-Pack', 'BL-Pack', 'BL2-Pack', 'BL3-Pack'],	            Tiers: ['OU-Pack', 'UU-Pack', 'Uber-Pack', 'PU-Pack', 'NU-Pack', 'RU-Pack', 'LC-Pack', 'BL-Pack', 'BL2-Pack', 'BL3-Pack'],
+			Generation: ['Gen1', 'Gen2', 'Gen3', 'Gen4', 'Gen5', 'Gen6'],	            Génération: ['Gen1', 'Gen2', 'Gen3', 'Gen4', 'Gen5', 'Gen6'],
+			Miscellaneous: ['Trainer', 'Supporter', 'Item', 'Stadium', 'Energy', 'Delta', 'EX-Pack', 'Mega', 'Legendary', 'Full', 'Event'],	            Divers: ['Dresseur', 'Supporter', 'Objet', 'Stade', 'Energie', 'Delta', 'EX-Pack', 'Méga', 'Légendaire', 'Full', 'Event'],
+		};
         const scrollable = "<div style=\"max-height: 300px; overflow-y: scroll\">"; // code for scrollable html
         const divEnd = "</div>";
         const definePopup = "|wide||html|<center><b>CardSearch</b></center><br />";
@@ -697,7 +696,7 @@ exports.commands = {
                 // make the user confirm the decision
                 // build a back button
                 return user.popup("|html|" + backButton + // back button
-                '<center><button name="send" value="/tradeaction confirmaccept, ' + parts[0] + '" style="background-color:red;height:65px;width:150px"><b>Confirmer l'échange</b></button></center>');
+                '<center><button name="send" value="/tradeaction confirmaccept, ' + parts[0] + '" style="background-color:red;height:65px;width:150px"><b>Confirmer l\'échange</b></button></center>');
             }
             // finalize trade
             // get the trade
