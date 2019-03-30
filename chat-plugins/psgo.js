@@ -237,7 +237,7 @@ exports.commands = {
 		if (!userPacks[user.userid] || userPacks[user.userid].length === 0) return this.sendReply("You have no packs.");
 		if (userPacks[user.userid].indexOf(toId(target)) < 0) return this.sendReply("You do not have this pack.");
 		let newPack;
-		for (let i = 0; i < 3; i++) {
+		for (let i = 0; i < 5; i++) {
 			newPack = toId(target);
 			let cacheValue = cardCache[cleanShop.indexOf(toId(target))];
 			let card = cacheValue[Math.round(Math.random() * (cacheValue.length - 1))];
