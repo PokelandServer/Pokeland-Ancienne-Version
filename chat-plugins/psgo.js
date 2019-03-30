@@ -21,14 +21,14 @@ const colors = {
 };
  
 const shop = [
-    ['XY', 'Obtenez 5 cartes dans le premier pack sorti dans la série XY', 2],
-    ['XY-Etincelles', 'Obtenez 5 cartes dans le pack Etincelles sorti dans la série XY.', 3],
-    ['XY-Poings Furieux', 'Obtenez 5 cartes dans le pack Poings Furieux sorti dans la série XY.', 3],
-    ['XY-Vigueur Spectrale', 'Obtenez 5 cartes dans le pack Vigueur Spectrale sorti dans la série XY.', 3],
-    ['XY-Primo Choc', 'Obtenez 5 cartes dans le pack Primo Choc sorti dans la série XY.', 4],
-    ['XY-Ciel Rugissant', 'Obtenez 5 cartes dans le pack Ciel Rugissant sorti dans la série XY.', 4],
-    ['XY-Origines Antiques', 'Obtenez 5 cartes dans le pack Origines Antiques sorti dans la série XY.', 4],
-    ['XY-Générations', 'Obtenez 5 cartes dans le pack Générations sorti dans la série XY.', 5]
+    ['XY-Base', 'Obtenez 5 cartes dans le premier pack sorti dans la série XY', 2],
+    ['XY-Flashfire', 'Obtenez 5 cartes dans le pack Etincelles sorti dans la série XY.', 3],
+    ['XY-Furious Fists', 'Obtenez 5 cartes dans le pack Poings Furieux sorti dans la série XY.', 3],
+    ['XY-Phantom Forces', 'Obtenez 5 cartes dans le pack Vigueur Spectrale sorti dans la série XY.', 3],
+    ['XY-Primal Clash', 'Obtenez 5 cartes dans le pack Primo Choc sorti dans la série XY.', 4],
+    ['XY-Roaring Skies', 'Obtenez 5 cartes dans le pack Ciel Rugissant sorti dans la série XY.', 4],
+    ['XY-Ancient Origins', 'Obtenez 5 cartes dans le pack Origines Antiques sorti dans la série XY.', 4],
+    ['XY-Generations', 'Obtenez 5 cartes dans le pack Générations sorti dans la série XY.', 5]
 ];
 let packShop = ['XY', 'XY-Etincelles', 'XY-Poings Furieux', 'XY-Vigueur Spectrale', 'XY-Primo Choc', 'XY-Ciel Rugissant', 'XY-Origines Antiques', 'XY-Générations', 'Double Danger', 'Eau', 'Feu', 'Combat', 'Fée', 'Dragon', 'Incolore', 'Psy', 'Electrique', 'Obscurité', 'Plante', 'OU-Pack', 'UU-Pack', 'Uber-Pack', 'PU-Pack', 'NU-Pack', 'RU-Pack', 'LC-Pack', 'BL-Pack', 'BL2-Pack', 'BL3-Pack', 'Gen1', 'Gen2', 'Gen3', 'Gen4', 'Gen5', 'Gen6', 'Métal', 'Dresseur', 'Supporter', 'Objet', 'Stade', 'EX-Pack', 'Légendaire', 'Full', 'Event'];
 const tourCardRarity = ['No Card', 'Common', 'Uncommon', 'Rare', 'Epic', 'Epic', 'Legendary', 'Legendary', 'Mythic'];
