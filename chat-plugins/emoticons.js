@@ -23,7 +23,6 @@ if (typeof demFeels.extendEmotes === 'function') {
 		'feelskawaii':'https://s-media-cache-ak0.pinimg.com/originals/1c/fb/d0/1cfbd086d1b9cd45f3de21e6c42ee1e5.gif',
 		'feelsbarbi':'http://www.pokepedia.fr/images/thumb/0/02/Barbicha-RS.png/250px-Barbicha-RS.png',
 		'feelsramo':'http://image.jeuxvideo.com/medias-sm/148068/1480682838-233-artwork.png',
-		'zokestsexy':'http://image.prntscr.com/image/5a6431a3805046cdaca7a7dcb3e5bd10.png',
 		'feelsmog':'http://orig03.deviantart.net/9d5f/f/2016/363/d/8/cosmog_licky_by_animela_wolfhybrid-datdnqk.gif',
 		'feelszok':'https://image.jeuxvideo.com/medias-sm/148068/1480682452-3658-artwork.png',
 		'oshet':'http://i.imgur.com/yr5DjuZ.png',
