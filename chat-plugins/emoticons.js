@@ -19,6 +19,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	demFeels.extendEmotes({
 				'feelspute':'http://puu.sh/tlVlA/94b278251b.jpg',
 		'feelslsd':'http://i0.kym-cdn.com/photos/images/original/000/105/986/130014911356.gif',
+				'feelsmdrrr':'http://i0.kym-cdn.com/photos/images/original/000/105/986/130014911356.gif',
 		'feelsmaki':'http://image.prntscr.com/image/ad2511dd39e644f89c582653a1e21414.png',
 		'feelskawaii':'https://s-media-cache-ak0.pinimg.com/originals/1c/fb/d0/1cfbd086d1b9cd45f3de21e6c42ee1e5.gif',
 		'feelsbarbi':'http://www.pokepedia.fr/images/thumb/0/02/Barbicha-RS.png/250px-Barbicha-RS.png',
