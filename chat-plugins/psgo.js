@@ -78,19 +78,19 @@ global.tourCard = function (tourSize, userid) {
 	addCard(userid, card);
 	return [colors[cards[card].rarity], cards[card].rarity, cards[card].title, cards[card].name];
 };
- 
+
 function addCard(name, card) {
-    let newCard = {};
-    newCard.id = uuid.v1();
-    newCard.title = cards[card].title;
-    newCard.card = cards[card].card;
-    newCard.name = cards[card].name;
-    newCard.rarity = cards[card].rarity;
-    newCard.points = cards[card].points;
- 
-    let userid = toId(name);
-    Db('cards').set(userid, Db('cards').get(userid, []).concat([newCard]));
-    Db('points').set(userid, Db('points').get(userid, 0) + newCard.points);
+	let newCard = {};
+	newCard.id = uuid.v1();
+	newCard.title = cards[card].title;
+	newCard.card = cards[card].card;
+	newCard.name = cards[card].name;
+	newCard.rarity = cards[card].rarity;
+	newCard.points = cards[card].points;
+
+	let userid = toId(name);
+	Db('cards').set(userid, Db('cards').get(userid, []).concat([newCard]));
+	Db('points').set(userid, Db('points').get(userid, 0) + newCard.points);
 }
  
 function removeCard(cardTitle, userid) {
