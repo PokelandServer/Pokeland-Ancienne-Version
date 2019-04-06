@@ -69,13 +69,14 @@ function cacheRarity() {
 }
  
 global.tourCard = function (tourSize, userid) {
-    if (tourSize > 32) tourSize = 32;
-    let tourRarity = tourCardRarity[Math.floor(tourSize / 2)];
-    let cacheValue = rareCache[cleanCard.indexOf(toId(tourRarity))];
-    let card = cacheValue[Math.round(Math.random() * (cacheValue.length - 1))];
-    if (tourRarity === 'No Card') return;
-    addCard(userid, card);
-    return [colors[cards[card].rarity], cards[card].rarity, cards[card].title, cards[card].name];
+	if (tourSize > 32) tourSize = 32;
+	let tourRarity = tourCardRarity[Math.floor(tourSize / 3)];
+	let cacheValue = rareCache[cleanCard.indexOf(toId(tourRarity))];
+	if (!cacheValue || !cacheValue.length) return false;
+	let card = cacheValue[Math.round(Math.random() * (cacheValue.length - 1))];
+	if (tourRarity === 'No Card') return;
+	addCard(userid, card);
+	return [colors[cards[card].rarity], cards[card].rarity, cards[card].title, cards[card].name];
 };
  
 function addCard(name, card) {
