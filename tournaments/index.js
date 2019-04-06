@@ -971,7 +971,7 @@ class Tournament {
 				this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(runnerUp) + "</font> a également gagné " +  "<font color='" + color + "'>" + secondMoney + "</font>" + currencyName(secondMoney) + " pour avoir joué la finale!</b>");
 	        }
 	        let tourRarity = global.tourCard(tourSize, toId(winner));
-if (tourRarity) this.room.addRaw("<b>" + hashColors(winner, false) + " a également gagné une carte <font color=" + tourRarity[0] + ">" + tourRarity[1] + "</font> card: <button class='tourcard-btn' style='border-radius: 20px; box-shadow: 1px 1px rgba(255, 255, 255, 0.3) inset, -1px -1px rgba(0, 0, 0, 0.2) inset, 2px 2px 2px rgba(0, 0, 0, 0.5);' name='send' value='/card " + tourRarity[2] + "'>" + tourRarity[3] + ");
+if (tourRarity) this.room.addRaw("<b>" + hashColors(winner, false) + " a également gagné une carte <font color=" + tourRarity[0] + ">" + tourRarity[1] + "</font> card: <button class='tourcard-btn' style='border-radius: 20px; box-shadow: 1px 1px rgba(255, 255, 255, 0.3) inset, -1px -1px rgba(0, 0, 0, 0.2) inset, 2px 2px 2px rgba(0, 0, 0, 0.5);' name='send' value='/card " + tourRarity[2] + "'>" + tourRarity[3] + "</button> .");
 
 		}
 		delete exports.tournaments[this.room.id];
