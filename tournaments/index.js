@@ -931,6 +931,7 @@ class Tournament {
 		if (this.room.isOfficial && tourSize >= sizeRequiredToEarn) {
 			let firstMoney = Math.round(tourSize / 4);
 			let secondMoney = Math.round(firstMoney / 2);
+			
 
 			Db('money').set(wid, Db('money').get(wid, 0) + firstMoney);
 			this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(winner) + "</font> remporte " + "<font color='" + color + "'>" + firstMoney + "</font>" + currencyName(firstMoney) + " en gagnant le tournoi!</b>");
@@ -956,6 +957,10 @@ class Tournament {
            		}
               		WL.addExp(wid, this.room, parseInt(firstMoney+30));
            		Users(wid).send('|raw|+'+ parseInt(firstMoney+30)+' exp');
+				}
+							let tourRarity = global.tourCard(tourSize, toId(winner));
+
+					if (tourRarity) this.room.addRaw("<b>" + hashColors(winner, false) + " a également gagné une carte <font color=" + tourRarity[0] + ">" + tourRarity[1] + "</font> card: <button class='tourcard-btn' style='border-radius: 20px; box-shadow: 1px 1px rgba(255, 255, 255, 0.3) inset, -1px -1px rgba(0, 0, 0, 0.2) inset, 2px 2px 2px rgba(0, 0, 0, 0.5);' name='send' value='/card " + tourRarity[2] + "'>" + tourRarity[3] + "</button>. ");
 
 
       	}
