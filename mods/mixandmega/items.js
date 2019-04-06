@@ -4,16 +4,16 @@
 let BattleItems = {
 	blueorb: {
 		inherit: true,
-		onSwitchIn: function (pokemon) {
+		onSwitchIn(pokemon) {
 			if (pokemon.isActive && !pokemon.template.isPrimal) {
 				this.insertQueue({pokemon: pokemon, choice: 'runPrimal'});
 			}
 		},
-		onPrimal: function (pokemon) {
+		onPrimal(pokemon) {
 			/**@type {Template} */
 			// @ts-ignore
-			let template = this.getMixedTemplate(pokemon.originalSpecies, 'Kyogre-Primal');
-			if (pokemon.originalSpecies === 'Kyogre') {
+			let template = this.getMixedTemplate(pokemon.m.originalSpecies, 'Kyogre-Primal');
+			if (pokemon.m.originalSpecies === 'Kyogre') {
 				pokemon.formeChange(template, this.effect, true);
 			} else {
 				pokemon.formeChange(template, this.effect, true);
@@ -21,28 +21,28 @@ let BattleItems = {
 				this.add('-start', pokemon, 'Blue Orb', '[silent]');
 			}
 		},
-		onTakeItem: function (item) {
+		onTakeItem(item) {
 			return false;
 		},
 	},
 	redorb: {
 		inherit: true,
-		onSwitchIn: function (pokemon) {
+		onSwitchIn(pokemon) {
 			if (pokemon.isActive && !pokemon.template.isPrimal) {
 				this.insertQueue({pokemon: pokemon, choice: 'runPrimal'});
 			}
 		},
-		onPrimal: function (pokemon) {
+		onPrimal(pokemon) {
 			/**@type {Template} */
 			// @ts-ignore
-			let template = this.getMixedTemplate(pokemon.originalSpecies, 'Groudon-Primal');
-			if (pokemon.originalSpecies === 'Groudon') {
+			let template = this.getMixedTemplate(pokemon.m.originalSpecies, 'Groudon-Primal');
+			if (pokemon.m.originalSpecies === 'Groudon') {
 				pokemon.formeChange(template, this.effect, true);
 			} else {
 				pokemon.formeChange(template, this.effect, true);
 				pokemon.baseTemplate = template;
 				this.add('-start', pokemon, 'Red Orb', '[silent]');
-				let apparentSpecies = pokemon.illusion ? pokemon.illusion.template.species : pokemon.originalSpecies;
+				let apparentSpecies = pokemon.illusion ? pokemon.illusion.template.species : pokemon.m.originalSpecies;
 				let oTemplate = this.getTemplate(apparentSpecies);
 				if (pokemon.illusion) {
 					let types = oTemplate.types;
@@ -54,7 +54,7 @@ let BattleItems = {
 				}
 			}
 		},
-		onTakeItem: function (item) {
+		onTakeItem(item) {
 			return false;
 		},
 	},

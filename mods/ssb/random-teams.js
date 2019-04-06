@@ -16,7 +16,7 @@
  * @property {boolean=} shiny
  */
 
-const RandomTeams = require('../../data/random-teams');
+const RandomTeams = require('../../random-teams');
 
 class RandomStaffBrosTeams extends RandomTeams {
 	randomStaffBrosTeam() {
@@ -100,12 +100,6 @@ class RandomStaffBrosTeams extends RandomTeams {
 				moves: ['Knock Off', 'Earthquake', ['Horn Leech', 'U-turn', 'Avalanche']],
 				signatureMove: 'Trashalanche',
 				evs: {hp: 252, atk: 252, def: 4}, ivs: {spe: 0}, nature: 'Brave',
-			},
-			'Arrested': {
-				species: 'Blastoise', ability: 'Torrent', item: 'Blastoisinite', gender: 'M',
-				moves: ['Muddy Water', 'Ice Beam', 'Slack Off'],
-				signatureMove: 'Jail Shell',
-				evs: {hp: 252, def: 4, spa: 252}, nature: 'Modest',
 			},
 			'Arsenal': {
 				species: 'Arceus', ability: 'Logia', gender: 'M',
@@ -258,6 +252,12 @@ class RandomStaffBrosTeams extends RandomTeams {
 				signatureMove: 'Rock Slide',
 				evs: {hp: 4, atk: 252, spe: 252}, nature: 'Jolly',
 			},
+			'Forrce': {
+				species: 'Cresselia', ability: 'Wonder Skin', item: 'Leftovers', gender: 'N',
+				moves: ['Moonlight', 'Heart Swap', 'Baton Pass'],
+				signatureMove: 'Purple Pills',
+				evs: {hp: 176, def: 80, spd: 252}, ivs: {atk: 0}, nature: 'Calm',
+			},
 			'grimAuxiliatrix': {
 				species: 'Aggron', ability: 'Sturdy', item: 'Aggronite', gender: '',
 				moves: [['Toxic', 'Stealth Rock'], ['Stone Edge', 'Heat Crash'], 'Earthquake'],
@@ -366,12 +366,6 @@ class RandomStaffBrosTeams extends RandomTeams {
 				signatureMove: 'Shuffle Ramen Dance',
 				evs: {def: 4, spa: 252, spe: 252}, ivs: {atk: 0}, nature: 'Timid', shiny: true,
 			},
-			'Lycanium Z': {
-				species: 'Cresselia', ability: 'Wonder Skin', item: 'Leftovers', gender: 'N',
-				moves: ['Moonlight', 'Heart Swap', 'Baton Pass'],
-				signatureMove: 'Purple Pills',
-				evs: {hp: 176, def: 80, spd: 252}, ivs: {atk: 0}, nature: 'Calm',
-			},
 			'MacChaeger': {
 				species: 'Mantyke', ability: 'Water Veil', item: ['Life Orb', 'Normalium Z'], gender: 'M',
 				moves: ['Scald', 'Aeroblast', 'Sleep Talk'],
@@ -455,6 +449,12 @@ class RandomStaffBrosTeams extends RandomTeams {
 				moves: ['Nasty Plot', 'Psyshock', 'Earth Power'],
 				signatureMove: 'Total Leech',
 				evs: {def: 4, spa: 252, spe: 252}, ivs: {atk: 0}, nature: 'Timid',
+			},
+			'Pablo': {
+				species: 'Blastoise', ability: 'Torrent', item: 'Blastoisinite', gender: 'M',
+				moves: ['Muddy Water', 'Ice Beam', 'Slack Off'],
+				signatureMove: 'Jail Shell',
+				evs: {hp: 252, def: 4, spa: 252}, nature: 'Modest',
 			},
 			'Paradise': {
 				species: 'Muk', ability: 'Unaware', item: 'Black Sludge', gender: '',
@@ -618,7 +618,7 @@ class RandomStaffBrosTeams extends RandomTeams {
 				signatureMove: 'Cutie Escape',
 				evs: {hp: 4, spa: 252, spe: 252}, nature: 'Timid',
 			},
-			'Xayahh': {
+			'Xayah': {
 				species: 'Noivern', ability: 'Dancer', item: 'Flyinium Z', gender: 'F',
 				moves: ['Clanging Scales', 'Roost', 'Fiery Dance'],
 				signatureMove: 'Stunning Dance',

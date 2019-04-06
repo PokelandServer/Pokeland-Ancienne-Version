@@ -1,16 +1,16 @@
 'use strict';
 
-/**@type {{[k: string]: ModdedEffectData}} */
+/**@type {{[k: string]: ModdedPureEffectData}} */
 let BattleStatuses = {
 	brn: {
 		inherit: true,
-		onResidual: function (pokemon) {
+		onResidual(pokemon) {
 			this.damage(pokemon.maxhp / 8);
 		},
 	},
 	par: {
 		inherit: true,
-		onModifySpe: function (spe, pokemon) {
+		onModifySpe(spe, pokemon) {
 			if (!pokemon.hasAbility('quickfeet')) {
 				return this.chainModify(0.25);
 			}
@@ -18,7 +18,7 @@ let BattleStatuses = {
 	},
 	confusion: {
 		inherit: true,
-		onBeforeMove: function (pokemon) {
+		onBeforeMove(pokemon) {
 			pokemon.volatiles.confusion.time--;
 			if (!pokemon.volatiles.confusion.time) {
 				pokemon.removeVolatile('confusion');
@@ -40,7 +40,7 @@ let BattleStatuses = {
 	},
 	choicelock: {
 		inherit: true,
-		onBeforeMove: function () {},
+		onBeforeMove() {},
 	},
 };
 

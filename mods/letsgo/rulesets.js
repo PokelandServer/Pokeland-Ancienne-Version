@@ -5,7 +5,7 @@ let BattleFormats = {
 	pokemon: {
 		effectType: 'ValidatorRule',
 		name: 'Pokemon',
-		onValidateTeam: function (team, format) {
+		onValidateTeam(team, format) {
 			let problems = [];
 			if (team.length > 6) problems.push('Your team has more than six Pok\u00E9mon.');
 			// Unlike Pokemon like Kyurem-B and Kyurem-W, the two Starter Pokemon cannot be hacked onto other games.
@@ -21,7 +21,7 @@ let BattleFormats = {
 			}
 			return problems;
 		},
-		onChangeSet: function (set, format) {
+		onChangeSet(set, format) {
 			let template = this.getTemplate(set.species);
 			let baseTemplate = this.getTemplate(template.baseSpecies);
 			let problems = [];
@@ -145,10 +145,10 @@ let BattleFormats = {
 		effectType: 'ValidatorRule',
 		name: 'Allow AVs',
 		desc: "Tells formats with the 'letsgo' mod to take Awakening Values into consideration when calculating stats",
-		onChangeSet: function (set, format) {
+		onChangeSet(set, format) {
 			/**@type {string[]} */
 			let problems = ([]);
-			let avs = this.getAwakeningValues(set);
+			let avs = /** @type {StatsTable} */(this.getAwakeningValues(set));
 			if (set.evs) {
 				for (let k in set.evs) {
 					// @ts-ignore
@@ -164,6 +164,7 @@ let BattleFormats = {
 			// Pokemon cannot have more than 200 Awakening Values in a stat. It is impossible to hack more than 200 AVs onto a stat, so legality doesn't matter.
 			for (let av in avs) {
 				let statNames = {hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed'};
+				// @ts-ignore
 				if (avs[av] > 200) {
 					// @ts-ignore
 					problems.push(`${set.name || set.species} has more than 200 Awakening Values in its ${statNames[av]}.`);

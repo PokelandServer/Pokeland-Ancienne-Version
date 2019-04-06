@@ -10,12 +10,13 @@ let BattleScripts = {
 	gen: 2,
 	// BattlePokemon scripts.
 	pokemon: {
-		getStat(statName, unboosted, unmodified) {
-			statName = toId(statName);
-			if (statName === 'hp') return this.maxhp;
+		getStat(statName, unboosted, unmodified, fastReturn) {
+			statName = /** @type {StatNameExceptHP} */(toId(statName));
+			// @ts-ignore - type checking prevents 'hp' from being passed, but we're paranoid
+			if (statName === 'hp') throw new Error("Please read `maxhp` directly");
 
 			// base stat
-			let stat = this.stats[statName];
+			let stat = this.storedStats[statName];
 
 			// Stat boosts.
 			if (!unboosted) {
@@ -45,6 +46,7 @@ let BattleScripts = {
 
 			// Gen 2 caps stats at 999 and min is 1.
 			stat = this.battle.clampIntRange(stat, 1, 999);
+			if (fastReturn) return stat;
 
 			// Screens
 			if (!unboosted) {
@@ -54,14 +56,42 @@ let BattleScripts = {
 			}
 
 			// Treat here the items.
-			if ((['Cubone', 'Marowak'].includes(this.species) && this.item === 'thickclub' && statName === 'atk') || (this.species === 'Pikachu' && this.item === 'lightball' && statName === 'spa')) {
+			if ((['Cubone', 'Marowak'].includes(this.template.species) && this.item === 'thickclub' && statName === 'atk') || (this.template.species === 'Pikachu' && this.item === 'lightball' && statName === 'spa')) {
 				stat *= 2;
 			} else if (this.species === 'Ditto' && this.item === 'metalpowder' && ['def', 'spd'].includes(statName)) {
-				// what. the. fuck. stop playing pokémon
 				stat *= 1.5;
 			}
 
 			return stat;
+		},
+		boostBy(boost) {
+			let delta = 0;
+			for (let i in boost) {
+				// @ts-ignore
+				delta = boost[i];
+				// @ts-ignore
+				if (delta > 0 && this.getStat(i, false, true, true) === 999) {
+					delta = 0;
+					continue;
+				}
+				// @ts-ignore
+				this.boosts[i] += delta;
+				// @ts-ignore
+				if (this.boosts[i] > 6) {
+					// @ts-ignore
+					delta -= this.boosts[i] - 6;
+					// @ts-ignore
+					this.boosts[i] = 6;
+				}
+				// @ts-ignore
+				if (this.boosts[i] < -6) {
+					// @ts-ignore
+					delta -= this.boosts[i] - (-6);
+					// @ts-ignore
+					this.boosts[i] = -6;
+				}
+			}
+			return delta;
 		},
 	},
 	// Battle scripts.
@@ -246,8 +276,6 @@ let BattleScripts = {
 			move.totalDamage = damage;
 		}
 		if (move.category !== 'Status') {
-			// FIXME: The stored damage should be calculated ignoring Substitute.
-			// https://github.com/Zarel/Pokemon-Showdown/issues/2598
 			target.gotAttacked(move, damage, pokemon);
 		}
 		if (move.ohko) this.add('-ohko');
@@ -262,6 +290,7 @@ let BattleScripts = {
 		}
 		return damage;
 	},
+	/** @return {number | undefined | false} */
 	moveHit(target, pokemon, move, moveData, isSecondary, isSelf) {
 		/** @type {number | false | null | undefined} */
 		let damage = undefined;
@@ -358,11 +387,11 @@ let BattleScripts = {
 				didSomething = didSomething || hitResult;
 			}
 			if (moveData.weather) {
-				hitResult = this.setWeather(moveData.weather, pokemon, move);
+				hitResult = this.field.setWeather(moveData.weather, pokemon, move);
 				didSomething = didSomething || hitResult;
 			}
 			if (moveData.pseudoWeather) {
-				hitResult = this.addPseudoWeather(moveData.pseudoWeather, pokemon, move);
+				hitResult = this.field.addPseudoWeather(moveData.pseudoWeather, pokemon, move);
 				didSomething = didSomething || hitResult;
 			}
 			if (moveData.forceSwitch) {
@@ -424,6 +453,8 @@ let BattleScripts = {
 					let effectChance = Math.floor((secondary.chance || 100) * 255 / 100);
 					if (typeof secondary.chance === 'undefined' || this.randomChance(effectChance, 256)) {
 						this.moveHit(target, pokemon, move, secondary, true, isSelf);
+					} else if (effectChance === 255) {
+						this.hint("In Gen 2, moves with a 100% secondary effect chance will not trigger in 1/256 uses.");
 					}
 				}
 			}
@@ -507,15 +538,15 @@ let BattleScripts = {
 		let critRatio = this.runEvent('ModifyCritRatio', pokemon, target, move, move.critRatio || 0);
 		critRatio = this.clampIntRange(critRatio, 0, 5);
 		let critMult = [0, 16, 8, 4, 3, 2];
-		move.crit = move.willCrit || false;
+		let isCrit = move.willCrit || false;
 		if (typeof move.willCrit === 'undefined') {
 			if (critRatio) {
-				move.crit = this.randomChance(1, critMult[critRatio]);
+				isCrit = this.randomChance(1, critMult[critRatio]);
 			}
 		}
 
-		if (move.crit) {
-			move.crit = this.runEvent('CriticalHit', target, null, move);
+		if (isCrit && this.runEvent('CriticalHit', target, null, move)) {
+			target.setMoveCrit(move);
 		}
 
 		// Happens after crit calculation
@@ -549,13 +580,15 @@ let BattleScripts = {
 		let defender = target;
 		if (move.useTargetOffensive) attacker = target;
 		if (move.useSourceDefensive) defender = pokemon;
+		/** @type {StatNameExceptHP} */
 		let atkType = (move.category === 'Physical') ? 'atk' : 'spa';
+		/** @type {StatNameExceptHP} */
 		let defType = (move.defensiveCategory === 'Physical') ? 'def' : 'spd';
 		let unboosted = false;
 		let noburndrop = false;
 
 		// The move is a critical hit. Several things happen here.
-		if (move.crit) {
+		if (isCrit) {
 			// Level is doubled for damage calculation.
 			level *= 2;
 			if (!suppressMessages) this.add('-crit', target);
@@ -589,7 +622,6 @@ let BattleScripts = {
 			defense = target.getStat(defType, true, true);
 		}
 
-		// Gen 2 Present has a glitched damage calculation using the secondary types of the Pokemon for the Attacker's Level and Defender's Defense.
 		if (move.id === 'present') {
 			/**@type {{[k: string]: number}} */
 			const typeIndexes = {"Normal": 0, "Fighting": 1, "Flying": 2, "Poison": 3, "Ground": 4, "Rock": 5, "Bug": 7, "Ghost": 8, "Steel": 9, "Fire": 20, "Water": 21, "Grass": 22, "Electric": 23, "Psychic": 24, "Ice": 25, "Dragon": 26, "Dark": 27};
@@ -600,14 +632,18 @@ let BattleScripts = {
 
 			defense = typeIndexes[attackerLastType] || 1;
 			level = typeIndexes[defenderLastType] || 1;
-			if (move.crit) {
+			if (isCrit) {
 				level *= 2;
 			}
+			this.hint("Gen 2 Present has a glitched damage calculation using the secondary types of the Pokemon for the Attacker's Level and Defender's Defense.", true);
 		}
 
-		// When either attack or defense are higher than 256, they are both divided by 4 and moded by 256.
-		// This is what cuases the roll over bugs.
+		// When either attack or defense are higher than 256, they are both divided by 4 and modded by 256.
+		// This is what causes the rollover bugs.
 		if (attack >= 256 || defense >= 256) {
+			if (attack >= 1024 || defense >= 1024) {
+				this.hint("In Gen 2, a stat will roll over to a small number if it is larger than 1024.");
+			}
 			attack = this.clampIntRange(Math.floor(attack / 4) % 256, 1);
 			defense = this.clampIntRange(Math.floor(defense / 4) % 256, 1);
 		}
@@ -629,9 +665,9 @@ let BattleScripts = {
 		damage += 2;
 
 		// Weather modifiers
-		if ((this.isWeather('raindance') && type === 'Water') || (this.isWeather('sunnyday') && type === 'Fire')) {
+		if ((this.field.isWeather('raindance') && type === 'Water') || (this.field.isWeather('sunnyday') && type === 'Fire')) {
 			damage = Math.floor(damage * 1.5);
-		} else if ((this.isWeather('raindance') && (type === 'Fire' || move.id === 'solarbeam')) || (this.isWeather('sunnyday') && type === 'Water')) {
+		} else if ((this.field.isWeather('raindance') && (type === 'Fire' || move.id === 'solarbeam')) || (this.field.isWeather('sunnyday') && type === 'Water')) {
 			damage = Math.floor(damage / 2);
 		}
 

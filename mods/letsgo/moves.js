@@ -9,37 +9,37 @@ let BattleMovedex = {
 	},
 	"baddybad": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"bouncybubble": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"buzzybuzz": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"doubleironbash": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"floatyfall": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"freezyfrost": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"glitzyglow": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"megadrain": {
@@ -49,7 +49,7 @@ let BattleMovedex = {
 	},
 	"metronome": {
 		inherit: true,
-		onHit: function (target, source, effect) {
+		onHit(target, source, effect) {
 			let moves = [];
 			for (let i in exports.BattleMovedex) {
 				let move = this.getMove(i);
@@ -75,12 +75,12 @@ let BattleMovedex = {
 	},
 	"sappyseed": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"sizzlyslide": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"solarbeam": {
@@ -89,12 +89,12 @@ let BattleMovedex = {
 	},
 	"sparklyswirl": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"splishysplash": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 	"skyattack": {
@@ -116,7 +116,7 @@ let BattleMovedex = {
 	},
 	"zippyzap": {
 		inherit: true,
-		isNonstandard: false,
+		isNonstandard: null,
 		isUnreleased: false,
 	},
 };
