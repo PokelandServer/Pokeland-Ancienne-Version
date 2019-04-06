@@ -299,6 +299,13 @@ exports.commands = {
 '<img src="https://image.noelshack.com/fichiers/2019/12/6/1553345949-semainier-distrib-vextal.png" width="500" height="500">'
 		);
 	},
+		'!galeries': true,
+	galeries: function (target, room, user) {
+		if (!this.runBroadcast()) return;
+		this.sendReplyBox(
+'<a href="http://pokelandfr.forumactif.com/t66-galerie-de-situm#424" target="_blank" rel="noopener"><button class="button">Galerie de SiTuM</button></a> <a href="http://www.bigbangpokemon.com/t552-galerie-de-breyn" target="_blank" rel="noopener"><button class="button">Galerie de Breyn</button></a> <a href="http://www.bigbangpokemon.com/t708-galerie-de-staxi" target="_blank" rel="noopener"><button class="button">Galerie de Staxi</button></a><a href="https://www.smogon.com/forums/threads/lionyxs-sprite-thread.3645712/" target="_blank" rel="noopener"><button class="button">Galerie de Lionyx</button></a> <a href="https://www.smogon.com/forums/threads/deetahs-sprite-thread.3637551/" target="_blank" rel="noopener"><button class="button">Galerie de deetah<small>(pas free to use)</small></button></a>'
+		);
+	},
 
 	avatarrequest: 'avatarrequest',
 	ar: 'avatarrequest',
