@@ -203,6 +203,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	'feelspeks': 'http://i.imgur.com/YuPzcjd.gif',
 	':kek:': 'http://image.noelshack.com/fichiers/2014/37/1410279891-rire.gif',
 	':darkrai:': 'http://orig07.deviantart.net/fa6d/f/2011/255/e/b/darkrai_sprite_gif_by_infernonick-d49nizb.gif',
+	'#distrib': 'http://51.38.238.97:8000/avatars/distrib.gif',
 	':hollande:': 'http://institutdeslibertes.org/wp-content/uploads/2015/09/french-president-francois-hollande-might-give-up.jpg',
 	'memeredmaxx': 'http://i.imgur.com/k9YCF6K.png',
 	'feelsdc': 'http://i3.kym-cdn.com/photos/images/original/000/968/807/1be.gif',
