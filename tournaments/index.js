@@ -9,6 +9,9 @@ const TOURBAN_DURATION = 14 * 24 * 60 * 60 * 1000;
 
 Punishments.roomPunishmentTypes.set('TOURBAN', 'banned from tournaments');
 
+let userPacks = {};
+let rareCache = [];
+let tourPack = {};
 let TournamentGenerators = Object.create(null);
 let generatorFiles = {
 	'roundrobin': 'generator-round-robin',
@@ -931,42 +934,44 @@ class Tournament {
 		if (this.room.isOfficial && tourSize >= sizeRequiredToEarn) {
 			let firstMoney = Math.round(tourSize / 4);
 			let secondMoney = Math.round(firstMoney / 2);
-			
 
 			Db('money').set(wid, Db('money').get(wid, 0) + firstMoney);
 			this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(winner) + "</font> remporte " + "<font color='" + color + "'>" + firstMoney + "</font>" + currencyName(firstMoney) + " en gagnant le tournoi!</b>");
 			// Pack Names
-            //const packs = ['xybase', 'xyflashfire', 'xyfuriousfists', 'xyphantomforces', 'xyprimalclash', 'xyroaringskies', 'xyancientorigins', 'xybreakthrough', 'xygenerations', 'xyfatescollide', 'bwlegendarytreasures'];
+           // const packs = ['xybase', 'xyflashfire', 'xyfuriousfists', 'xyphantomforces', 'xyprimalclash', 'xyroaringskies', 'xyancientorigins', 'xybreakthrough', 'xygenerations', 'xyfatescollide', 'bwlegendarytreasures'];
 
             // Random Pack
-            //const pack = packs[Math.floor(Math.random() * packs.length)];
+           // const pack = packs[Math.floor(Math.random() * packs.length)];
 
-           	// Award Pack
-           	//tourPack(wid, pack);
-           	//this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(winner) + "</font> a également remporté un pack de l'édition " + "<button class='button' name='send' value='/openpack " + pack + "'><b>" + pack + "</b></button>" + ".</b>");
+            //win
+                       		//tourCard(wid, pack);//Panur si tu passe par là tu peux le fix stp ? 
+           //	this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(winner) + "</font> a également remporté un pack de l'édition " + "<button class='button' name='send' value='/openpack " + pack + "'><b>" + pack + "</b></button>" + ".</b>");
 
+
+         
+           
            	// Clans 
-           	if ((this.room.id === 'lobby' || this.room.id === 'tournaments') && getClan(wid)) {
+        	if ((this.room.id === 'lobby' || this.room.id === 'tournaments') && getClan(wid)) {
 				giveClanPoints(wid, firstMoney);
 				logWar("<b>" + wid + "</b> remporte <b>"+ firstMoney +"</b> points pour son clan <b>"+ getClan(wid) +"</b> en gagnant un tournoi <b>"+ this.format +"</b>.");
 				this.room.addRaw('<b>Il remporte <font color="' + color + '">'+ firstMoney +'</font> points pour son clan</b> <button name="send" class="button style="border-radius: 20px; box-shadow: 1px 1px rgba(255, 255, 255, 0.3) inset, -1px -1px rgba(0, 0, 0, 0.2) inset, 2px 2px 2px rgba(0, 0, 0, 0.5);" value="/clan '+ getClan(wid) +'">'+ getClan(wid) +'</button>.');
            		
            		if ((this.room.id === 'lobby' || this.room.id === 'tournaments') && getClan(wid)) {
-           			this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(winner) + "</font> remporte " + "<font color='" + color + "'>" + "30" + "</font>" + " EXP" + " !</b>");
+           			this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(winner) + "</font> remporte " + "<font color='" + color + "'>" + "10" + "</font>" + " EXP" + " !</b>");
 
            		}
-              		WL.addExp(wid, this.room, parseInt(firstMoney+30));
-           		Users(wid).send('|raw|+'+ parseInt(firstMoney+30)+' exp');
-      	}
+           		WL.addExp(wid, this.room, parseInt(firstMoney+10));
+           		Users(wid).send('|raw|+'+ parseInt(firstMoney+10)+' exp');
+
+ 
+           	}
 
 			if (runnerUp) {
 				Db('money').set(rid, Db('money').get(rid, 0) + secondMoney);
 				this.room.addRaw("<b><font color='" + color + "'>" + Chat.escapeHTML(runnerUp) + "</font> a également gagné " +  "<font color='" + color + "'>" + secondMoney + "</font>" + currencyName(secondMoney) + " pour avoir joué la finale!</b>");
 	        }
-										let tourRarity = global.tourCard(tourSize, toId(winner));
-
-					if (tourRarity) this.room.addRaw("<b>" + hashColors(winner, false) + " a également gagné une carte <font color=" + tourRarity[0] + ">" + tourRarity[1] + "</font> card: <button class='tourcard-btn' style='border-radius: 20px; box-shadow: 1px 1px rgba(255, 255, 255, 0.3) inset, -1px -1px rgba(0, 0, 0, 0.2) inset, 2px 2px 2px rgba(0, 0, 0, 0.5);' name='send' value='/card " + tourRarity[2] + "'>" + tourRarity[3] + "</button>. ");
-
+	        let tourRarity = global.tourCard(tourSize, toId(winner));
+if (tourRarity) this.room.addRaw("<b>" + hashColors(winner, false) + " has also won a <font color=" + tourRarity[0] + ">" + tourRarity[1] + "</font> card: <button class='tourcard-btn' style='border-radius: 20px; box-shadow: 1px 1px rgba(255, 255, 255, 0.3) inset, -1px -1px rgba(0, 0, 0, 0.2) inset, 2px 2px 2px rgba(0, 0, 0, 0.5);' name='send' value='/card " + tourRarity[2] + "'>" + tourRarity[3] + "</button> from the tournament.");
 
 		}
 		delete exports.tournaments[this.room.id];
