@@ -9,7 +9,7 @@
 'use strict';
 
 /** @type {typeof import('../lib/fs').FS} */
-const FS = require(/** @type {any} */('../.lib-dist/fs')).FS;
+const FS = require('./lib/fs');	
 
 const MONITOR_CLEAN_TIMEOUT = 2 * 60 * 60 * 1000;
 
