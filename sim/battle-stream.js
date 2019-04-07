@@ -45,12 +45,8 @@ function splitFirst(str, delimiter, limit = 1) {
 }
 
 class BattleStream extends Streams.ObjectReadWriteStream {
-	/**
-	 * @param {{debug?: boolean}} options
-	 */
-	constructor({debug} = {}) {
+	constructor() {
 		super();
-		this.debug = !!debug;
 		/** @type {Battle} */
 		// @ts-ignore
 		this.battle = null;
@@ -66,7 +62,7 @@ class BattleStream extends Streams.ObjectReadWriteStream {
 			}
 		} catch (err) {
 			const battle = this.battle;
-			Monitor.crashlog(err, 'A battle', {
+			require('./../lib/crashlogger')(err, 'A battle', {
 				message: message,
 				inputLog: battle ? '\n' + battle.inputLog.join('\n') : '',
 				log: battle ? '\n' + battle.getDebugLog() : '',
@@ -98,7 +94,6 @@ class BattleStream extends Streams.ObjectReadWriteStream {
 				if (Array.isArray(data)) data = data.join("\n");
 				this.push(`${type}\n${data}`);
 			};
-			if (this.debug) options.debug = true;
 			this.battle = new Battle(options);
 			break;
 		case 'player':
@@ -197,11 +192,11 @@ function getPlayerStreams(stream) {
 			const [type, data] = splitFirst(chunk, `\n`);
 			switch (type) {
 			case 'update':
-				const p1Update = data.replace(/\n\|split\n[^\n]*\n([^\n]*)\n[^\n]*\n[^\n]*/g, '\n$1').replace(/\n\n/g, '\n');
+				const p1Update = data.replace(/\n\|split\n[^\n]*\n([^\n]*)\n[^\n]*\n[^\n]*/g, '\n$1');
 				p1.push(p1Update);
-				const p2Update = data.replace(/\n\|split\n[^\n]*\n[^\n]*\n([^\n]*)\n[^\n]*/g, '\n$1').replace(/\n\n/g, '\n');
+				const p2Update = data.replace(/\n\|split\n[^\n]*\n[^\n]*\n([^\n]*)\n[^\n]*/g, '\n$1');
 				p2.push(p2Update);
-				const specUpdate = data.replace(/\n\|split\n([^\n]*)\n[^\n]*\n[^\n]*\n[^\n]*/g, '\n$1').replace(/\n\n/g, '\n');
+				const specUpdate = data.replace(/\n\|split\n([^\n]*)\n[^\n]*\n[^\n]*\n[^\n]*/g, '\n$1');
 				spectator.push(specUpdate);
 				const omniUpdate = data.replace(/\n\|split\n[^\n]*\n[^\n]*\n[^\n]*/g, '');
 				omniscient.push(omniUpdate);
@@ -278,12 +273,9 @@ class BattlePlayer {
 }
 
 class BattleTextStream extends Streams.ReadWriteStream {
-	/**
-	 * @param {{debug?: boolean}} options
-	 */
-	constructor(options) {
+	constructor() {
 		super();
-		this.battleStream = new BattleStream(options);
+		this.battleStream = new BattleStream();
 		/** @type {string} */
 		this.currentMessage = '';
 		this._listen();
