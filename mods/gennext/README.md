@@ -39,7 +39,7 @@ Recent changes
 
 A changelog for NEXT is available here:
 
-https://github.com/Zarel/Pokemon-Showdown/commits/master/data/mods/gennext
+https://github.com/Zarel/Pokemon-Showdown/commits/master/mods/gennext
 
 Changes
 ------------------------------------------------------------------------

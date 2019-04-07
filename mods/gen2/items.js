@@ -9,7 +9,7 @@ let BattleItems = {
 	brightpowder: {
 		inherit: true,
 		desc: "An attack against the holder has its accuracy out of 255 lowered by 20.",
-		onModifyAccuracy(accuracy) {
+		onModifyAccuracy: function (accuracy) {
 			if (typeof accuracy !== 'number') return;
 			this.debug('brightpowder - decreasing accuracy');
 			return accuracy - 20;
@@ -18,11 +18,11 @@ let BattleItems = {
 	dragonfang: {
 		inherit: true,
 		desc: "No competitive use.",
-		onBasePower() {},
+		onBasePower: function () {},
 	},
 	dragonscale: {
 		inherit: true,
-		onBasePower(basePower, user, target, move) {
+		onBasePower: function (basePower, user, target, move) {
 			if (move.type === 'Dragon') {
 				return basePower * 1.1;
 			}
@@ -32,7 +32,7 @@ let BattleItems = {
 	focusband: {
 		inherit: true,
 		desc: "Holder has a ~11.7% chance to survive an attack that would KO it with 1 HP.",
-		onDamage(damage, target, source, effect) {
+		onDamage: function (damage, target, source, effect) {
 			if (this.randomChance(30, 256) && damage >= target.hp && effect && effect.effectType === 'Move') {
 				this.add('-activate', target, 'item: Focus Band');
 				return target.hp - 1;
@@ -41,7 +41,7 @@ let BattleItems = {
 	},
 	kingsrock: {
 		inherit: true,
-		onModifyMove(move) {
+		onModifyMove: function (move) {
 			let affectedByKingsRock = ['absorb', 'aeroblast', 'barrage', 'beatup', 'bide', 'bonerush', 'bonemerang', 'cometpunch', 'counter', 'crabhammer', 'crosschop', 'cut', 'dig', 'doublekick', 'doubleslap', 'doubleedge', 'dragonrage', 'drillpeck', 'eggbomb', 'explosion', 'extremespeed', 'falseswipe', 'feintattack', 'flail', 'fly', 'frustration', 'furyattack', 'furycutter', 'furyswipes', 'gigadrain', 'hiddenpower', 'highjumpkick', 'hornattack', 'hydropump', 'jumpkick', 'karatechop', 'leechlife', 'machpunch', 'magnitude', 'megadrain', 'megakick', 'megapunch', 'megahorn', 'mirrorcoat', 'nightshade', 'outrage', 'payday', 'peck', 'petaldance', 'pinmissile', 'pound', 'present', 'pursuit', 'psywave', 'quickattack', 'rage', 'rapidspin', 'razorleaf', 'razorwind', 'return', 'reversal', 'rockthrow', 'rollout', 'scratch', 'seismictoss', 'selfdestruct', 'skullbash', 'skyattack', 'slam', 'slash', 'snore', 'solarbeam', 'sonicboom', 'spikecannon', 'strength', 'struggle', 'submission', 'superfang', 'surf', 'swift', 'tackle', 'takedown', 'thief', 'thrash', 'triplekick', 'twineedle', 'vicegrip', 'vinewhip', 'vitalthrow', 'watergun', 'waterfall', 'wingattack'];
 			if (affectedByKingsRock.includes(move.id)) {
 				if (!move.secondaries) move.secondaries = [];
@@ -58,13 +58,13 @@ let BattleItems = {
 	lightball: {
 		inherit: true,
 		// In Gen 2 this happens in stat calculation directly.
-		onModifySpA() {},
+		onModifySpA: function () {},
 	},
 	luckypunch: {
 		inherit: true,
 		desc: "If held by a Chansey, its critical hit ratio is always at stage 2. (25% crit rate)",
 		onModifyCritRatioPriority: -1,
-		onModifyCritRatio(critRatio, user) {
+		onModifyCritRatio: function (critRatio, user) {
 			if (user.template.species === 'Chansey') {
 				return 3;
 			}
@@ -74,13 +74,13 @@ let BattleItems = {
 		inherit: true,
 		desc: "If held by a Ditto, its Defense and Sp. Def are 1.5x, even while Transformed.",
 		// In Gen 2 this happens in stat calculation directly.
-		onModifyDef() {},
-		onModifySpD() {},
+		onModifyDef: function () {},
+		onModifySpD: function () {},
 	},
 	quickclaw: {
 		inherit: true,
 		desc: "Each turn, holder has a ~23.4% chance to move first in its priority bracket.",
-		onModifyPriority(priority, pokemon) {
+		onModifyPriority: function (priority, pokemon) {
 			if (this.randomChance(60, 256)) {
 				return Math.round(priority) + 0.1;
 			}
@@ -90,7 +90,7 @@ let BattleItems = {
 		inherit: true,
 		desc: "If held by a Farfetch'd, its critical hit ratio is always at stage 2. (25% crit rate)",
 		onModifyCritRatioPriority: -1,
-		onModifyCritRatio(critRatio, user) {
+		onModifyCritRatio: function (critRatio, user) {
 			if (user.template.species === 'Farfetch\'d') {
 				return 3;
 			}
@@ -99,59 +99,59 @@ let BattleItems = {
 	thickclub: {
 		inherit: true,
 		// In Gen 2 this happens in stat calculation directly.
-		onModifyAtk() {},
+		onModifyAtk: function () {},
 	},
 	berserkgene: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	berry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	bitterberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	burntberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	goldberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	iceberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	mintberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	miracleberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	mysteryberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	pinkbow: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	polkadotbow: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	przcureberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 	psncureberry: {
 		inherit: true,
-		isNonstandard: null,
+		isNonstandard: false,
 	},
 };
 

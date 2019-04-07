@@ -4,27 +4,27 @@
 let BattleItems = {
 	"burndrive": {
 		inherit: true,
-		onBasePower(basePower, user, target, move) {},
+		onBasePower: function (basePower, user, target, move) {},
 		desc: "Changes Genesect to Genesect-Burn.",
 	},
 	"chilldrive": {
 		inherit: true,
-		onBasePower(basePower, user, target, move) {},
+		onBasePower: function (basePower, user, target, move) {},
 		desc: "Changes Genesect to Genesect-Chill.",
 	},
 	"dousedrive": {
 		inherit: true,
-		onBasePower(basePower, user, target, move) {},
+		onBasePower: function (basePower, user, target, move) {},
 		desc: "Changes Genesect to Genesect-Douse.",
 	},
 	"shockdrive": {
 		inherit: true,
-		onBasePower(basePower, user, target, move) {},
+		onBasePower: function (basePower, user, target, move) {},
 		desc: "Changes Genesect to Genesect-Shock.",
 	},
 	"widelens": {
 		inherit: true,
-		onSourceModifyAccuracy(accuracy) {
+		onSourceModifyAccuracy: function (accuracy) {
 			if (typeof accuracy === 'number') {
 				return accuracy * 1.3;
 			}
@@ -33,7 +33,7 @@ let BattleItems = {
 	},
 	"zoomlens": {
 		inherit: true,
-		onSourceModifyAccuracy(accuracy, target) {
+		onSourceModifyAccuracy: function (accuracy, target) {
 			if (typeof accuracy === 'number' && !this.willMove(target)) {
 				this.debug('Zoom Lens boosting accuracy');
 				return accuracy * 1.6;
@@ -43,14 +43,14 @@ let BattleItems = {
 	},
 	"bigroot": {
 		inherit: true,
-		onAfterMoveSecondarySelf(source, target) {
+		onAfterMoveSecondarySelf: function (source, target) {
 			if (source.hasType('Grass')) {
 				this.heal(source.lastDamage / 8, source);
 			}
 		},
 		onResidualOrder: 5,
 		onResidualSubOrder: 2,
-		onResidual(pokemon) {
+		onResidual: function (pokemon) {
 			if (pokemon.hasType('Grass')) {
 				this.heal(pokemon.maxhp / 16);
 			}
@@ -62,7 +62,7 @@ let BattleItems = {
 		inherit: true,
 		onResidualOrder: 5,
 		onResidualSubOrder: 2,
-		onResidual(pokemon) {
+		onResidual: function (pokemon) {
 			if (pokemon.hasType('Poison')) {
 				this.heal(pokemon.maxhp / (pokemon.getTypes().length === 1 ? 8 : 16));
 			} else {
@@ -73,7 +73,7 @@ let BattleItems = {
 	},
 	"focusband": {
 		inherit: true,
-		onDamage(damage, target, source, effect) {
+		onDamage: function (damage, target, source, effect) {
 			let types = target.getTypes();
 			if (types.length === 1 && types[0] === 'Fighting' &&
 					effect && effect.effectType === 'Move' &&
@@ -90,7 +90,7 @@ let BattleItems = {
 	},
 	"wiseglasses": {
 		inherit: true,
-		onBasePower(basePower, user, target, move) {
+		onBasePower: function (basePower, user, target, move) {
 			if (move.category === 'Special') {
 				let types = user.getTypes();
 				if (types.length === 1 && types[0] === 'Psychic') {
@@ -104,7 +104,7 @@ let BattleItems = {
 	},
 	"muscleband": {
 		inherit: true,
-		onBasePower(basePower, user, target, move) {
+		onBasePower: function (basePower, user, target, move) {
 			if (move.category === 'Physical') {
 				let types = user.getTypes();
 				if (types.length === 1 && types[0] === 'Fighting') {
@@ -120,22 +120,22 @@ let BattleItems = {
 		inherit: true,
 		// The Stick is a stand-in for a number of pokemon-exclusive items
 		// introduced with Gen Next
-		onModifyCritRatio(critRatio, user) {
+		onModifyCritRatio: function (critRatio, user) {
 			if (user.template.species === 'Farfetch\'d') {
 				return critRatio + 2;
 			}
 		},
-		onModifyDef(def, pokemon) {
+		onModifyDef: function (def, pokemon) {
 			if (pokemon.template.species === 'Shuckle') {
 				return def * 1.5;
 			}
 		},
-		onModifySpA(spa, pokemon) {
+		onModifySpA: function (spa, pokemon) {
 			if (pokemon.template.species === 'Unown') {
 				return spa * 2;
 			}
 		},
-		onModifySpD(spd, pokemon) {
+		onModifySpD: function (spd, pokemon) {
 			if (pokemon.template.species === 'Unown') {
 				return spd * 2;
 			}
@@ -143,12 +143,12 @@ let BattleItems = {
 				return spd * 1.5;
 			}
 		},
-		onModifySpe(spe, pokemon) {
+		onModifySpe: function (spe, pokemon) {
 			if (pokemon.template.species === 'Unown') {
 				return spe * 2;
 			}
 		},
-		onFoeBasePower(basePower, attacker, defender, move) {
+		onFoeBasePower: function (basePower, attacker, defender, move) {
 			let GossamerWingUsers = ["Butterfree", "Masquerain", "Beautifly", "Mothim", "Vivillon"];
 			if (GossamerWingUsers.includes(defender.template.species)) {
 				if (move.type === 'Rock' || move.type === 'Electric' || move.type === 'Ice') {
@@ -157,7 +157,7 @@ let BattleItems = {
 				}
 			}
 		},
-		onDamage(damage, defender, attacker, effect) {
+		onDamage: function (damage, defender, attacker, effect) {
 			let GossamerWingUsers = ["Butterfree", "Masquerain", "Beautifly", "Mothim", "Vivillon"];
 			if (GossamerWingUsers.includes(defender.template.species)) {
 				if (effect && effect.id === 'stealthrock') {
@@ -165,13 +165,13 @@ let BattleItems = {
 				}
 			}
 		},
-		onAfterMoveSecondarySelf(source, target, move) {
+		onAfterMoveSecondarySelf: function (source, target, move) {
 			let GossamerWingUsers = ["Butterfree", "Masquerain", "Beautifly", "Mothim", "Vivillon"];
 			if (move && move.effectType === 'Move' && move.category === 'Status' && GossamerWingUsers.includes(source.template.species)) {
 				this.heal(source.maxhp / 16);
 			}
 		},
-		// onResidual(pokemon) {
+		// onResidual: function (pokemon) {
 		// 	if (pokemon.template.species === 'Shuckle') {
 		// 		this.heal(this.clampIntRange(pokemon.maxhp / 16, 1));
 		// 	}

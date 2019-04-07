@@ -10,13 +10,12 @@ let BattleScripts = {
 	gen: 2,
 	// BattlePokemon scripts.
 	pokemon: {
-		getStat(statName, unboosted, unmodified, fastReturn) {
-			statName = /** @type {StatNameExceptHP} */(toId(statName));
-			// @ts-ignore - type checking prevents 'hp' from being passed, but we're paranoid
-			if (statName === 'hp') throw new Error("Please read `maxhp` directly");
+		getStat(statName, unboosted, unmodified) {
+			statName = toId(statName);
+			if (statName === 'hp') return this.maxhp;
 
 			// base stat
-			let stat = this.storedStats[statName];
+			let stat = this.stats[statName];
 
 			// Stat boosts.
 			if (!unboosted) {
@@ -46,7 +45,6 @@ let BattleScripts = {
 
 			// Gen 2 caps stats at 999 and min is 1.
 			stat = this.battle.clampIntRange(stat, 1, 999);
-			if (fastReturn) return stat;
 
 			// Screens
 			if (!unboosted) {
@@ -56,55 +54,27 @@ let BattleScripts = {
 			}
 
 			// Treat here the items.
-			if ((['Cubone', 'Marowak'].includes(this.template.species) && this.item === 'thickclub' && statName === 'atk') || (this.template.species === 'Pikachu' && this.item === 'lightball' && statName === 'spa')) {
+			if ((['Cubone', 'Marowak'].includes(this.species) && this.item === 'thickclub' && statName === 'atk') || (this.species === 'Pikachu' && this.item === 'lightball' && statName === 'spa')) {
 				stat *= 2;
 			} else if (this.species === 'Ditto' && this.item === 'metalpowder' && ['def', 'spd'].includes(statName)) {
+				// what. the. fuck. stop playing pokémon
 				stat *= 1.5;
 			}
 
 			return stat;
 		},
-		boostBy(boost) {
-			let delta = 0;
-			for (let i in boost) {
-				// @ts-ignore
-				delta = boost[i];
-				// @ts-ignore
-				if (delta > 0 && this.getStat(i, false, true, true) === 999) {
-					delta = 0;
-					continue;
-				}
-				// @ts-ignore
-				this.boosts[i] += delta;
-				// @ts-ignore
-				if (this.boosts[i] > 6) {
-					// @ts-ignore
-					delta -= this.boosts[i] - 6;
-					// @ts-ignore
-					this.boosts[i] = 6;
-				}
-				// @ts-ignore
-				if (this.boosts[i] < -6) {
-					// @ts-ignore
-					delta -= this.boosts[i] - (-6);
-					// @ts-ignore
-					this.boosts[i] = -6;
-				}
-			}
-			return delta;
-		},
 	},
 	// Battle scripts.
 	runMove(moveOrMoveName, pokemon, targetLoc, sourceEffect) {
-		let move = this.getActiveMove(moveOrMoveName);
-		let target = this.getTarget(pokemon, move, targetLoc);
-		if (!sourceEffect && move.id !== 'struggle') {
-			let changedMove = this.runEvent('OverrideAction', pokemon, target, move);
+		let target = this.getTarget(pokemon, moveOrMoveName, targetLoc);
+		if (!sourceEffect && toId(moveOrMoveName) !== 'struggle') {
+			let changedMove = this.runEvent('OverrideAction', pokemon, target, moveOrMoveName);
 			if (changedMove && changedMove !== true) {
-				move = this.getActiveMove(changedMove);
-				target = this.resolveTarget(pokemon, move);
+				moveOrMoveName = changedMove;
+				target = null;
 			}
 		}
+		let move = this.getActiveMove(moveOrMoveName);
 		if (!target && target !== false) target = this.resolveTarget(pokemon, move);
 
 		this.setActiveMove(move, pokemon, target);
@@ -149,7 +119,7 @@ let BattleScripts = {
 		let positiveBoostTable = [1, 1.33, 1.66, 2, 2.33, 2.66, 3];
 		let negativeBoostTable = [1, 0.75, 0.6, 0.5, 0.43, 0.36, 0.33];
 		let doSelfDestruct = true;
-		/** @type {number | false | undefined} */
+		/**@type {number | false} */
 		let damage = 0;
 
 		if (move.selfdestruct && doSelfDestruct) {
@@ -188,7 +158,7 @@ let BattleScripts = {
 			return false;
 		}
 
-		/** @type {number | true} */
+		/**@type {number | true} */
 		let accuracy = move.accuracy;
 		if (move.alwaysHit) {
 			accuracy = true;
@@ -252,7 +222,7 @@ let BattleScripts = {
 			}
 			hits = Math.floor(hits);
 			let nullDamage = true;
-			/**@type {number | undefined | false} */
+			/**@type {number | false} */
 			let moveDamage;
 
 			let isSleepUsable = move.sleepUsable || this.getMove(move.sourceEffect).sleepUsable;
@@ -276,6 +246,8 @@ let BattleScripts = {
 			move.totalDamage = damage;
 		}
 		if (move.category !== 'Status') {
+			// FIXME: The stored damage should be calculated ignoring Substitute.
+			// https://github.com/Zarel/Pokemon-Showdown/issues/2598
 			target.gotAttacked(move, damage, pokemon);
 		}
 		if (move.ohko) this.add('-ohko');
@@ -290,10 +262,8 @@ let BattleScripts = {
 		}
 		return damage;
 	},
-	/** @return {number | undefined | false} */
 	moveHit(target, pokemon, move, moveData, isSecondary, isSelf) {
-		/** @type {number | false | null | undefined} */
-		let damage = undefined;
+		let damage;
 		move = this.getActiveMove(move);
 
 		if (!moveData) moveData = move;
@@ -387,11 +357,11 @@ let BattleScripts = {
 				didSomething = didSomething || hitResult;
 			}
 			if (moveData.weather) {
-				hitResult = this.field.setWeather(moveData.weather, pokemon, move);
+				hitResult = this.setWeather(moveData.weather, pokemon, move);
 				didSomething = didSomething || hitResult;
 			}
 			if (moveData.pseudoWeather) {
-				hitResult = this.field.addPseudoWeather(moveData.pseudoWeather, pokemon, move);
+				hitResult = this.addPseudoWeather(moveData.pseudoWeather, pokemon, move);
 				didSomething = didSomething || hitResult;
 			}
 			if (moveData.forceSwitch) {
@@ -453,8 +423,6 @@ let BattleScripts = {
 					let effectChance = Math.floor((secondary.chance || 100) * 255 / 100);
 					if (typeof secondary.chance === 'undefined' || this.randomChance(effectChance, 256)) {
 						this.moveHit(target, pokemon, move, secondary, true, isSelf);
-					} else if (effectChance === 255) {
-						this.hint("In Gen 2, moves with a 100% secondary effect chance will not trigger in 1/256 uses.");
 					}
 				}
 			}
@@ -521,7 +489,6 @@ let BattleScripts = {
 		let type = move.type;
 
 		// We get the base power and apply basePowerCallback if necessary
-		/** @type {number | false | null | undefined} */
 		let basePower = move.basePower;
 		if (move.basePowerCallback) {
 			basePower = move.basePowerCallback.call(this, pokemon, target, move);
@@ -538,15 +505,15 @@ let BattleScripts = {
 		let critRatio = this.runEvent('ModifyCritRatio', pokemon, target, move, move.critRatio || 0);
 		critRatio = this.clampIntRange(critRatio, 0, 5);
 		let critMult = [0, 16, 8, 4, 3, 2];
-		let isCrit = move.willCrit || false;
+		move.crit = move.willCrit || false;
 		if (typeof move.willCrit === 'undefined') {
 			if (critRatio) {
-				isCrit = this.randomChance(1, critMult[critRatio]);
+				move.crit = this.randomChance(1, critMult[critRatio]);
 			}
 		}
 
-		if (isCrit && this.runEvent('CriticalHit', target, null, move)) {
-			target.setMoveCrit(move);
+		if (move.crit) {
+			move.crit = this.runEvent('CriticalHit', target, null, move);
 		}
 
 		// Happens after crit calculation
@@ -560,7 +527,7 @@ let BattleScripts = {
 			} else {
 				basePower = this.runEvent('BasePower', pokemon, target, move, basePower, true);
 			}
-			if (basePower && move.basePowerModifier) {
+			if (move.basePowerModifier) {
 				basePower *= move.basePowerModifier;
 			}
 		}
@@ -580,15 +547,13 @@ let BattleScripts = {
 		let defender = target;
 		if (move.useTargetOffensive) attacker = target;
 		if (move.useSourceDefensive) defender = pokemon;
-		/** @type {StatNameExceptHP} */
 		let atkType = (move.category === 'Physical') ? 'atk' : 'spa';
-		/** @type {StatNameExceptHP} */
 		let defType = (move.defensiveCategory === 'Physical') ? 'def' : 'spd';
 		let unboosted = false;
 		let noburndrop = false;
 
 		// The move is a critical hit. Several things happen here.
-		if (isCrit) {
+		if (move.crit) {
 			// Level is doubled for damage calculation.
 			level *= 2;
 			if (!suppressMessages) this.add('-crit', target);
@@ -622,6 +587,7 @@ let BattleScripts = {
 			defense = target.getStat(defType, true, true);
 		}
 
+		// Gen 2 Present has a glitched damage calculation using the secondary types of the Pokemon for the Attacker's Level and Defender's Defense.
 		if (move.id === 'present') {
 			/**@type {{[k: string]: number}} */
 			const typeIndexes = {"Normal": 0, "Fighting": 1, "Flying": 2, "Poison": 3, "Ground": 4, "Rock": 5, "Bug": 7, "Ghost": 8, "Steel": 9, "Fire": 20, "Water": 21, "Grass": 22, "Electric": 23, "Psychic": 24, "Ice": 25, "Dragon": 26, "Dark": 27};
@@ -632,18 +598,14 @@ let BattleScripts = {
 
 			defense = typeIndexes[attackerLastType] || 1;
 			level = typeIndexes[defenderLastType] || 1;
-			if (isCrit) {
+			if (move.crit) {
 				level *= 2;
 			}
-			this.hint("Gen 2 Present has a glitched damage calculation using the secondary types of the Pokemon for the Attacker's Level and Defender's Defense.", true);
 		}
 
-		// When either attack or defense are higher than 256, they are both divided by 4 and modded by 256.
-		// This is what causes the rollover bugs.
+		// When either attack or defense are higher than 256, they are both divided by 4 and moded by 256.
+		// This is what cuases the roll over bugs.
 		if (attack >= 256 || defense >= 256) {
-			if (attack >= 1024 || defense >= 1024) {
-				this.hint("In Gen 2, a stat will roll over to a small number if it is larger than 1024.");
-			}
 			attack = this.clampIntRange(Math.floor(attack / 4) % 256, 1);
 			defense = this.clampIntRange(Math.floor(defense / 4) % 256, 1);
 		}
@@ -665,9 +627,9 @@ let BattleScripts = {
 		damage += 2;
 
 		// Weather modifiers
-		if ((this.field.isWeather('raindance') && type === 'Water') || (this.field.isWeather('sunnyday') && type === 'Fire')) {
+		if ((this.isWeather('raindance') && type === 'Water') || (this.isWeather('sunnyday') && type === 'Fire')) {
 			damage = Math.floor(damage * 1.5);
-		} else if ((this.field.isWeather('raindance') && (type === 'Fire' || move.id === 'solarbeam')) || (this.field.isWeather('sunnyday') && type === 'Water')) {
+		} else if ((this.isWeather('raindance') && (type === 'Fire' || move.id === 'solarbeam')) || (this.isWeather('sunnyday') && type === 'Water')) {
 			damage = Math.floor(damage / 2);
 		}
 
@@ -707,6 +669,62 @@ let BattleScripts = {
 		}
 
 		// We are done, this is the final damage
+		return damage;
+	},
+	damage(damage, target, source, effect) {
+		if (this.event) {
+			if (!target) target = this.event.target;
+			if (!source) source = this.event.source;
+			if (!effect) effect = this.effect;
+		}
+		if (!target || !target.hp) return 0;
+		effect = this.getEffect(effect);
+		if (!(damage || damage === 0)) return damage;
+		if (damage !== 0) damage = this.clampIntRange(damage, 1);
+
+		if (effect.id !== 'struggle-recoil') { // Struggle recoil is not affected by effects
+			if (effect.effectType === 'Weather' && !target.runStatusImmunity(effect.id)) {
+				this.debug('weather immunity');
+				return 0;
+			}
+			damage = this.runEvent('Damage', target, source, effect, damage);
+			if (!(damage || damage === 0)) {
+				this.debug('damage event failed');
+				return damage;
+			}
+		}
+		if (damage !== 0) damage = this.clampIntRange(damage, 1);
+		damage = target.damage(damage, source, effect);
+		if (source) source.lastDamage = damage;
+		let name = effect.fullname;
+		if (name === 'tox') name = 'psn';
+		switch (effect.id) {
+		case 'partiallytrapped':
+			this.add('-damage', target, target.getHealth, '[from] ' + this.effectData.sourceEffect.fullname, '[partiallytrapped]');
+			break;
+		default:
+			if (effect.effectType === 'Move') {
+				this.add('-damage', target, target.getHealth);
+			} else if (source && source !== target) {
+				this.add('-damage', target, target.getHealth, '[from] ' + effect.fullname, '[of] ' + source);
+			} else {
+				this.add('-damage', target, target.getHealth, '[from] ' + name);
+			}
+			break;
+		}
+
+		if (effect.drain && source) {
+			this.heal(Math.ceil(damage * effect.drain[0] / effect.drain[1]), source, target, 'drain');
+		}
+
+		if (target.fainted || target.hp <= 0) {
+			this.debug('instafaint: ' + this.faintQueue.map(entry => entry.target).map(pokemon => pokemon.name));
+			this.faintMessages(true);
+			target.faint();
+		} else {
+			damage = this.runEvent('AfterDamage', target, source, effect, damage);
+		}
+
 		return damage;
 	},
 };

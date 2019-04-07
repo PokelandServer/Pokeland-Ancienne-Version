@@ -1,16 +1,16 @@
 'use strict';
 
-/**@type {{[k: string]: ModdedPureEffectData}} */
+/**@type {{[k: string]: ModdedEffectData}} */
 let BattleStatuses = {
 	brn: {
 		inherit: true,
-		onResidual(pokemon) {
+		onResidual: function (pokemon) {
 			this.damage(pokemon.maxhp / 8);
 		},
 	},
 	par: {
 		inherit: true,
-		onModifySpe(spe, pokemon) {
+		onModifySpe: function (spe, pokemon) {
 			if (!pokemon.hasAbility('quickfeet')) {
 				return this.chainModify(0.25);
 			}
@@ -18,7 +18,7 @@ let BattleStatuses = {
 	},
 	confusion: {
 		inherit: true,
-		onBeforeMove(pokemon) {
+		onBeforeMove: function (pokemon) {
 			pokemon.volatiles.confusion.time--;
 			if (!pokemon.volatiles.confusion.time) {
 				pokemon.removeVolatile('confusion');
@@ -28,19 +28,18 @@ let BattleStatuses = {
 			if (this.randomChance(1, 2)) {
 				return;
 			}
-			let damage = this.getDamage(pokemon, pokemon, 40);
-			if (typeof damage !== 'number') throw new Error("Confusion damage not dealt");
-			this.damage(damage, pokemon, pokemon, /** @type {ActiveMove} */ ({
+			this.damage(this.getDamage(pokemon, pokemon, 40), pokemon, pokemon, {
 				id: 'confused',
 				effectType: 'Move',
+				// @ts-ignore
 				type: '???',
-			}));
+			});
 			return false;
 		},
 	},
 	choicelock: {
 		inherit: true,
-		onBeforeMove() {},
+		onBeforeMove: function () {},
 	},
 };
 

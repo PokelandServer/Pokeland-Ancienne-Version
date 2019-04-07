@@ -2,11 +2,6 @@
 
 /**@type {{[k: string]: ModdedTemplateData}} */
 let BattlePokedex = {
-	milotic: {
-		inherit: true,
-		evoType: 'levelExtra',
-		evoCondition: 'with high Beauty',
-	},
 	rotomheat: {
 		inherit: true,
 		types: ["Electric", "Ghost"],

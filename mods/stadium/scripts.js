@@ -7,26 +7,33 @@
 let BattleScripts = {
 	inherit: 'gen1',
 	gen: 1,
-	// BattlePokemon scripts. Stadium shares gen 1 code but it fixes some problems with it.
+	// BattlePokemon scripts.
 	pokemon: {
-		inherit: true,
+		// Stadium shares gen 1 code but it fixes some problems with it.
+		getStat(statName, unmodified) {
+			statName = toId(statName);
+			if (statName === 'hp') return this.maxhp;
+			if (unmodified) return this.stats[statName];
+			// @ts-ignore
+			return this.modifiedStats[statName];
+		},
 		// Gen 1 function to apply a stat modification that is only active until the stat is recalculated or mon switched.
 		// Modified stats are declared in the Pokemon object in sim/pokemon.js in about line 681.
-		modifyStat(statName, modifier) {
-			if (!(statName in this.storedStats)) throw new Error("Invalid `statName` passed to `modifyStat`");
+		modifyStat(stat, modifier) {
+			if (!(stat in this.stats)) return;
 			// @ts-ignore
-			this.modifiedStats[statName] = this.battle.clampIntRange(Math.floor(this.modifiedStats[statName] * modifier), 1);
+			this.modifiedStats[stat] = this.battle.clampIntRange(Math.floor(this.modifiedStats[stat] * modifier), 1);
 		},
 		// This is run on Stadium after boosts and status changes.
 		recalculateStats() {
-			for (let statName in this.storedStats) {
+			for (let statName in this.stats) {
 				/**@type {number} */
 				// @ts-ignore
 				let stat = this.template.baseStats[statName];
 				// @ts-ignore
 				stat = Math.floor(Math.floor(2 * stat + this.set.ivs[statName] + Math.floor(this.set.evs[statName] / 4)) * this.level / 100 + 5);
 				// @ts-ignore
-				this.baseStoredStats[statName] = this.storedStats[statName] = Math.floor(stat);
+				this.baseStats[statName] = this.stats[statName] = Math.floor(stat);
 				// @ts-ignore
 				this.modifiedStats[statName] = Math.floor(stat);
 				// Re-apply drops, if necessary.
@@ -79,9 +86,10 @@ let BattleScripts = {
 	},
 	// Battle scripts.
 	runMove(moveOrMoveName, pokemon, targetLoc, sourceEffect) {
+		let target = this.getTarget(pokemon, moveOrMoveName, targetLoc);
 		let move = this.getActiveMove(moveOrMoveName);
-		let target = this.getTarget(pokemon, move, targetLoc);
-		if (target && target.subFainted) delete target.subFainted;
+		if (!target) target = this.resolveTarget(pokemon, move);
+		if (target.subFainted) delete target.subFainted;
 
 		this.setActiveMove(move, pokemon, target);
 
@@ -101,18 +109,15 @@ let BattleScripts = {
 		pokemon.lastDamage = 0;
 		let lockedMove = this.runEvent('LockMove', pokemon);
 		if (lockedMove === true) lockedMove = false;
-		if (!lockedMove && (!pokemon.volatiles['partialtrappinglock'] || pokemon.volatiles['partialtrappinglock'].locked !== target)) {
+		if (!lockedMove && !pokemon.volatiles['partialtrappinglock']) {
 			pokemon.deductPP(move, null, target);
-			pokemon.side.lastMove = move;
-			pokemon.lastMove = move;
-		} else {
-			sourceEffect = move;
 		}
+		pokemon.moveUsed(move);
 		this.useMove(move, pokemon, target, sourceEffect);
 		this.singleEvent('AfterMove', move, null, pokemon, target, move);
 
 		// If rival fainted
-		if (target && target.hp <= 0) {
+		if (target.hp <= 0) {
 			// We remove screens
 			target.side.removeSideCondition('reflect');
 			target.side.removeSideCondition('lightscreen');
@@ -137,7 +142,7 @@ let BattleScripts = {
 	tryMoveHit(target, pokemon, move) {
 		let boostTable = [1, 4 / 3, 5 / 3, 2, 7 / 3, 8 / 3, 3];
 		let doSelfDestruct = true;
-		/** @type {number | undefined | false} */
+		/**@type {number | false} */
 		let damage = 0;
 
 		// First, check if the Pokémon is immune to this move.
@@ -149,7 +154,7 @@ let BattleScripts = {
 		}
 
 		// Now, let's calculate the accuracy.
-		/** @type {number | true} */
+		/**@type {number | true} */
 		let accuracy = move.accuracy;
 
 		// Partial trapping moves: true accuracy while it lasts
@@ -214,16 +219,22 @@ let BattleScripts = {
 				}
 				hits = Math.floor(hits);
 				// In gen 1, all the hits have the same damage for multihits move
-				/** @type {number | undefined | false} */
+				/**@type {number | false} */
 				let moveDamage = 0;
+				let firstDamage;
 				let i;
 				for (i = 0; i < hits && target.hp && pokemon.hp; i++) {
-					move.hit = i + 1;
-					moveDamage = this.moveHit(target, pokemon, move);
+					if (i === 0) {
+						// First hit, we calculate
+						moveDamage = this.moveHit(target, pokemon, move);
+						firstDamage = moveDamage;
+					} else {
+						// We get the previous damage to make it fix damage
+						move.damage = firstDamage;
+						moveDamage = this.moveHit(target, pokemon, move);
+					}
 					if (moveDamage === false) break;
 					damage = (moveDamage || 0);
-					// Move damage is fixed to be the first move's damage
-					if (i === 0) move.damage = damage;
 					if (target.subFainted) {
 						i++;
 						break;
@@ -246,7 +257,7 @@ let BattleScripts = {
 		}
 
 		// The move missed.
-		if (damage === false) {
+		if (!damage && damage !== 0) {
 			// Delete the partial trap lock if necessary.
 			delete pokemon.volatiles['partialtrappinglock'];
 			return false;
@@ -262,12 +273,12 @@ let BattleScripts = {
 		return damage;
 	},
 	moveHit(target, pokemon, moveOrMoveName, moveData, isSecondary, isSelf) {
-		/** @type {number | null | false | undefined} */
+		/**@type {number | false} */
 		let damage = 0;
 		let move = this.getActiveMove(moveOrMoveName);
 
 		if (!isSecondary && !isSelf) this.setActiveMove(move, pokemon, target);
-		/** @type {number | boolean} */
+		/**@type {number | boolean} */
 		let hitResult = true;
 		if (!moveData) moveData = move;
 
@@ -375,7 +386,7 @@ let BattleScripts = {
 				}
 			}
 			if (moveData.pseudoWeather) {
-				if (this.field.addPseudoWeather(moveData.pseudoWeather, pokemon, move)) {
+				if (this.addPseudoWeather(moveData.pseudoWeather, pokemon, move)) {
 					didSomething = true;
 				}
 			}
@@ -480,19 +491,21 @@ let BattleScripts = {
 		let type = move.type;
 
 		// We get the base power and apply basePowerCallback if necessary.
-		/** @type {number | false | null} */
 		let basePower = move.basePower;
 		if (move.basePowerCallback) {
 			basePower = move.basePowerCallback.call(this, pokemon, target, move);
 		}
+
+		// We check if the base power is proper.
 		if (!basePower) {
-			return basePower === 0 ? undefined : basePower;
+			if (basePower === 0) return; // Returning undefined means not dealing damage
+			return basePower;
 		}
 		basePower = this.clampIntRange(basePower, 1);
 
 		// Checking for the move's Critical Hit possibility. We check if it's a 100% crit move, otherwise we calculate the chance.
-		let isCrit = move.willCrit || false;
-		if (!isCrit) {
+		move.crit = move.willCrit || false;
+		if (!move.crit) {
 			// In Stadium, the critical chance is based on speed.
 			// First, we get the base speed and store it. Then we add 76. This is our current crit chance.
 			let critChance = pokemon.template.baseStats['spe'] + 76;
@@ -527,18 +540,18 @@ let BattleScripts = {
 			// We compare our critical hit chance against a random number between 0 and 255.
 			// If the random number is lower, we get a critical hit. This means there is always a 1/255 chance of not hitting critically.
 			if (critChance > 0) {
-				isCrit = this.randomChance(critChance, 256);
+				move.crit = this.randomChance(critChance, 256);
 			}
 		}
 		// There is a critical hit.
-		if (isCrit && this.runEvent('CriticalHit', target, null, move)) {
-			target.setMoveCrit(move);
+		if (move.crit) {
+			move.crit = this.runEvent('CriticalHit', target, null, move);
 		}
 
 		// Happens after crit calculation.
 		if (basePower) {
 			basePower = this.runEvent('BasePower', pokemon, target, move, basePower);
-			if (basePower && move.basePowerModifier) {
+			if (move.basePowerModifier) {
 				basePower *= move.basePowerModifier;
 			}
 		}
@@ -551,9 +564,7 @@ let BattleScripts = {
 		let defender = target;
 		if (move.useTargetOffensive) attacker = target;
 		if (move.useSourceDefensive) defender = pokemon;
-		/** @type {StatNameExceptHP} */
 		let atkType = (move.category === 'Physical') ? 'atk' : 'spa';
-		/** @type {StatNameExceptHP} */
 		let defType = (move.defensiveCategory === 'Physical') ? 'def' : 'spd';
 		let attack = attacker.getStat(atkType);
 		let defense = defender.getStat(defType);
@@ -567,7 +578,7 @@ let BattleScripts = {
 		// In the event of a critical hit, the offense and defense changes are ignored.
 		// This includes both boosts and screens.
 		// Also, level is doubled in damage calculation.
-		if (isCrit) {
+		if (move.crit) {
 			move.ignoreOffensive = true;
 			move.ignoreDefensive = true;
 			level *= 2;
@@ -648,6 +659,88 @@ let BattleScripts = {
 
 		// We are done, this is the final damage.
 		return Math.floor(damage);
+	},
+	// @ts-ignore
+	damage(damage, target, source, effect) {
+		if (this.event) {
+			if (!target) target = this.event.target;
+			if (!source) source = this.event.source;
+			if (!effect) effect = this.effect;
+		}
+		if (!target || !target.hp) return 0;
+		effect = this.getEffect(effect);
+		if (!(damage || damage === 0)) return damage;
+		if (damage !== 0) damage = this.clampIntRange(damage, 1);
+
+		if (effect.id !== 'struggle-recoil') { // Struggle recoil is not affected by effects
+			damage = this.runEvent('Damage', target, source, effect, damage);
+			if (!(damage || damage === 0)) {
+				this.debug('damage event failed');
+				return damage;
+			}
+		}
+		if (damage !== 0) damage = this.clampIntRange(damage, 1);
+		this.lastDamage = damage;
+		damage = target.damage(damage, source, effect);
+		if (source) source.lastDamage = damage;
+		let name = effect.fullname;
+		if (name === 'tox') name = 'psn';
+		switch (effect.id) {
+		case 'partiallytrapped':
+			this.add('-damage', target, target.getHealth, '[from] ' + this.effectData.sourceEffect.fullname, '[partiallytrapped]');
+			break;
+		default:
+			if (effect.effectType === 'Move') {
+				this.add('-damage', target, target.getHealth);
+			} else if (source && source !== target) {
+				this.add('-damage', target, target.getHealth, '[from] ' + effect.fullname, '[of] ' + source);
+			} else {
+				this.add('-damage', target, target.getHealth, '[from] ' + name);
+			}
+			break;
+		}
+
+		// In Stadium, recoil doesn't happen if you faint an opponent.
+		if (effect.recoil && source && target && target.hp > 0) {
+			this.damage(this.clampIntRange(Math.floor(damage * effect.recoil[0] / effect.recoil[1]), 1), source, target, 'recoil');
+		}
+		if (effect.drain && source) {
+			this.heal(this.clampIntRange(Math.floor(damage * effect.drain[0] / effect.drain[1]), 1), source, target, 'drain');
+		}
+
+		if (target.fainted) {
+			this.faint(target);
+		} else {
+			damage = this.runEvent('AfterDamage', target, source, effect, damage);
+		}
+
+		return damage;
+	},
+	directDamage(damage, target, source, effect) {
+		if (this.event) {
+			if (!target) target = this.event.target;
+			if (!source) source = this.event.source;
+			if (!effect) effect = this.effect;
+		}
+		if (!target || !target.hp) return 0;
+		if (!damage) return 0;
+		damage = this.clampIntRange(damage, 1);
+		damage = target.damage(damage, source, effect);
+		// Now we sent the proper -damage.
+		switch (effect.id) {
+		case 'strugglerecoil':
+			this.add('-damage', target, target.getHealth, '[from] recoil');
+			break;
+		case 'confusion':
+			this.add('-damage', target, target.getHealth, '[from] confusion');
+			break;
+		default:
+			this.add('-damage', target, target.getHealth);
+			break;
+		}
+		if (target.fainted) this.faint(target);
+
+		return damage;
 	},
 };
 

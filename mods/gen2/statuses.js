@@ -1,21 +1,21 @@
 'use strict';
 
-/**@type {{[k: string]: ModdedPureEffectData}} */
+/**@type {{[k: string]: ModdedEffectData}} */
 let BattleStatuses = {
 	brn: {
 		name: 'brn',
 		id: 'brn',
 		num: 0,
 		effectType: 'Status',
-		onStart(target) {
+		onStart: function (target) {
 			this.add('-status', target, 'brn');
 		},
 		onAfterMoveSelfPriority: 3,
-		onAfterMoveSelf(pokemon) {
-			residualdmg(this, pokemon);
+		onAfterMoveSelf: function (pokemon) {
+			this.damage(pokemon.maxhp / 8);
 		},
-		onAfterSwitchInSelf(pokemon) {
-			residualdmg(this, pokemon);
+		onAfterSwitchInSelf: function (pokemon) {
+			this.damage(pokemon.maxhp / 8);
 		},
 	},
 	par: {
@@ -24,7 +24,7 @@ let BattleStatuses = {
 		num: 0,
 		inherit: true,
 		onBeforeMovePriority: 2,
-		onBeforeMove(pokemon) {
+		onBeforeMove: function (pokemon) {
 			if (this.randomChance(1, 4)) {
 				this.add('cant', pokemon, 'par');
 				return false;
@@ -36,13 +36,13 @@ let BattleStatuses = {
 		id: 'slp',
 		num: 0,
 		effectType: 'Status',
-		onStart(target) {
+		onStart: function (target) {
 			this.add('-status', target, 'slp');
 			// 1-6 turns
 			this.effectData.time = this.random(2, 8);
 		},
 		onBeforeMovePriority: 10,
-		onBeforeMove(pokemon, target, move) {
+		onBeforeMove: function (pokemon, target, move) {
 			pokemon.statusData.time--;
 			if (pokemon.statusData.time <= 0) {
 				pokemon.cureStatus();
@@ -60,22 +60,22 @@ let BattleStatuses = {
 		id: 'frz',
 		num: 0,
 		inherit: true,
-		onBeforeMove(pokemon, target, move) {
+		onBeforeMove: function (pokemon, target, move) {
 			if (move.flags['defrost']) return;
 			this.add('cant', pokemon, 'frz');
 			return false;
 		},
-		onModifyMove() {},
-		onHit() {},
-		onAfterMoveSecondary(target, source, move) {
+		onModifyMove: function () {},
+		onHit: function () {},
+		onAfterMoveSecondary: function (target, source, move) {
 			if ((move.secondary && move.secondary.status === 'brn') || move.statusRoll === 'brn') {
 				target.cureStatus();
 			}
 		},
-		onAfterMoveSecondarySelf(pokemon, target, move) {
+		onAfterMoveSecondarySelf: function (pokemon, target, move) {
 			if (move.flags['defrost']) pokemon.cureStatus();
 		},
-		onResidual(pokemon) {
+		onResidual: function (pokemon) {
 			if (this.randomChance(25, 256)) pokemon.cureStatus();
 		},
 	},
@@ -84,15 +84,15 @@ let BattleStatuses = {
 		id: 'psn',
 		num: 0,
 		effectType: 'Status',
-		onStart(target) {
+		onStart: function (target) {
 			this.add('-status', target, 'psn');
 		},
 		onAfterMoveSelfPriority: 3,
-		onAfterMoveSelf(pokemon) {
-			residualdmg(this, pokemon);
+		onAfterMoveSelf: function (pokemon) {
+			this.damage(pokemon.maxhp / 8);
 		},
-		onAfterSwitchInSelf(pokemon) {
-			residualdmg(this, pokemon);
+		onAfterSwitchInSelf: function (pokemon) {
+			this.damage(pokemon.maxhp / 8);
 		},
 	},
 	tox: {
@@ -100,26 +100,29 @@ let BattleStatuses = {
 		id: 'tox',
 		num: 0,
 		effectType: 'Status',
-		onStart(target) {
+		onStart: function (target) {
 			this.add('-status', target, 'tox');
-			if (!target.volatiles['residualdmg']) target.addVolatile('residualdmg');
-			target.volatiles['residualdmg'].counter = 0;
+			this.effectData.stage = 0;
 		},
 		onAfterMoveSelfPriority: 3,
-		onAfterMoveSelf(pokemon) {
-			this.damage(this.clampIntRange(Math.floor(pokemon.maxhp / 16), 1) * pokemon.volatiles['residualdmg'].counter, pokemon, pokemon);
+		onAfterMoveSelf: function (pokemon) {
+			if (this.effectData.stage < 15) {
+				this.effectData.stage++;
+			}
+			this.damage(this.clampIntRange(pokemon.maxhp / 16, 1) * this.effectData.stage);
 		},
-		onSwitchIn(pokemon) {
+		onSwitchIn: function (pokemon) {
 			// Regular poison status and damage after a switchout -> switchin.
+			this.effectData.stage = 0;
 			pokemon.setStatus('psn');
 		},
-		onAfterSwitchInSelf(pokemon) {
+		onAfterSwitchInSelf: function (pokemon) {
 			this.damage(this.clampIntRange(Math.floor(pokemon.maxhp / 16), 1));
 		},
 	},
 	confusion: {
 		inherit: true,
-		onStart(target, source, sourceEffect) {
+		onStart: function (target, source, sourceEffect) {
 			if (sourceEffect && sourceEffect.id === 'lockedmove') {
 				this.add('-start', target, 'confusion', '[silent]');
 			} else {
@@ -131,7 +134,7 @@ let BattleStatuses = {
 				this.effectData.time = this.random(2, 6);
 			}
 		},
-		onBeforeMove(pokemon, target, move) {
+		onBeforeMove: function (pokemon, target, move) {
 			pokemon.volatiles.confusion.time--;
 			if (!pokemon.volatiles.confusion.time) {
 				pokemon.removeVolatile('confusion');
@@ -151,15 +154,13 @@ let BattleStatuses = {
 				noDamageVariance: true,
 				flags: {},
 			});
-			let damage = this.getDamage(pokemon, pokemon, move);
-			if (typeof damage !== 'number') throw new Error("Confusion damage not dealt");
-			this.directDamage(damage);
+			this.directDamage(this.getDamage(pokemon, pokemon, move));
 			return false;
 		},
 	},
 	partiallytrapped: {
 		inherit: true,
-		durationCallback(target, source) {
+		durationCallback: function (target, source) {
 			return this.random(3, 6);
 		},
 	},
@@ -168,30 +169,30 @@ let BattleStatuses = {
 		id: 'lockedmove',
 		num: 0,
 		// Outrage, Thrash, Petal Dance...
-		durationCallback() {
+		durationCallback: function () {
 			return this.random(2, 4);
 		},
-		onResidual(target) {
+		onResidual: function (target) {
 			if ((target.lastMove && target.lastMove.id === 'struggle') || target.status === 'slp') {
 				// don't lock, and bypass confusion for calming
 				delete target.volatiles['lockedmove'];
 			}
 		},
-		onStart(target, source, effect) {
+		onStart: function (target, source, effect) {
 			this.effectData.move = effect.id;
 		},
-		onEnd(target) {
+		onEnd: function (target) {
 			// Confusion begins even if already confused
 			delete target.volatiles['confusion'];
 			target.addVolatile('confusion');
 		},
-		onLockMove(pokemon) {
+		onLockMove: function (pokemon) {
 			return this.effectData.move;
 		},
-		onMoveAborted(pokemon) {
+		onMoveAborted: function (pokemon) {
 			delete pokemon.volatiles['lockedmove'];
 		},
-		onBeforeTurn(pokemon) {
+		onBeforeTurn: function (pokemon) {
 			let move = this.getMove(this.effectData.move);
 			if (move.id) {
 				this.debug('Forcing into ' + move.id);
@@ -201,7 +202,7 @@ let BattleStatuses = {
 	},
 	sandstorm: {
 		inherit: true,
-		onWeather(target) {
+		onWeather: function (target) {
 			this.damage(target.maxhp / 8);
 		},
 	},
@@ -210,47 +211,19 @@ let BattleStatuses = {
 		id: 'stall',
 		num: 0,
 		duration: 2,
-		onStart() {
+		onStart: function () {
 			this.effectData.counter = 127;
 		},
-		onStallMove() {
+		onStallMove: function () {
 			let counter = Math.floor(this.effectData.counter) || 127;
 			this.debug("Success chance: " + Math.round(counter * 1000 / 255) / 10 + "% (" + counter + "/255)");
 			return this.randomChance(counter, 255);
 		},
-		onRestart() {
+		onRestart: function () {
 			this.effectData.counter /= 2;
 			this.effectData.duration = 2;
 		},
 	},
-	residualdmg: {
-		name: 'residualdmg',
-		id: 'residualdmg',
-		num: 0,
-		onStart(target) {
-			target.volatiles['residualdmg'].counter = 0;
-		},
-		onAfterMoveSelfPriority: 100,
-		onAfterMoveSelf(pokemon) {
-			if (['brn', 'psn', 'tox'].includes(pokemon.status)) pokemon.volatiles['residualdmg'].counter++;
-		},
-		onAfterSwitchInSelf(pokemon) {
-			if (['brn', 'psn', 'tox'].includes(pokemon.status)) pokemon.volatiles['residualdmg'].counter++;
-		},
-	},
 };
-
-/**
- * @param {Battle} battle
- * @param {Pokemon} pokemon
- */
-function residualdmg(battle, pokemon) {
-	if (pokemon.volatiles['residualdmg']) {
-		battle.damage(battle.clampIntRange(Math.floor(pokemon.maxhp / 16) * pokemon.volatiles['residualdmg'].counter, 1), pokemon);
-		battle.hint("In Gen 2, Toxic's counter is retained through Baton Pass/Heal Bell and applies to PSN/BRN.", true);
-	} else {
-		battle.damage(battle.clampIntRange(Math.floor(pokemon.maxhp / 8), 1), pokemon);
-	}
-}
 
 exports.BattleStatuses = BattleStatuses;

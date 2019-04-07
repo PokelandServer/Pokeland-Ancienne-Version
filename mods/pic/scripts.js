@@ -1,8 +1,7 @@
 'use strict';
 
-/**@type {ModdedBattleScriptsData} */
 exports.BattleScripts = {
-	getEffect(name) {
+	getEffect: function (name) {
 		if (name && typeof name !== 'string') {
 			return name;
 		}
@@ -11,7 +10,7 @@ exports.BattleScripts = {
 		return Object.getPrototypeOf(this).getEffect.call(this, name);
 	},
 	pokemon: {
-		setAbility(ability, source, isFromFormechange) {
+		setAbility: function (ability, source, isFromFormechange) {
 			if (!this.hp) return false;
 			ability = this.battle.getAbility(ability);
 			let oldAbility = this.ability;
@@ -21,23 +20,23 @@ exports.BattleScripts = {
 			}
 			this.battle.singleEvent('End', this.battle.getAbility(oldAbility), this.abilityData, this, source);
 			let ally = this.side.active.find(ally => ally && ally !== this && !ally.fainted);
-			if (ally && ally.m.innate) {
-				ally.removeVolatile(ally.m.innate);
-				delete ally.m.innate;
+			if (ally && ally.innate) {
+				ally.removeVolatile(ally.innate);
+				delete ally.innate;
 			}
 			this.ability = ability.id;
 			this.abilityData = {id: ability.id, target: this};
 			if (ability.id) {
 				this.battle.singleEvent('Start', ability, this.abilityData, this, source);
 				if (ally && ally.ability !== this.ability) {
-					ally.m.innate = 'ability' + ability.id;
-					ally.addVolatile(ally.m.innate);
+					ally.innate = 'ability' + ability.id;
+					ally.addVolatile(ally.innate);
 				}
 			}
 			this.abilityOrder = this.battle.abilityOrder++;
 			return oldAbility;
 		},
-		hasAbility(ability) {
+		hasAbility: function (ability) {
 			if (!this.ignoringAbility()) {
 				if (Array.isArray(ability) ? ability.map(toId).includes(this.ability) : toId(ability) === this.ability) {
 					return true;
@@ -48,7 +47,7 @@ exports.BattleScripts = {
 			if (Array.isArray(ability)) return ability.map(toId).includes(ally.ability);
 			return toId(ability) === ally.ability;
 		},
-		getRequestData() {
+		getRequestData: function () {
 			let ally = this.side.active.find(ally => ally && ally !== this && !ally.fainted);
 			this.moveSlots = this.baseMoveSlots.concat(ally ? ally.baseMoveSlots : []);
 			for (const moveSlot of this.moveSlots) {

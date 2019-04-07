@@ -55,15 +55,15 @@ let BattleMovedex = {
 		ignoreEvasion: true,
 		effect: {
 			duration: 2,
-			durationCallback(target, source, effect) {
+			durationCallback: function (target, source, effect) {
 				return this.random(3, 4);
 			},
-			onStart(pokemon) {
+			onStart: function (pokemon) {
 				this.effectData.totalDamage = 0;
 				this.effectData.lastDamage = 0;
 				this.add('-start', pokemon, 'Bide');
 			},
-			onHit(target, source, move) {
+			onHit: function (target, source, move) {
 				if (source && source !== target && move.category !== 'Physical' && move.category !== 'Special') {
 					let damage = this.effectData.totalDamage;
 					this.effectData.totalDamage += damage;
@@ -72,7 +72,7 @@ let BattleMovedex = {
 					this.effectData.sourceSide = source.side;
 				}
 			},
-			onDamage(damage, target, source, move) {
+			onDamage: function (damage, target, source, move) {
 				if (!source || source.side === target.side) return;
 				if (!move || move.effectType !== 'Move') return;
 				if (!damage && this.effectData.lastDamage > 0) {
@@ -83,7 +83,7 @@ let BattleMovedex = {
 				this.effectData.sourcePosition = source.position;
 				this.effectData.sourceSide = source.side;
 			},
-			onAfterSetStatus(status, pokemon) {
+			onAfterSetStatus: function (status, pokemon) {
 				// Sleep, freeze, and partial trap will just pause duration.
 				if (pokemon.volatiles['flinch']) {
 					this.effectData.duration++;
@@ -98,7 +98,7 @@ let BattleMovedex = {
 					}
 				}
 			},
-			onBeforeMove(pokemon, target, move) {
+			onBeforeMove: function (pokemon, target, move) {
 				if (this.effectData.duration === 1) {
 					if (!this.effectData.totalDamage) {
 						this.add('-fail', pokemon);
@@ -112,7 +112,7 @@ let BattleMovedex = {
 				this.add('-activate', pokemon, 'Bide');
 				return false;
 			},
-			onDisableMove(pokemon) {
+			onDisableMove: function (pokemon) {
 				if (!pokemon.hasMove('bide')) {
 					return;
 				}
@@ -134,8 +134,11 @@ let BattleMovedex = {
 		self: {
 			volatileStatus: 'partialtrappinglock',
 		},
-		// FIXME: onBeforeMove(pokemon, target) {target.removeVolatile('mustrecharge')}
-		onHit(target, source) {
+		onBeforeMove: function (pokemon, target, move) {
+			// Removes must recharge volatile even if it misses
+			target.removeVolatile('mustrecharge');
+		},
+		onHit: function (target, source) {
 			/**
 			 * The duration of the partially trapped must be always renewed to 2
 			 * so target doesn't move on trapper switch out as happens in gen 1.
@@ -201,8 +204,11 @@ let BattleMovedex = {
 		self: {
 			volatileStatus: 'partialtrappinglock',
 		},
-		// FIXME: onBeforeMove(pokemon, target) {target.removeVolatile('mustrecharge')}
-		onHit(target, source) {
+		onBeforeMove: function (pokemon, target, move) {
+			// Removes must recharge volatile even if it misses
+			target.removeVolatile('mustrecharge');
+		},
+		onHit: function (target, source) {
 			/**
 			 * The duration of the partially trapped must be always renewed to 2
 			 * so target doesn't move on trapper switch out as happens in gen 1.
@@ -238,7 +244,7 @@ let BattleMovedex = {
 		volatileStatus: 'conversion',
 		accuracy: true,
 		target: "normal",
-		onHit(target, source) {
+		onHit: function (target, source) {
 			source.types = target.types;
 			this.add('-start', source, 'typechange', source.types.join(', '), '[from] move: Conversion', '[of] ' + source);
 		},
@@ -248,7 +254,7 @@ let BattleMovedex = {
 		desc: "Deals damage to the opposing Pokemon equal to twice the damage dealt by the last move used in the battle. This move ignores type immunity. Fails if the user moves first, or if the opposing side's last move was Counter, had 0 power, or was not Normal or Fighting type. Fails if the last move used by either side did 0 damage and was not Confuse Ray, Conversion, Focus Energy, Glare, Haze, Leech Seed, Light Screen, Mimic, Mist, Poison Gas, Poison Powder, Recover, Reflect, Rest, Soft-Boiled, Splash, Stun Spore, Substitute, Supersonic, Teleport, Thunder Wave, Toxic, or Transform.",
 		ignoreImmunity: true,
 		willCrit: false,
-		damageCallback(pokemon, target) {
+		damageCallback: function (pokemon, target) {
 			// Counter mechanics on gen 1 might be hard to understand.
 			// It will fail if the last move selected by the opponent has base power 0 or is not Normal or Fighting Type.
 			// If both are true, counter will deal twice the last damage dealt in battle, no matter what was the move.
@@ -276,12 +282,12 @@ let BattleMovedex = {
 		effect: {
 			duration: 2,
 			onLockMove: 'dig',
-			onTryImmunity(target, source, move) {
+			onTryImmunity: function (target, source, move) {
 				if (move.id === 'swift') return true;
 				this.add('-message', 'The foe ' + target.name + ' can\'t be hit underground!');
 				return null;
 			},
-			onDamage(damage, target, source, move) {
+			onDamage: function (damage, target, source, move) {
 				if (!move || move.effectType !== 'Move') return;
 				if (!source) return;
 				if (move.id === 'earthquake') {
@@ -297,11 +303,11 @@ let BattleMovedex = {
 		shortDesc: "For 0-7 turns, disables one of the target's moves.",
 		effect: {
 			duration: 4,
-			durationCallback(target, source, effect) {
+			durationCallback: function (target, source, effect) {
 				let duration = this.random(1, 7);
 				return duration;
 			},
-			onStart(pokemon) {
+			onStart: function (pokemon) {
 				if (!this.willMove(pokemon)) {
 					this.effectData.duration++;
 				}
@@ -312,16 +318,16 @@ let BattleMovedex = {
 				return;
 			},
 			onResidualOrder: 14,
-			onEnd(pokemon) {
+			onEnd: function (pokemon) {
 				this.add('-end', pokemon, 'Disable');
 			},
-			onBeforeMove(attacker, defender, move) {
+			onBeforeMove: function (attacker, defender, move) {
 				if (move.id === this.effectData.move) {
 					this.add('cant', attacker, 'Disable', move);
 					return false;
 				}
 			},
-			onDisableMove(pokemon) {
+			onDisableMove: function (pokemon) {
 				for (const moveSlot of pokemon.moveSlots) {
 					if (moveSlot.id === this.effectData.move) {
 						pokemon.disableMove(moveSlot.id);
@@ -387,8 +393,11 @@ let BattleMovedex = {
 		self: {
 			volatileStatus: 'partialtrappinglock',
 		},
-		// FIXME: onBeforeMove(pokemon, target) {target.removeVolatile('mustrecharge')}
-		onHit(target, source) {
+		onBeforeMove: function (pokemon, target, move) {
+			// Removes must recharge volatile even if it misses
+			target.removeVolatile('mustrecharge');
+		},
+		onHit: function (target, source) {
 			/**
 			 * The duration of the partially trapped must be always renewed to 2
 			 * so target doesn't move on trapper switch out as happens in gen 1.
@@ -413,12 +422,12 @@ let BattleMovedex = {
 		effect: {
 			duration: 2,
 			onLockMove: 'fly',
-			onTryImmunity(target, source, move) {
+			onTryImmunity: function (target, source, move) {
 				if (move.id === 'swift') return true;
 				this.add('-message', 'The foe ' + target.name + ' can\'t be hit while flying!');
 				return null;
 			},
-			onDamage(damage, target, source, move) {
+			onDamage: function (damage, target, source, move) {
 				if (!move || move.effectType !== 'Move') return;
 				if (!source || source.side === target.side) return;
 				if (move.id === 'gust' || move.id === 'thunder') {
@@ -433,11 +442,11 @@ let BattleMovedex = {
 		desc: "While the user remains active, its chance for a critical hit is quartered. Fails if the user already has the effect. If any Pokemon uses Haze, this effect ends.",
 		shortDesc: "Quarters the user's chance for a critical hit.",
 		effect: {
-			onStart(pokemon) {
+			onStart: function (pokemon) {
 				this.add('-start', pokemon, 'move: Focus Energy');
 			},
 			// This does nothing as it's dealt with on critical hit calculation.
-			onModifyMove() {},
+			onModifyMove: function () {},
 		},
 	},
 	furyattack: {
@@ -477,24 +486,26 @@ let BattleMovedex = {
 		inherit: true,
 		desc: "Resets the stat stages of both Pokemon to 0 and removes stat reductions due to burn and paralysis. Resets Toxic counters to 0 and removes the effect of confusion, Disable, Focus Energy, Leech Seed, Light Screen, Mist, and Reflect from both Pokemon. Removes the opponent's major status condition.",
 		shortDesc: "Resets all stat changes. Removes foe's status.",
-		onHit(target, source) {
+		onHit: function (target, source) {
 			this.add('-clearallboost');
-			for (const pokemon of this.getAllActive()) {
-				pokemon.clearBoosts();
+			for (const side of this.sides) {
+				for (const pokemon of side.active) {
+					pokemon.clearBoosts();
 
-				if (pokemon !== source) {
-					// Clears the status from the opponent
-					pokemon.setStatus('');
-				}
-				if (pokemon.status === 'tox') {
-					pokemon.setStatus('psn');
-				}
-				for (const id of Object.keys(pokemon.volatiles)) {
-					if (id === 'residualdmg') {
-						pokemon.volatiles[id].counter = 0;
-					} else {
-						pokemon.removeVolatile(id);
-						this.add('-end', pokemon, id);
+					if (pokemon !== source) {
+						// Clears the status from the opponent
+						pokemon.setStatus('');
+					}
+					if (pokemon.status === 'tox') {
+						pokemon.setStatus('psn');
+					}
+					for (const id of Object.keys(pokemon.volatiles)) {
+						if (id === 'residualdmg') {
+							pokemon.volatiles[id].counter = 0;
+						} else {
+							pokemon.removeVolatile(id);
+							this.add('-end', pokemon, id);
+						}
 					}
 				}
 			}
@@ -505,9 +516,9 @@ let BattleMovedex = {
 		inherit: true,
 		desc: "If this attack misses the target, the user takes 1 HP of crash damage. If the user has a substitute, the crash damage is dealt to the target's substitute if it has one, otherwise no crash damage is dealt.",
 		shortDesc: "User takes 1 HP of damage if it misses.",
-		onMoveFail(target, source, move) {
+		onMoveFail: function (target, source, move) {
 			if (!target.types.includes('Ghost')) {
-				this.directDamage(1, source, target);
+				this.directDamage(1, source);
 			}
 		},
 	},
@@ -525,10 +536,8 @@ let BattleMovedex = {
 		inherit: true,
 		desc: "If this attack misses the target, the user takes 1 HP of crash damage. If the user has a substitute, the crash damage is dealt to the target's substitute if it has one, otherwise no crash damage is dealt.",
 		shortDesc: "User takes 1 HP of damage if it misses.",
-		onMoveFail(target, source, move) {
-			if (!target.types.includes('Ghost')) {
-				this.directDamage(1, source, target);
-			}
+		onMoveFail: function (target, source, move) {
+			this.damage(1, source);
 		},
 	},
 	karatechop: {
@@ -539,13 +548,13 @@ let BattleMovedex = {
 	leechseed: {
 		inherit: true,
 		desc: "At the end of each of the target's turns, The Pokemon at the user's position steals 1/16 of the target's maximum HP, rounded down and multiplied by the target's current Toxic counter if it has one, even if the target currently has less than that amount of HP remaining. If the target switches out or any Pokemon uses Haze, this effect ends. Grass-type Pokemon are immune to this move.",
-		onHit() {},
+		onHit: function () {},
 		effect: {
-			onStart(target) {
+			onStart: function (target) {
 				this.add('-start', target, 'move: Leech Seed');
 			},
 			onAfterMoveSelfPriority: 1,
-			onAfterMoveSelf(pokemon) {
+			onAfterMoveSelf: function (pokemon) {
 				let leecher = pokemon.side.foe.active[pokemon.volatiles['leechseed'].sourcePosition];
 				if (!leecher || leecher.fainted || leecher.hp <= 0) {
 					this.debug('Nothing to leech into');
@@ -553,18 +562,13 @@ let BattleMovedex = {
 				}
 				// We check if leeched Pokémon has Toxic to increase leeched damage.
 				let toxicCounter = 1;
-				let residualdmg = pokemon.volatiles['residualdmg'];
-				if (residualdmg) {
-					residualdmg.counter++;
-					toxicCounter = residualdmg.counter;
+				if (pokemon.volatiles['residualdmg']) {
+					pokemon.volatiles['residualdmg'].counter++;
+					toxicCounter = pokemon.volatiles['residualdmg'].counter;
 				}
 				let toLeech = this.clampIntRange(Math.floor(pokemon.maxhp / 16), 1) * toxicCounter;
 				let damage = this.damage(toLeech, pokemon, leecher);
-				if (residualdmg) this.hint("In Gen 1, Leech Seed's damage is affected by Toxic's counter.", true);
-				if (!damage || toLeech > damage) {
-					this.hint("In Gen 1, Leech Seed recovery is not limited by the remaining HP of the seeded Pokemon.", true);
-				}
-				this.heal(toLeech, leecher, pokemon);
+				if (damage) this.heal(damage, leecher, pokemon);
 			},
 		},
 	},
@@ -582,13 +586,13 @@ let BattleMovedex = {
 		priority: 0,
 		flags: {},
 		volatileStatus: 'lightscreen',
-		onTryHit(pokemon) {
+		onTryHit: function (pokemon) {
 			if (pokemon.volatiles['lightscreen']) {
 				return false;
 			}
 		},
 		effect: {
-			onStart(pokemon) {
+			onStart: function (pokemon) {
 				this.add('-start', pokemon, 'Light Screen');
 			},
 		},
@@ -607,7 +611,7 @@ let BattleMovedex = {
 		inherit: true,
 		desc: "While the user remains active, this move is replaced by a random move known by the target, even if the user already knows that move. The copied move keeps the remaining PP for this move, regardless of the copied move's maximum PP. Whenever one PP is used for a copied move, one PP is used for this move.",
 		shortDesc: "Random move known by the target replaces this.",
-		onHit(target, source) {
+		onHit: function (target, source) {
 			let moveslot = source.moves.indexOf('mimic');
 			if (moveslot < 0) return false;
 			let moves = target.moves;
@@ -634,7 +638,7 @@ let BattleMovedex = {
 	mirrormove: {
 		inherit: true,
 		desc: "The user uses the last move used by the target. Fails if the target has not made a move, or if the last move used was Mirror Move.",
-		onHit(pokemon) {
+		onHit: function (pokemon) {
 			let foe = pokemon.side.foe.active[0];
 			if (!foe || !foe.lastMove || foe.lastMove.id === 'mirrormove') {
 				return false;
@@ -697,16 +701,16 @@ let BattleMovedex = {
 		effect: {
 			// Rage lock
 			duration: 255,
-			onStart(target, source, effect) {
+			onStart: function (target, source, effect) {
 				this.effectData.move = 'rage';
 			},
 			onLockMove: 'rage',
-			onTryHit(target, source, move) {
+			onTryHit: function (target, source, move) {
 				if (target.boosts.atk < 6 && move.id === 'disable') {
 					this.boost({atk: 1});
 				}
 			},
-			onHit(target, source, move) {
+			onHit: function (target, source, move) {
 				if (target.boosts.atk < 6 && move.category !== 'Status') {
 					this.boost({atk: 1});
 				}
@@ -729,10 +733,9 @@ let BattleMovedex = {
 		inherit: true,
 		desc: "The user restores 1/2 of its maximum HP, rounded down. Fails if (user's maximum HP - user's current HP + 1) is divisible by 256.",
 		heal: null,
-		onHit(target) {
+		onHit: function (target) {
 			// Fail when health is 255 or 511 less than max
 			if (target.hp === (target.maxhp - 255) || target.hp === (target.maxhp - 511) || target.hp === target.maxhp) {
-				this.hint("In Gen 1, recovery moves fail if (user's maximum HP - user's current HP + 1) is divisible by 256.");
 				return false;
 			}
 			this.heal(Math.floor(target.maxhp / 2), target, target);
@@ -752,13 +755,13 @@ let BattleMovedex = {
 		priority: 0,
 		flags: {},
 		volatileStatus: 'reflect',
-		onTryHit(pokemon) {
+		onTryHit: function (pokemon) {
 			if (pokemon.volatiles['reflect']) {
 				return false;
 			}
 		},
 		effect: {
-			onStart(pokemon) {
+			onStart: function (pokemon) {
 				this.add('-start', pokemon, 'Reflect');
 			},
 		},
@@ -769,8 +772,8 @@ let BattleMovedex = {
 	rest: {
 		inherit: true,
 		desc: "The user falls asleep for the next two turns and restores all of its HP, curing itself of any major status condition in the process. This does not remove the user's stat penalty for burn or paralysis. Fails if the user has full HP.",
-		onTryMove() {},
-		onHit(target) {
+		onTryMove: function () {},
+		onHit: function (target) {
 			// Fails if the difference between
 			// max HP and current HP is 0, 255, or 511
 			if (target.hp >= target.maxhp ||
@@ -789,7 +792,7 @@ let BattleMovedex = {
 		shortDesc: "No competitive use.",
 		isViable: false,
 		forceSwitch: false,
-		onTryHit() {},
+		onTryHit: function () {},
 		priority: 0,
 	},
 	rockslide: {
@@ -825,12 +828,14 @@ let BattleMovedex = {
 		inherit: true,
 		desc: "This attack charges on the first turn and executes on the second.",
 		shortDesc: "Charges turn 1. Hits turn 2.",
-		onTryMove(attacker, defender, move) {
+		onTry: function (attacker, defender, move) {
 			if (attacker.removeVolatile(move.id)) {
 				return;
 			}
 			this.add('-prepare', attacker, move.name, defender);
 			if (!this.runEvent('ChargeMove', attacker, defender, move)) {
+				this.add('-anim', attacker, move.name, defender);
+				attacker.removeVolatile(move.id);
 				return;
 			}
 			attacker.addVolatile('twoturnmove', defender);
@@ -850,10 +855,9 @@ let BattleMovedex = {
 		inherit: true,
 		desc: "The user restores 1/2 of its maximum HP, rounded down. Fails if (user's maximum HP - user's current HP + 1) is divisible by 256.",
 		heal: null,
-		onHit(target) {
+		onHit: function (target) {
 			// Fail when health is 255 or 511 less than max
 			if (target.hp === (target.maxhp - 255) || target.hp === (target.maxhp - 511) || target.hp === target.maxhp) {
-				this.hint("In Gen 1, recovery moves fail if (user's maximum HP - user's current HP + 1) is divisible by 256.");
 				return false;
 			}
 			this.heal(Math.floor(target.maxhp / 2), target, target);
@@ -881,7 +885,7 @@ let BattleMovedex = {
 		desc: "Deals Normal-type damage. If this move was successful, the user takes damage equal to 1/2 the HP lost by the target, rounded down, but not less than 1 HP. This move is automatically used if none of the user's known moves can be selected.",
 		shortDesc: "User loses 1/2 the HP lost by the target.",
 		recoil: [1, 2],
-		onModifyMove() {},
+		onModifyMove: function () {},
 	},
 	stunspore: {
 		inherit: true,
@@ -903,8 +907,8 @@ let BattleMovedex = {
 		name: "Substitute",
 		pp: 10,
 		priority: 0,
-		volatileStatus: 'substitute',
-		onTryHit(target) {
+		volatileStatus: 'Substitute',
+		onTryHit: function (target) {
 			if (target.volatiles['substitute']) {
 				this.add('-fail', target, 'move: Substitute');
 				return null;
@@ -917,20 +921,20 @@ let BattleMovedex = {
 				return null;
 			}
 		},
-		onHit(target) {
+		onHit: function (target) {
 			// If max HP is 3 or less substitute makes no damage
 			if (target.maxhp > 3) {
 				this.directDamage(target.maxhp / 4, target, target);
 			}
 		},
 		effect: {
-			onStart(target) {
+			onStart: function (target) {
 				this.add('-start', target, 'Substitute');
 				this.effectData.hp = Math.floor(target.maxhp / 4) + 1;
 				delete target.volatiles['partiallytrapped'];
 			},
 			onTryHitPriority: -1,
-			onTryHit(target, source, move) {
+			onTryHit: function (target, source, move) {
 				if (move.category === 'Status') {
 					// In gen 1 it only blocks:
 					// poison, confusion, secondary effect confusion, stat reducing moves and Leech Seed.
@@ -941,15 +945,12 @@ let BattleMovedex = {
 					return;
 				}
 				if (move.volatileStatus && target === source) return;
-				// NOTE: In future generations the damage is capped to the remaining HP of the
-				// Substitute, here we deliberately use the uncapped damage when tracking lastDamage etc.
-				let uncappedDamage = this.getDamage(source, target, move);
-				if (!uncappedDamage) return null;
-				uncappedDamage = this.runEvent('SubDamage', target, source, move, uncappedDamage);
-				if (!uncappedDamage) return uncappedDamage;
-				source.lastDamage = uncappedDamage;
-				target.volatiles['substitute'].hp -= uncappedDamage > target.volatiles['substitute'].hp ?
-					/** @type {number} */(target.volatiles['substitute'].hp) : uncappedDamage;
+				let damage = this.getDamage(source, target, move);
+				if (!damage) return null;
+				damage = this.runEvent('SubDamage', target, source, move, damage);
+				if (!damage) return damage;
+				target.volatiles['substitute'].hp -= damage;
+				source.lastDamage = damage;
 				if (target.volatiles['substitute'].hp <= 0) {
 					target.removeVolatile('substitute');
 					target.subFainted = true;
@@ -959,24 +960,24 @@ let BattleMovedex = {
 				// Drain/recoil does not happen if the substitute breaks
 				if (target.volatiles['substitute']) {
 					if (move.recoil) {
-						this.damage(Math.round(uncappedDamage * move.recoil[0] / move.recoil[1]), source, target, 'recoil');
+						this.damage(Math.round(damage * move.recoil[0] / move.recoil[1]), source, target, 'recoil');
 					}
 					if (move.drain) {
-						this.heal(Math.ceil(uncappedDamage * move.drain[0] / move.drain[1]), source, target, 'drain');
+						this.heal(Math.ceil(damage * move.drain[0] / move.drain[1]), source, target, 'drain');
 					}
 				}
-				this.runEvent('AfterSubDamage', target, source, move, uncappedDamage);
+				this.runEvent('AfterSubDamage', target, source, move, damage);
 				// Add here counter damage
 				let lastAttackedBy = target.getLastAttackedBy();
 				if (!lastAttackedBy) {
-					target.attackedBy.push({source: source, move: move.id, damage: uncappedDamage, thisTurn: true});
+					target.attackedBy.push({source: source, move: move.id, damage: damage, thisTurn: true});
 				} else {
 					lastAttackedBy.move = move.id;
-					lastAttackedBy.damage = uncappedDamage;
+					lastAttackedBy.damage = damage;
 				}
 				return 0;
 			},
-			onEnd(target) {
+			onEnd: function (target) {
 				this.add('-end', target, 'Substitute');
 			},
 		},
@@ -1017,7 +1018,7 @@ let BattleMovedex = {
 	thunderwave: {
 		inherit: true,
 		accuracy: 100,
-		onTryHit(target) {
+		onTryHit: function (target) {
 			if (target.hasType('Ground')) {
 				this.add('-immune', target);
 				return null;
@@ -1032,7 +1033,7 @@ let BattleMovedex = {
 		inherit: true,
 		desc: "No additional effect.",
 		shortDesc: "No additional effect.",
-		onHit() {},
+		onHit: function () {},
 		secondary: null,
 	},
 	twineedle: {
@@ -1046,7 +1047,7 @@ let BattleMovedex = {
 		shortDesc: "No competitive use.",
 		isViable: false,
 		forceSwitch: false,
-		onTryHit() {},
+		onTryHit: function () {},
 		priority: 0,
 	},
 	wingattack: {
@@ -1063,8 +1064,11 @@ let BattleMovedex = {
 		self: {
 			volatileStatus: 'partialtrappinglock',
 		},
-		// FIXME: onBeforeMove(pokemon, target) {target.removeVolatile('mustrecharge')}
-		onHit(target, source) {
+		onBeforeMove: function (pokemon, target, move) {
+			// Removes must recharge volatile even if it misses
+			target.removeVolatile('mustrecharge');
+		},
+		onHit: function (target, source) {
 			/**
 			 * The duration of the partially trapped must be always renewed to 2
 			 * so target doesn't move on trapper switch out as happens in gen 1.

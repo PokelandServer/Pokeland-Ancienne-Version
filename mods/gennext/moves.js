@@ -142,17 +142,17 @@ let BattleMovedex = {
 	substitute: {
 		inherit: true,
 		effect: {
-			onStart(target) {
+			onStart: function (target) {
 				this.add('-start', target, 'Substitute');
 				this.effectData.hp = Math.floor(target.maxhp / 4);
 				delete target.volatiles['partiallytrapped'];
 			},
 			onAccuracyPriority: -100,
-			onAccuracy(accuracy, target, source, move) {
+			onAccuracy: function (accuracy, target, source, move) {
 				return 100;
 			},
 			onTryPrimaryHitPriority: 2,
-			onTryPrimaryHit(target, source, move) {
+			onTryPrimaryHit: function (target, source, move) {
 				if (target === source || move.flags['authentic'] || move.infiltrates) {
 					return;
 				}
@@ -165,7 +165,7 @@ let BattleMovedex = {
 					return damage;
 				}
 				if (damage > target.volatiles['substitute'].hp) {
-					damage = /** @type {number} */ (target.volatiles['substitute'].hp);
+					damage = target.volatiles['substitute'].hp;
 				}
 				target.volatiles['substitute'].hp -= damage;
 				source.lastDamage = damage;
@@ -183,7 +183,7 @@ let BattleMovedex = {
 				this.runEvent('AfterSubDamage', target, source, move, damage);
 				return 0; // hit
 			},
-			onEnd(target) {
+			onEnd: function (target) {
 				this.add('-end', target, 'Substitute');
 			},
 		},
@@ -192,11 +192,11 @@ let BattleMovedex = {
 		inherit: true,
 		effect: {
 			duration: 1,
-			onStart(target) {
+			onStart: function (target) {
 				this.add('-singleturn', target, 'Protect');
 			},
 			onTryHitPriority: 3,
-			onTryHit(target, source, move) {
+			onTryHit: function (target, source, move) {
 				if (target.volatiles.substitute || !move.flags['protect']) return;
 				this.add('-activate', target, 'Protect');
 				let lockedmove = source.getVolatile('lockedmove');
@@ -214,11 +214,11 @@ let BattleMovedex = {
 		inherit: true,
 		effect: {
 			duration: 1,
-			onStart(target) {
+			onStart: function (target) {
 				this.add('-singleturn', target, 'Protect');
 			},
 			onTryHitPriority: 3,
-			onTryHit(target, source, move) {
+			onTryHit: function (target, source, move) {
 				if (target.volatiles.substitute || !move.flags['protect'] || move.category === 'Status') return;
 				this.add('-activate', target, 'Protect');
 				let lockedmove = source.getVolatile('lockedmove');
@@ -229,7 +229,7 @@ let BattleMovedex = {
 					}
 				}
 				if (move.flags['contact']) {
-					this.boost({atk: -2}, source, target, move);
+					this.boost({atk: -2}, source, target, this.getMove("King's Shield"));
 				}
 				return null;
 			},
@@ -239,11 +239,11 @@ let BattleMovedex = {
 		inherit: true,
 		effect: {
 			duration: 1,
-			onStart(target) {
+			onStart: function (target) {
 				this.add('-singleturn', target, 'move: Protect');
 			},
 			onTryHitPriority: 3,
-			onTryHit(target, source, move) {
+			onTryHit: function (target, source, move) {
 				if (target.volatiles.substitute || !move.flags['protect']) return;
 				if (move && (move.target === 'self' || move.id === 'suckerpunch')) return;
 				this.add('-activate', target, 'move: Protect');
@@ -264,7 +264,7 @@ let BattleMovedex = {
 	},
 	doubleteam: {
 		inherit: true,
-		onTryHit(target) {
+		onTryHit: function (target) {
 			if (target.boosts.evasion >= 6) {
 				return false;
 			}
@@ -272,7 +272,7 @@ let BattleMovedex = {
 				return false;
 			}
 		},
-		onHit(target) {
+		onHit: function (target) {
 			this.directDamage(target.maxhp / 4);
 		},
 		boosts: {
@@ -291,18 +291,19 @@ let BattleMovedex = {
 	solarbeam: {
 		inherit: true,
 		basePower: 80,
-		basePowerCallback(pokemon, target) {
+		basePowerCallback: function (pokemon, target) {
 			return 80;
 		},
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		effect: {
 			duration: 2,
 			onLockMove: 'solarbeam',
-			onStart(pokemon) {
+			onStart: function (pokemon) {
 				this.heal(pokemon.maxhp / 2);
 			},
 		},
@@ -316,7 +317,8 @@ let BattleMovedex = {
 		basePower: 60,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -333,16 +335,19 @@ let BattleMovedex = {
 		basePower: 70,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
-		onTryMove(attacker, defender, move) {
+		onTry: function (attacker, defender, move) {
 			if (attacker.removeVolatile(move.id)) {
 				return;
 			}
 			this.add('-prepare', attacker, move.name, defender);
-			this.boost({def: 1, spd: 1, accuracy: 1}, attacker, attacker, move);
+			this.boost({def: 1, spd: 1, accuracy: 1}, attacker, attacker, this.getMove('skullbash'));
 			if (!this.runEvent('ChargeMove', attacker, defender, move)) {
+				this.add('-anim', attacker, move.name, defender);
+				attacker.removeVolatile(move.id);
 				return;
 			}
 			attacker.addVolatile('twoturnmove', defender);
@@ -358,7 +363,8 @@ let BattleMovedex = {
 		basePower: 95,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -377,7 +383,8 @@ let BattleMovedex = {
 		basePower: 95,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -394,7 +401,8 @@ let BattleMovedex = {
 		basePower: 95,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -411,7 +419,8 @@ let BattleMovedex = {
 		basePower: 60,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		flags: {contact: 1, charge: 1, mirror: 1, gravity: 1, distance: 1},
@@ -424,7 +433,8 @@ let BattleMovedex = {
 		basePower: 60,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -443,7 +453,8 @@ let BattleMovedex = {
 		basePower: 60,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -462,7 +473,8 @@ let BattleMovedex = {
 		basePower: 60,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -481,7 +493,8 @@ let BattleMovedex = {
 		basePower: 60,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -498,7 +511,8 @@ let BattleMovedex = {
 		basePower: 40,
 		willCrit: true,
 		accuracy: true,
-		onTryHit(target) {
+		onTryHitPriority: 10,
+		onTryHit: function (target) {
 			target.removeVolatile('substitute');
 		},
 		secondary: {
@@ -530,7 +544,7 @@ let BattleMovedex = {
 		basePower: 100,
 		willCrit: true,
 		self: null,
-		onHit(target, source) {
+		onHit: function (target, source) {
 			if (!target.hp) {
 				source.addVolatile('mustrecharge');
 			}
@@ -544,7 +558,7 @@ let BattleMovedex = {
 		basePower: 100,
 		willCrit: true,
 		self: null,
-		onHit(target, source) {
+		onHit: function (target, source) {
 			if (!target.hp) {
 				source.addVolatile('mustrecharge');
 			}
@@ -558,7 +572,7 @@ let BattleMovedex = {
 		basePower: 100,
 		willCrit: true,
 		self: null,
-		onHit(target, source) {
+		onHit: function (target, source) {
 			if (!target.hp) {
 				source.addVolatile('mustrecharge');
 			}
@@ -572,7 +586,7 @@ let BattleMovedex = {
 		basePower: 100,
 		willCrit: true,
 		self: null,
-		onHit(target, source) {
+		onHit: function (target, source) {
 			if (!target.hp) {
 				source.addVolatile('mustrecharge');
 			}
@@ -586,7 +600,7 @@ let BattleMovedex = {
 		basePower: 100,
 		willCrit: true,
 		self: null,
-		onHit(target, source) {
+		onHit: function (target, source) {
 			if (!target.hp) {
 				source.addVolatile('mustrecharge');
 			}
@@ -600,7 +614,7 @@ let BattleMovedex = {
 		basePower: 100,
 		willCrit: true,
 		self: null,
-		onHit(target, source) {
+		onHit: function (target, source) {
 			if (!target.hp) {
 				source.addVolatile('mustrecharge');
 			}
@@ -614,7 +628,7 @@ let BattleMovedex = {
 		basePower: 100,
 		willCrit: true,
 		self: null,
-		onHit(target, source) {
+		onHit: function (target, source) {
 			if (!target.hp) {
 				source.addVolatile('mustrecharge');
 			}
@@ -624,20 +638,20 @@ let BattleMovedex = {
 	},
 	bide: {
 		inherit: true,
-		onTryHit(pokemon) {
+		onTryHit: function (pokemon) {
 			return this.willAct() && this.runEvent('StallMove', pokemon);
 		},
 		effect: {
 			duration: 2,
 			onLockMove: 'bide',
-			onStart(pokemon) {
+			onStart: function (pokemon) {
 				if (pokemon.removeVolatile('bidestall') || pokemon.hp <= 1) return false;
 				pokemon.addVolatile('bidestall');
 				this.effectData.totalDamage = 0;
 				this.add('-start', pokemon, 'Bide');
 			},
 			onDamagePriority: -11,
-			onDamage(damage, target, source, effect) {
+			onDamage: function (damage, target, source, effect) {
 				if (!effect || effect.effectType !== 'Move') return;
 				if (!source || source.side === target.side) return;
 				if (effect.effectType === 'Move' && damage >= target.hp) {
@@ -648,13 +662,13 @@ let BattleMovedex = {
 				this.effectData.sourceSide = source.side;
 				return damage;
 			},
-			onAfterSetStatus(status, pokemon) {
+			onAfterSetStatus: function (status, pokemon) {
 				if (status.id === 'slp') {
 					pokemon.removeVolatile('bide');
 					pokemon.removeVolatile('bidestall');
 				}
 			},
-			onBeforeMove(pokemon, target, move) {
+			onBeforeMove: function (pokemon, target, move) {
 				if (this.effectData.duration === 1) {
 					if (!this.effectData.totalDamage) {
 						this.add('-end', pokemon, 'Bide');
@@ -666,14 +680,13 @@ let BattleMovedex = {
 					let moveData = /** @type {ActiveMove} */ ({
 						damage: this.effectData.totalDamage * 2,
 					});
-					// @ts-ignore FIXME
 					this.moveHit(target, pokemon, 'bide', moveData);
 					return false;
 				}
 				this.add('-activate', pokemon, 'Bide');
 				return false;
 			},
-			onMoveAborted(pokemon) {
+			onMoveAborted: function (pokemon) {
 				pokemon.removeVolatile('bide');
 			},
 		},
@@ -688,7 +701,7 @@ let BattleMovedex = {
 	snore: {
 		inherit: true,
 		basePower: 100,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'snorlax') return power * 1.5;
 		},
 		ignoreImmunity: true,
@@ -753,7 +766,7 @@ let BattleMovedex = {
 		inherit: true,
 		basePower: 60,
 		ignoreImmunity: true,
-		onHit(target, pokemon) {
+		onHit: function (target, pokemon) {
 			if (pokemon.baseTemplate.species !== 'Meloetta' || pokemon.transformed) {
 				return;
 			}
@@ -828,10 +841,10 @@ let BattleMovedex = {
 		inherit: true,
 		effect: {
 			// this is a side condition
-			onStart(side) {
+			onStart: function (side) {
 				this.add('-sidestart', side, 'move: Stealth Rock');
 			},
-			onSwitchIn(pokemon) {
+			onSwitchIn: function (pokemon) {
 				let factor = 2;
 				if (pokemon.hasType('Flying')) factor = 4;
 				this.damage(pokemon.maxhp * factor / 16);
@@ -858,8 +871,8 @@ let BattleMovedex = {
 	******************************************************************/
 	silverwind: {
 		inherit: true,
-		basePowerCallback() {
-			if (this.field.isWeather('hail')) {
+		basePowerCallback: function () {
+			if (this.isWeather('hail')) {
 				return 90;
 			}
 			return 60;
@@ -867,7 +880,7 @@ let BattleMovedex = {
 		secondary: {
 			chance: 100,
 			self: {
-				onHit(target, source) {
+				onHit: function (target, source) {
 					let stats = [];
 					for (let stat in target.boosts) {
 						// @ts-ignore
@@ -892,8 +905,8 @@ let BattleMovedex = {
 	},
 	ominouswind: {
 		inherit: true,
-		basePowerCallback() {
-			if (this.field.isWeather('hail')) {
+		basePowerCallback: function () {
+			if (this.isWeather('hail')) {
 				return 90;
 			}
 			return 60;
@@ -901,7 +914,7 @@ let BattleMovedex = {
 		secondary: {
 			chance: 100,
 			self: {
-				onHit(target, source) {
+				onHit: function (target, source) {
 					let stats = [];
 					for (let stat in target.boosts) {
 						// @ts-ignore
@@ -929,7 +942,7 @@ let BattleMovedex = {
 		secondary: {
 			chance: 100,
 			self: {
-				onHit(target, source) {
+				onHit: function (target, source) {
 					let stats = [];
 					for (let stat in target.boosts) {
 						// @ts-ignore
@@ -961,15 +974,15 @@ let BattleMovedex = {
 	******************************************************************/
 	avalanche: {
 		inherit: true,
-		basePowerCallback(pokemon, source) {
+		basePowerCallback: function (pokemon, source) {
 			let lastAttackedBy = pokemon.getLastAttackedBy();
 			if (lastAttackedBy) {
 				if (lastAttackedBy.damage > 0 && lastAttackedBy.thisTurn) {
 					this.debug('Boosted for getting hit by ' + lastAttackedBy.move);
-					return this.field.isWeather('hail') ? 180 : 120;
+					return this.isWeather('hail') ? 180 : 120;
 				}
 			}
-			return this.field.isWeather('hail') ? 90 : 60;
+			return this.isWeather('hail') ? 90 : 60;
 		},
 		desc: "Power doubles if the user was hit by the target this turn. If the weather is set to hail, this move does 1.5x more damage.",
 		shortDesc: "Power doubles if user is damaged by the target.",
@@ -1105,7 +1118,7 @@ let BattleMovedex = {
 	twister: {
 		inherit: true,
 		basePower: 80,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			let GossamerWingUsers = ["Butterfree", "Venomoth", "Masquerain", "Dustox", "Beautifly", "Mothim", "Lilligant", "Volcarona", "Vivillon"];
 			if (user.hasItem('stick') && GossamerWingUsers.includes(user.template.species)) {
 				return power * 1.5;
@@ -1220,8 +1233,8 @@ let BattleMovedex = {
 	******************************************************************/
 	scald: {
 		inherit: true,
-		onModifyMove(move) {
-			switch (this.field.effectiveWeather()) {
+		onModifyMove: function (move) {
+			switch (this.effectiveWeather()) {
 			case 'sunnyday':
 				// @ts-ignore
 				move.secondary.chance = 60;
@@ -1233,8 +1246,8 @@ let BattleMovedex = {
 	steameruption: {
 		inherit: true,
 		accuracy: 100,
-		onModifyMove(move) {
-			switch (this.field.effectiveWeather()) {
+		onModifyMove: function (move) {
+			switch (this.effectiveWeather()) {
 			case 'sunnyday':
 				// @ts-ignore
 				move.secondary.chance = 60;
@@ -1264,14 +1277,17 @@ let BattleMovedex = {
 	echoedvoice: {
 		inherit: true,
 		basePower: 80,
-		basePowerCallback() {
+		basePowerCallback: function () {
 			return 80;
 		},
 		isViable: true,
 		ignoreImmunity: true,
-		onHit(target, source) {
-			if (!target.side.addSlotCondition(target, 'futuremove')) return false;
-			Object.assign(target.side.slotConditions[target.position]['futuremove'], {
+		onHit: function (target, source) {
+			target.side.addSideCondition('futuremove');
+			if (target.side.sideConditions['futuremove'].positions[target.position]) {
+				return false;
+			}
+			target.side.sideConditions['futuremove'].positions[target.position] = {
 				duration: 3,
 				move: 'echoedvoice',
 				source: source,
@@ -1288,7 +1304,7 @@ let BattleMovedex = {
 					isFutureMove: true,
 					type: 'Normal',
 				},
-			});
+			};
 			this.add('-start', source, 'move: Echoed Voice');
 			return null;
 		},
@@ -1309,7 +1325,7 @@ let BattleMovedex = {
 	rapidspin: {
 		inherit: true,
 		basePower: 30,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			let doubled = false;
 			if (user.removeVolatile('leechseed')) {
 				this.add('-end', user, 'Leech Seed', '[from] move: Rapid Spin', '[of] ' + user);
@@ -1335,7 +1351,7 @@ let BattleMovedex = {
 	rockthrow: {
 		inherit: true,
 		accuracy: 100,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.side.removeSideCondition('stealthrock')) {
 				this.add('-sideend', user.side, "Stealth Rock", '[from] move: Rapid Spin', '[of] ' + user);
 				return power * 2;
@@ -1355,7 +1371,7 @@ let BattleMovedex = {
 	******************************************************************/
 	firefang: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'flareon') return this.chainModify(1.5);
 		},
 		accuracy: 100,
@@ -1368,7 +1384,7 @@ let BattleMovedex = {
 	},
 	icefang: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'walrein') return this.chainModify(1.5);
 		},
 		accuracy: 100,
@@ -1381,7 +1397,7 @@ let BattleMovedex = {
 	},
 	thunderfang: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'luxray') return this.chainModify(1.5);
 		},
 		accuracy: 100,
@@ -1394,7 +1410,7 @@ let BattleMovedex = {
 	},
 	poisonfang: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'drapion') return this.chainModify(1.5);
 		},
 		accuracy: 100,
@@ -1408,7 +1424,7 @@ let BattleMovedex = {
 	poisontail: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'seviper') return this.chainModify(1.5);
 		},
 		accuracy: 100,
@@ -1422,7 +1438,7 @@ let BattleMovedex = {
 	slash: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'persian') return this.chainModify(1.5);
 		},
 		secondary: {
@@ -1437,7 +1453,7 @@ let BattleMovedex = {
 	sludge: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'muk') return this.chainModify(1.5);
 		},
 		secondary: {
@@ -1451,7 +1467,7 @@ let BattleMovedex = {
 		inherit: true,
 		basePower: 75,
 		accuracy: 100,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'weezing') return this.chainModify(1.5);
 		},
 		secondary: {
@@ -1464,28 +1480,28 @@ let BattleMovedex = {
 	flamecharge: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'rapidash') return this.chainModify(1.5);
 		},
 		desc: "Has a 100% chance to raise the user's Speed by 1 stage. If the user is a Rapidash, this move does 1.5x more damage.",
 	},
 	flamewheel: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'darmanitan') return this.chainModify(1.5);
 		},
 		desc: "Has a 10% chance to burn the target. If the user is a Darmanitan, this move does 1.5x more damage.",
 	},
 	spark: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'eelektross') return this.chainModify(1.5);
 		},
 		desc: "Has a 30% chance to paralyze the target. If the user is an Eelektross, this move does 1.5x more damage.",
 	},
 	triplekick: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'hitmontop') return this.chainModify(1.5);
 		},
 		accuracy: true,
@@ -1493,7 +1509,7 @@ let BattleMovedex = {
 	},
 	bubblebeam: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'kingdra') return this.chainModify(1.5);
 		},
 		secondary: {
@@ -1508,7 +1524,7 @@ let BattleMovedex = {
 	electroweb: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'galvantula') return this.chainModify(1.5);
 		},
 		desc: "Has a 100% chance to lower the target's Speed by 1 stage. If the user is a Galvantula, this move does 1.5x more damage.",
@@ -1517,7 +1533,7 @@ let BattleMovedex = {
 	gigadrain: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'beautifly') return this.chainModify(1.5);
 		},
 		desc: "The user recovers 1/2 the HP lost by the target, rounded half up. If Big Root is held by the user, the HP recovered is 1.3x normal, rounded half down. If the user is a Beautifly, this move does 1.5x more damage.",
@@ -1526,7 +1542,7 @@ let BattleMovedex = {
 	icywind: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'glaceon') return this.chainModify(1.5);
 		},
 		desc: "Has a 100% chance to lower the target's Speed by 1 stage. If the user is a Glaceon, this move does 1.5x more damage.",
@@ -1535,7 +1551,7 @@ let BattleMovedex = {
 	mudshot: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'swampert') return this.chainModify(1.5);
 		},
 		desc: "Has a 100% chance to lower the target's Speed by 1 stage. If the user is a Swampert, this move does 1.5x more damage.",
@@ -1544,7 +1560,7 @@ let BattleMovedex = {
 	glaciate: {
 		inherit: true,
 		basePower: 80,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'kyurem') return this.chainModify(1.5);
 		},
 		desc: "Has a 100% chance to lower the target's Speed by 1 stage. If the user is a Kyurem, this move does 1.5x more damage.",
@@ -1553,7 +1569,7 @@ let BattleMovedex = {
 	octazooka: {
 		inherit: true,
 		basePower: 75,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'octillery') return this.chainModify(1.5);
 		},
 		accuracy: 90,
@@ -1569,7 +1585,7 @@ let BattleMovedex = {
 	leaftornado: {
 		inherit: true,
 		basePower: 75,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'serperior') return this.chainModify(1.5);
 		},
 		accuracy: 90,
@@ -1584,28 +1600,28 @@ let BattleMovedex = {
 	},
 	iceshard: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'weavile') return this.chainModify(1.5);
 		},
 		desc: "If the user is a Weavile, this move does 1.5x more damage.",
 	},
 	aquajet: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'sharpedo') return this.chainModify(1.5);
 		},
 		desc: "If the user is a Sharpedo, this move does 1.5x more damage.",
 	},
 	machpunch: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'hitmonchan') return this.chainModify(1.5);
 		},
 		desc: "If the user is a Hitmonchan, this move does 1.5x more damage.",
 	},
 	shadowsneak: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'banette') return this.chainModify(1.5);
 		},
 		desc: "If the user is a Banette, this move does 1.5x more damage.",
@@ -1613,7 +1629,7 @@ let BattleMovedex = {
 	steelwing: {
 		inherit: true,
 		basePower: 60,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'skarmory') return this.chainModify(1.5);
 		},
 		accuracy: 100,
@@ -1630,7 +1646,7 @@ let BattleMovedex = {
 	},
 	surf: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'masquerain') return this.chainModify(1.5);
 		},
 		secondary: {
@@ -1644,7 +1660,7 @@ let BattleMovedex = {
 	},
 	hiddenpower: {
 		inherit: true,
-		onBasePower(power, user) {
+		onBasePower: function (power, user) {
 			if (user.template.id === 'unown') return this.chainModify(1.5);
 		},
 	},
@@ -2020,7 +2036,7 @@ let BattleMovedex = {
 	nightdaze: {
 		inherit: true,
 		accuracy: 100,
-		onModifyMove(move, user) {
+		onModifyMove: function (move, user) {
 			if (user.illusion) {
 				let illusionMoves = user.illusion.moves.filter(move => this.getMove(move).category !== 'Status');
 				if (!illusionMoves.length) return;
@@ -2071,7 +2087,7 @@ let BattleMovedex = {
 		multihit: [3, 3],
 		secondary: {
 			chance: 10,
-			onHit(target, source) {
+			onHit: function (target, source) {
 				let result = this.random(3);
 				if (result === 0) {
 					target.trySetStatus('brn', source);

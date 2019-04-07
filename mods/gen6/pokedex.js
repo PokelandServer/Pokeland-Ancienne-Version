@@ -257,10 +257,6 @@ let BattlePokedex = {
 		inherit: true,
 		abilities: {0: "Aura Break"},
 	},
-	necturna: {
-		inherit: true,
-		baseStats: {hp: 64, atk: 120, def: 100, spa: 85, spd: 120, spe: 81},
-	},
 	aurumoth: {
 		inherit: true,
 		abilities: {0: "Weak Armor", 1: "No Guard", H: "Illusion"},
@@ -272,10 +268,6 @@ let BattlePokedex = {
 	naviathan: {
 		inherit: true,
 		abilities: {0: "Water Veil", 1: "Heatproof", H: "Light Metal"},
-	},
-	crucibellemega: {
-		inherit: true,
-		baseStats: {hp: 106, atk: 135, def: 75, spa: 85, spd: 125, spe: 114},
 	},
 	syclant: {
 		inherit: true,

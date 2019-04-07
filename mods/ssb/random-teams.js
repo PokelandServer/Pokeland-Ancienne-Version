@@ -16,7 +16,7 @@
  * @property {boolean=} shiny
  */
 
-const RandomTeams = require('../../random-teams');
+const RandomTeams = require('../../data/random-teams');
 
 class RandomStaffBrosTeams extends RandomTeams {
 	randomStaffBrosTeam() {
@@ -100,6 +100,12 @@ class RandomStaffBrosTeams extends RandomTeams {
 				moves: ['Knock Off', 'Earthquake', ['Horn Leech', 'U-turn', 'Avalanche']],
 				signatureMove: 'Trashalanche',
 				evs: {hp: 252, atk: 252, def: 4}, ivs: {spe: 0}, nature: 'Brave',
+			},
+			'Arrested': {
+				species: 'Blastoise', ability: 'Torrent', item: 'Blastoisinite', gender: 'M',
+				moves: ['Muddy Water', 'Ice Beam', 'Slack Off'],
+				signatureMove: 'Jail Shell',
+				evs: {hp: 252, def: 4, spa: 252}, nature: 'Modest',
 			},
 			'Arsenal': {
 				species: 'Arceus', ability: 'Logia', gender: 'M',
@@ -216,6 +222,12 @@ class RandomStaffBrosTeams extends RandomTeams {
 				signatureMove: 'Fang of the Fire King',
 				evs: {hp: 252, atk: 36, def: 100, spd: 120}, ivs: {spe: 0}, nature: 'Brave',
 			},
+			'Earthbound Misfit': {
+				species: 'Zygarde', ability: 'Poison Heal', item: 'Leftovers', gender: 'N',
+				moves: ['Thousand Arrows', 'Stone Edge', 'Coil'],
+				signatureMove: 'My Life',
+				evs: {hp: 188, atk: 68, def: 252}, nature: 'Adamant',
+			},
 			'explodingdaisies': {
 				species: 'Houndoom', ability: 'Flash Fire', item: 'Houndoominite', gender: 'M',
 				moves: ['Sludge Bomb', 'Nasty Plot', 'Dark Pulse'],
@@ -251,12 +263,6 @@ class RandomStaffBrosTeams extends RandomTeams {
 				moves: ['Earthquake', 'Explosion', 'Iron Head'],
 				signatureMove: 'Rock Slide',
 				evs: {hp: 4, atk: 252, spe: 252}, nature: 'Jolly',
-			},
-			'Forrce': {
-				species: 'Cresselia', ability: 'Wonder Skin', item: 'Leftovers', gender: 'N',
-				moves: ['Moonlight', 'Heart Swap', 'Baton Pass'],
-				signatureMove: 'Purple Pills',
-				evs: {hp: 176, def: 80, spd: 252}, ivs: {atk: 0}, nature: 'Calm',
 			},
 			'grimAuxiliatrix': {
 				species: 'Aggron', ability: 'Sturdy', item: 'Aggronite', gender: '',
@@ -366,6 +372,12 @@ class RandomStaffBrosTeams extends RandomTeams {
 				signatureMove: 'Shuffle Ramen Dance',
 				evs: {def: 4, spa: 252, spe: 252}, ivs: {atk: 0}, nature: 'Timid', shiny: true,
 			},
+			'Lycanium Z': {
+				species: 'Cresselia', ability: 'Wonder Skin', item: 'Leftovers', gender: 'N',
+				moves: ['Moonlight', 'Heart Swap', 'Baton Pass'],
+				signatureMove: 'Purple Pills',
+				evs: {hp: 176, def: 80, spd: 252}, ivs: {atk: 0}, nature: 'Calm',
+			},
 			'MacChaeger': {
 				species: 'Mantyke', ability: 'Water Veil', item: ['Life Orb', 'Normalium Z'], gender: 'M',
 				moves: ['Scald', 'Aeroblast', 'Sleep Talk'],
@@ -449,12 +461,6 @@ class RandomStaffBrosTeams extends RandomTeams {
 				moves: ['Nasty Plot', 'Psyshock', 'Earth Power'],
 				signatureMove: 'Total Leech',
 				evs: {def: 4, spa: 252, spe: 252}, ivs: {atk: 0}, nature: 'Timid',
-			},
-			'Pablo': {
-				species: 'Blastoise', ability: 'Torrent', item: 'Blastoisinite', gender: 'M',
-				moves: ['Muddy Water', 'Ice Beam', 'Slack Off'],
-				signatureMove: 'Jail Shell',
-				evs: {hp: 252, def: 4, spa: 252}, nature: 'Modest',
 			},
 			'Paradise': {
 				species: 'Muk', ability: 'Unaware', item: 'Black Sludge', gender: '',
@@ -618,7 +624,7 @@ class RandomStaffBrosTeams extends RandomTeams {
 				signatureMove: 'Cutie Escape',
 				evs: {hp: 4, spa: 252, spe: 252}, nature: 'Timid',
 			},
-			'Xayah': {
+			'Xayahh': {
 				species: 'Noivern', ability: 'Dancer', item: 'Flyinium Z', gender: 'F',
 				moves: ['Clanging Scales', 'Roost', 'Fiery Dance'],
 				signatureMove: 'Stunning Dance',
@@ -635,12 +641,6 @@ class RandomStaffBrosTeams extends RandomTeams {
 				moves: ['Lunar Dance', 'Fiery Dance', 'Perish Song', 'Petal Dance', 'Quiver Dance'],
 				signatureMove: 'Relic Song Dance',
 				evs: {hp: 4, atk: 252, spa: 252}, nature: 'Quiet',
-			},
-			'Zyg': {
-				species: 'Zygarde', ability: 'Poison Heal', item: 'Leftovers', gender: 'N',
-				moves: ['Thousand Arrows', 'Stone Edge', 'Coil'],
-				signatureMove: 'My Life',
-				evs: {hp: 188, atk: 68, def: 252}, nature: 'Adamant',
 			},
 		};
 		let pool = Object.keys(sets);
