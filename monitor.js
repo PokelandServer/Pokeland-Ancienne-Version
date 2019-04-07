@@ -8,7 +8,8 @@
  */
 'use strict';
 
-const FS = require('./lib/fs');
+/** @type {typeof import('../lib/fs').FS} */
+const FS = require(/** @type {any} */('../.lib-dist/fs')).FS;
 
 const MONITOR_CLEAN_TIMEOUT = 2 * 60 * 60 * 1000;
 
@@ -54,14 +55,33 @@ if (('Config' in global) &&
 	Config.loglevel = 2;
 }
 
+/** @type {typeof import('../lib/crashlogger')} */
+let crashlogger = require(/** @type {any} */('../.lib-dist/crashlogger'));
+
 const Monitor = module.exports = {
 	/*********************************************************
 	 * Logging
 	 *********************************************************/
 
-	/** @param {Error} error */
-	crashlog(error, source = 'The main process') {
-		require('./lib/crashlogger')(error, source);
+	/**
+	 * @param {Error} error
+	 * @param {string} source
+	 * @param {{}?} details
+	 */
+	crashlog(error, source = 'The main process', details = null) {
+		if ((error.stack || '').startsWith('@!!@')) {
+			try {
+				let stack = (error.stack || '');
+				let nlIndex = stack.indexOf('\n');
+				[error.name, error.message, source, details] = JSON.parse(stack.slice(4, nlIndex));
+				error.stack = stack.slice(nlIndex + 1);
+			} catch (e) {}
+		}
+		let crashType = crashlogger(error, source, details);
+		Rooms.global.reportCrash(error, source);
+		if (crashType === 'lockdown') {
+			Rooms.global.startLockdown(error);
+		}
 	},
 
 	/**
@@ -135,8 +155,11 @@ const Monitor = module.exports = {
 
 	/** @type {string | null} */
 	activeIp: null,
+	/** @type {{[k: string]: number}} */
 	networkUse: {},
+	/** @type {{[k: string]: number}} */
 	networkCount: {},
+	/** @type {{[k: string]: string}} */
 	hotpatchLock: {},
 
 	/**
