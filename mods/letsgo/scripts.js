@@ -2,10 +2,16 @@
 
 /**@type {ModdedBattleScriptsData} */
 let BattleScripts = {
-	init() {
+	init: function () {
 		this.modData('Abilities', 'noability').isNonstandard = false;
 		for (let i in this.data.Pokedex) {
 			this.modData('Pokedex', i).abilities = {0: 'No Ability'};
+		}
+		for (let i in this.data.FormatsData) {
+			let dataTemplate = this.modData('FormatsData', i);
+			if (this.data.FormatsData[i].requiredItem && this.getItem(this.data.FormatsData[i].requiredItem).megaStone) {
+				dataTemplate.requiredItem = '';
+			}
 		}
 	},
 	/**
@@ -41,8 +47,7 @@ let BattleScripts = {
 		if (nature.plus) stats[nature.plus] = Math.floor(stats[nature.plus] * 1.1);
 		// @ts-ignore
 		if (nature.minus) stats[nature.minus] = Math.floor(stats[nature.minus] * 0.9);
-		set.happiness = 70;
-		let friendshipValue = Math.floor((set.happiness / 255 / 10 + 1) * 100);
+		let friendshipValue = Math.floor((this.clampIntRange(set.happiness || 255, 0, 255) / 255 / 10 + 1) * 100);
 		for (const stat in stats) {
 			if (stat !== 'hp') {
 				// @ts-ignore

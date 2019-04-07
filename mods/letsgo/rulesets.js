@@ -5,10 +5,12 @@ let BattleFormats = {
 	pokemon: {
 		effectType: 'ValidatorRule',
 		name: 'Pokemon',
-		onValidateTeam(team, format) {
+		onValidateTeam: function (team, format) {
 			let problems = [];
 			if (team.length > 6) problems.push('Your team has more than six Pok\u00E9mon.');
-			// Unlike Pokemon like Kyurem-B and Kyurem-W, the two Starter Pokemon cannot be hacked onto other games.
+			// ----------- legality line ------------------------------------------
+			if (!format || !this.getRuleTable(format).has('-illegal')) return problems;
+			// everything after this line only happens if we're doing legality enforcement
 			let hasStarter = 0;
 			for (const set of team) {
 				if (set.species === 'Pikachu-Starter' || set.species === 'Eevee-Starter') {
@@ -21,7 +23,7 @@ let BattleFormats = {
 			}
 			return problems;
 		},
-		onChangeSet(set, format) {
+		onChangeSet: function (set, format) {
 			let template = this.getTemplate(set.species);
 			let baseTemplate = this.getTemplate(template.baseSpecies);
 			let problems = [];
@@ -36,7 +38,7 @@ let BattleFormats = {
 					`(${set.species} is from Gen ${baseTemplate.gen === 1 ? 7 : baseTemplate.gen}.)`
 				);
 			}
-			if (template.forme && (!['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(template.forme) || template.species === 'Pikachu-Alola')) {
+			if (template.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(template.forme)) {
 				problems.push(`${set.species}'s forme ${template.forme} is not available in Let's Go.`);
 			}
 			if (set.moves) {
@@ -68,25 +70,12 @@ let BattleFormats = {
 					// @ts-ignore
 					if (set.evs[k]) {
 						// @ts-ignore
-						problems.push(`${set.name || set.species} has ${set.evs[k]} AVs/EVs in ${statNames[k]}, but AVs and EVs are not allowed in this format.`);
+						problems.push(`${set.name || set.species} has ${set.evs[k]} AVs/EVs in ${statNames[k]}, but AVs and EVs not allowed in this format.`);
 						break;
 					}
 					// @ts-ignore
 					set.evs[k] = 0;
 				}
-			}
-
-			set.ability = 'No Ability';
-			// Temporary hack to allow mega evolution
-			if (set.item) {
-				let item = this.getItem(set.item);
-				if (item.megaEvolves !== template.baseSpecies) {
-					problems.push(`Items aren't allowed in Let's Go.`);
-				}
-			}
-
-			if (!set.happiness || set.happiness !== 70) {
-				set.happiness = 70;
 			}
 
 			// ----------- legality line ------------------------------------------
@@ -96,6 +85,15 @@ let BattleFormats = {
 			// Pokestar studios
 			if (template.num <= -5000 && template.isNonstandard) {
 				problems.push(`${set.species} cannot be obtained by legal means.`);
+			}
+
+			set.ability = 'No Ability';
+			// Temporary hack to allow mega evolution
+			if (set.item) {
+				let item = this.getItem(set.item);
+				if (item.megaEvolves !== template.baseSpecies) {
+					problems.push(`Items aren't allowed in Let's Go.`);
+				}
 			}
 
 			// Legendary Pokemon must have at least 3 perfect IVs in gen 6
@@ -145,10 +143,10 @@ let BattleFormats = {
 		effectType: 'ValidatorRule',
 		name: 'Allow AVs',
 		desc: "Tells formats with the 'letsgo' mod to take Awakening Values into consideration when calculating stats",
-		onChangeSet(set, format) {
+		onChangeSet: function (set, format) {
 			/**@type {string[]} */
 			let problems = ([]);
-			let avs = /** @type {StatsTable} */(this.getAwakeningValues(set));
+			let avs = this.getAwakeningValues(set);
 			if (set.evs) {
 				for (let k in set.evs) {
 					// @ts-ignore
@@ -161,10 +159,13 @@ let BattleFormats = {
 				}
 			}
 
-			// Pokemon cannot have more than 200 Awakening Values in a stat. It is impossible to hack more than 200 AVs onto a stat, so legality doesn't matter.
+			// ----------- legality line ------------------------------------------
+			if (!this.getRuleTable(format).has('-illegal')) return problems;
+			// everything after this line only happens if we're doing legality enforcement
+
+			// Pokemon cannot have more than 200 Awakening Values in a stat
 			for (let av in avs) {
 				let statNames = {hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed'};
-				// @ts-ignore
 				if (avs[av] > 200) {
 					// @ts-ignore
 					problems.push(`${set.name || set.species} has more than 200 Awakening Values in its ${statNames[av]}.`);
