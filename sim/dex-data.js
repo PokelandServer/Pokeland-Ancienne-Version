@@ -4,8 +4,9 @@
  *
  * @license MIT license
  */
+'use strict';
 
-export class Tools {
+class Tools {
 	/**
 	 * Safely converts the passed variable into a string. Unlike '' + str,
 	 * String(str), or str.toString(), Dex.getString is guaranteed not to
@@ -19,25 +20,30 @@ export class Tools {
 	 * This will crash (because a.toString() is not a function). Instead,
 	 * Dex.getString simply returns '' if the passed variable isn't a
 	 * string or a number.
+	 *
+	 * @param {any} str
+	 * @return {string}
 	 */
-	static getString(str: any): string {
-		return (typeof str === 'string' || typeof str === 'number') ? '' + str : '';
+	static getString(str) {
+		if (typeof str === 'string' || typeof str === 'number') return '' + str;
+		return '';
 	}
 
 	/**
 	 * Converts anything to an ID. An ID must have only lowercase alphanumeric
 	 * characters.
-	 *
 	 * If a string is passed, it will be converted to lowercase and
 	 * non-alphanumeric characters will be stripped.
-	 *
 	 * If an object with an ID is passed, its ID will be returned.
 	 * Otherwise, an empty string will be returned.
 	 *
 	 * Dex.getId is generally assigned to the global toId, because of how
 	 * commonly it's used.
+	 *
+	 * @param {any} text
+	 * @return {string}
 	 */
-	static getId(text: any): string {
+	static getId(text) {
 		if (text && text.id) {
 			text = text.id;
 		} else if (text && text.userid) {
@@ -48,114 +54,141 @@ export class Tools {
 	}
 }
 const toId = Tools.getId;
-
-export class BasicEffect implements EffectData {
+class Effect {
 	/**
-	 * ID. This will be a lowercase version of the name with all the
-	 * non-alphanumeric characters removed. So, for instance, "Mr. Mime"
-	 * becomes "mrmime", and "Basculin-Blue-Striped" becomes
-	 * "basculinbluestriped".
+	 * @param {AnyObject} data
+	 * @param {?AnyObject} [moreData]
+	 * @param {?AnyObject} [moreData2]
 	 */
-	id: string;
-	/**
-	 * Name. Currently does not support Unicode letters, so "Flabébé"
-	 * is "Flabebe" and "Nidoran♀" is "Nidoran-F".
-	 */
-	name: string;
-	/**
-	 * Full name. Prefixes the name with the effect type. For instance,
-	 * Leftovers would be "item: Leftovers", confusion the status
-	 * condition would be "confusion", etc.
-	 */
-	fullname: string;
-	/** Effect type. */
-	effectType: EffectType;
-	/**
-	 * Does it exist? For historical reasons, when you use an accessor
-	 * for an effect that doesn't exist, you get a dummy effect that
-	 * doesn't do anything, and this field set to false.
-	 */
-	exists: boolean;
-	/**
-	 * Dex number? For a Pokemon, this is the National Dex number. For
-	 * other effects, this is often an internal ID (e.g. a move
-	 * number). Not all effects have numbers, this will be 0 if it
-	 * doesn't. Nonstandard effects (e.g. CAP effects) will have
-	 * negative numbers.
-	 */
-	num: number;
-	/**
-	 * The generation of Pokemon game this was INTRODUCED (NOT
-	 * necessarily the current gen being simulated.) Not all effects
-	 * track generation; this will be 0 if not known.
-	 */
-	gen: number;
-	/**
-	 * Is this item/move/ability/pokemon unreleased? True if there's
-	 * no known way to get access to it without cheating.
-	 */
-	isUnreleased: boolean;
-	/**
-	 * A shortened form of the description of this effect.
-	 * Not all effects have this.
-	 */
-	shortDesc: string;
-	/** The full description for this effect. */
-	desc: string;
-	/**
-	 * Is this item/move/ability/pokemon nonstandard? Specified for effects
-	 * that have no use in standard formats: made-up pokemon (CAP),
-	 * glitches (Missingno etc), Pokestar pokemon, etc.
-	 */
-	isNonstandard: Nonstandard | null;
-	/** The duration of the effect.  */
-	duration?: number;
-	/** Whether or not the effect is ignored by Baton Pass. */
-	noCopy: boolean;
-	/** Whether or not the effect affects fainted Pokemon. */
-	affectsFainted: boolean;
-	/** The status that the effect may cause. */
-	status?: string;
-	/** The weather that the effect may cause. */
-	weather?: string;
-	/** HP that the effect may drain. */
-	drain?: [number, number];
-	flags: AnyObject;
-	sourceEffect: string;
-
-	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
+	constructor(data, moreData = null, moreData2 = null) {
+		/**
+		 * ID. This will be a lowercase version of the name with all the
+		 * non-alphanumeric characters removed. So, for instance, "Mr. Mime"
+		 * becomes "mrmime", and "Basculin-Blue-Striped" becomes
+		 * "basculinbluestriped".
+		 * @type {string}
+		 */
+		this.id = '';
+		/**
+		 * Name. Currently does not support Unicode letters, so "Flabébé"
+		 * is "Flabebe" and "Nidoran♀" is "Nidoran-F".
+		 * @type {string}
+		 */
+		this.name = '';
+		/**
+		 * Full name. Prefixes the name with the effect type. For instance,
+		 * Leftovers would be "item: Leftovers", confusion the status
+		 * condition would be "confusion", etc.
+		 * @type {string}
+		 */
+		this.fullname = '';
+		/**
+		 * Effect type.
+		 * @type {EffectTypes}
+		 */
+		this.effectType = 'Effect';
+		/**
+		 * Does it exist? For historical reasons, when you use an accessor
+		 * for an effect that doesn't exist, you get a dummy effect that
+		 * doesn't do anything, and this field set to false.
+		 * @type {boolean}
+		 */
 		this.exists = true;
-		data = combine(this, data, ...moreData);
+		/**
+		 * Dex number? For a Pokemon, this is the National Dex number. For
+		 * other effects, this is often an internal ID (e.g. a move
+		 * number). Not all effects have numbers, this will be 0 if it
+		 * doesn't. Nonstandard effects (e.g. CAP effects) will have
+		 * negative numbers.
+		 * @type {number}
+		 */
+		this.num = 0;
+		/**
+		 * The generation of Pokemon game this was INTRODUCED (NOT
+		 * necessarily the current gen being simulated.) Not all effects
+		 * track generation; this will be 0 if not known.
+		 * @type {number}
+		 */
+		this.gen = 0;
+		/**
+		 * Is this item/move/ability/pokemon unreleased? True if there's
+		 * no known way to get access to it without cheating.
+		 * @type {boolean}
+		 */
+		this.isUnreleased = false;
+		/**
+		 * A shortened form of the description of this effect. Not all effects have this
+		 * @type {string}
+		 */
+		this.shortDesc = '';
+		/**
+		 * The full description for this effect
+		 * @type {string}
+		 */
+		this.desc = '';
+		/**
+		 * Is this item/move/ability/pokemon nonstandard? True for effects
+		 * that have no use in standard formats: made-up pokemon (CAP),
+		 * glitches (Missingno etc), and Pokestar pokemon.
+		 * @type {boolean}
+		 */
+		this.isNonstandard = false;
+		/**
+		 * The duration of the effect.
+		 * @type {number | undefined}
+		 */
+		this.duration = this.duration;
+		/**
+		 * Whether or not the effect is ignored by Baton Pass.
+		 * @type {boolean}
+		 */
+		this.noCopy = this.noCopy;
+		/**
+		 * Whether or not the effect affects fainted Pokemon.
+		 * @type {boolean}
+		 */
+		this.affectsFainted = this.affectsFainted;
+		/**
+		 * The status that the effect may cause.
+		 * @type {string}
+		 */
+		this.status = this.status;
+		/**
+		 * The weather that the effect may cause.
+		 * @type {string}
+		 */
+		this.weather = this.weather;
 
-		this.name = Tools.getString(data.name).trim();
-		this.id = data.id || toId(this.name); // Hidden Power hack
-		this.fullname = Tools.getString(data.fullname) || this.name;
-		this.effectType = Tools.getString(data.effectType) as EffectType || 'Effect';
+		/**
+		 * HP that the effect may drain.
+		 * @type {number[] | undefined}
+		 */
+		this.drain = this.drain;
+
+		/**
+		 * @type {AnyObject}
+		 */
+		this.flags = this.flags || {};
+
+		/**
+		 * @type {string}
+		 */
+		this.sourceEffect = this.sourceEffect || '';
+
+		Object.assign(this, data);
+		if (moreData) Object.assign(this, moreData);
+		if (moreData2) Object.assign(this, moreData2);
+		this.name = Tools.getString(this.name).trim();
+		this.fullname = Tools.getString(this.fullname) || this.name;
+		if (!this.id) this.id = toId(this.name); // Hidden Power hack
+		// @ts-ignore
+		this.effectType = Tools.getString(this.effectType) || "Effect";
 		this.exists = !!(this.exists && this.id);
-		this.num = data.num || 0;
-		this.gen = data.gen || 0;
-		this.isUnreleased = data.isUnreleased || false;
-		this.shortDesc = data.shortDesc || '';
-		this.desc = data.desc || '';
-		this.isNonstandard = data.isNonstandard || null;
-		this.duration = data.duration;
-		this.noCopy = !!data.noCopy;
-		this.affectsFainted = !!data.affectsFainted;
-		this.status = data.status || undefined;
-		this.weather = data.weather || undefined;
-		this.drain = data.drain || undefined;
-		this.flags = data.flags || {};
-		this.sourceEffect = data.sourceEffect || '';
 	}
-
 	toString() {
 		return this.name;
 	}
 }
-
-/** rule, source, limit, bans */
-export type ComplexBan = [string, string, number, string[]];
-export type ComplexTeamBan = ComplexBan;
 
 /**
  * A RuleTable keeps track of the rules that a format has. The key can be:
@@ -163,33 +196,51 @@ export type ComplexTeamBan = ComplexBan;
  * - '-[thing]' or '-[category]:[thing]' ban a thing
  * - '+[thing]' or '+[category]:[thing]' allow a thing (override a ban)
  * [category] is one of: item, move, ability, species, basespecies
+ * @augments {Map<string, string>}
  */
-export class RuleTable extends Map {
-	complexBans: ComplexBan[];
-	complexTeamBans: ComplexTeamBan[];
-	// tslint:disable-next-line:ban-types
-	checkLearnset: [Function, string] | null;
-
+// @ts-ignore TypeScript bug
+class RuleTable extends Map {
 	constructor() {
 		super();
+		/**
+		 * rule, source, limit, bans
+		 * @type {[string, string, number, string[]][]}
+		 */
 		this.complexBans = [];
+		/**
+		 * rule, source, limit, bans
+		 * @type {[string, string, number, string[]][]}
+		 */
 		this.complexTeamBans = [];
+		/** @type {[Function, string]?} */
 		this.checkLearnset = null;
 	}
-
-	check(thing: string, setHas: {[id: string]: true} | null = null): string {
+	/**
+	 * @param {string} thing
+	 * @param {{[id: string]: true}?} setHas
+	 * @return {string}
+	 */
+	check(thing, setHas = null) {
 		if (setHas) setHas[thing] = true;
-		return this.getReason(`-${thing}`);
+		return this.getReason('-' + thing);
 	}
-
-	getReason(key: string): string {
+	/**
+	 * @param {string} key
+	 * @return {string}
+	 */
+	getReason(key) {
 		const source = this.get(key);
 		if (source === undefined) return '';
 		return source ? `banned by ${source}` : `banned`;
 	}
 
-	getComplexBanIndex(complexBans: ComplexBan[], rule: string): number {
-		const ruleId = toId(rule);
+	/**
+	 * @param {[string, string, number, string[]][]} complexBans
+	 * @param {string} rule
+	 * @return {number}
+	 */
+	getComplexBanIndex(complexBans, rule) {
+		let ruleId = toId(rule);
 		let complexBanIndex = -1;
 		for (let i = 0; i < complexBans.length; i++) {
 			if (toId(complexBans[i][0]) === ruleId) {
@@ -200,8 +251,14 @@ export class RuleTable extends Map {
 		return complexBanIndex;
 	}
 
-	addComplexBan(rule: string, source: string, limit: number, bans: string[]) {
-		const complexBanIndex = this.getComplexBanIndex(this.complexBans, rule);
+	/**
+	 * @param {string} rule
+	 * @param {string} source
+	 * @param {number} limit
+	 * @param {string[]} bans
+	 */
+	addComplexBan(rule, source, limit, bans) {
+		let complexBanIndex = this.getComplexBanIndex(this.complexBans, rule);
 		if (complexBanIndex !== -1) {
 			if (this.complexBans[complexBanIndex][2] === Infinity) return;
 			this.complexBans[complexBanIndex] = [rule, source, limit, bans];
@@ -210,8 +267,14 @@ export class RuleTable extends Map {
 		}
 	}
 
-	addComplexTeamBan(rule: string, source: string, limit: number, bans: string[]) {
-		const complexBanTeamIndex = this.getComplexBanIndex(this.complexTeamBans, rule);
+	/**
+	 * @param {string} rule
+	 * @param {string} source
+	 * @param {number} limit
+	 * @param {string[]} bans
+	 */
+	addComplexTeamBan(rule, source, limit, bans) {
+		let complexBanTeamIndex = this.getComplexBanIndex(this.complexTeamBans, rule);
 		if (complexBanTeamIndex !== -1) {
 			if (this.complexTeamBans[complexBanTeamIndex][2] === Infinity) return;
 			this.complexTeamBans[complexBanTeamIndex] = [rule, source, limit, bans];
@@ -221,211 +284,245 @@ export class RuleTable extends Map {
 	}
 }
 
-type FormatEffectType = 'Format' | 'Ruleset' | 'Rule' | 'ValidatorRule';
-
-export class Format extends BasicEffect implements Readonly<BasicEffect & FormatsData> {
-	readonly mod: string;
+class Format extends Effect {
 	/**
-	 * Name of the team generator algorithm, if this format uses
-	 * random/fixed teams. null if players can bring teams.
+	 * @param {AnyObject} data
+	 * @param {?AnyObject} [moreData]
+	 * @param {?AnyObject} [moreData2]
 	 */
-	readonly team?: string;
-	readonly effectType: FormatEffectType;
-	readonly debug: boolean;
-	/**
-	 * Whether or not a format will update ladder points if searched
-	 * for using the "Battle!" button.
-	 * (Challenge and tournament games will never update ladder points.)
-	 * (Defaults to `true`.)
-	 */
-	readonly rated: boolean;
-	/** Game type. */
-	readonly gameType: GameType;
-	/** List of rule names. */
-	readonly ruleset: string[];
-	/**
-	 * Base list of rule names as specified in "./config/formats.js".
-	 * Used in a custom format to correctly display the altered ruleset.
-	 */
-	readonly baseRuleset: string[];
-	/** List of banned effects. */
-	readonly banlist: string[];
-	/** List of inherited banned effects to override. */
-	readonly unbanlist: string[];
-	/** List of ruleset and banlist changes in a custom format. */
-	readonly customRules: string[] | null;
-	/** Table of rule names and banned effects. */
-	ruleTable: RuleTable | null;
-	/**
-	 * The number of Pokemon players can bring to battle and
-	 * the number that can actually be used.
-	 */
-	readonly teamLength?: {battle?: number, validate?: [number, number]};
-	/** An optional function that runs at the start of a battle. */
-	readonly onBegin?: (this: Battle) => void;
-	/**
-	 * If no team is selected, this format can generate a random team
-	 * for the player.
-	 */
-	readonly canUseRandomTeam: boolean;
-	/** Pokemon must be obtained from Gen 6 or later. */
-	readonly requirePentagon: boolean;
-	/** Pokemon must be obtained from Gen 7 or later. */
-	readonly requirePlus: boolean;
-	/**
-	 * Maximum possible level pokemon you can bring. Note that this is
-	 * still 100 in VGC, because you can bring level 100 pokemon,
-	 * they'll just be set to level 50. Can be above 100 in special
-	 * formats.
-	 */
-	readonly maxLevel: number;
-	/**
-	 * Default level of a pokemon without level specified. Mainly
-	 * relevant to Custom Game where the default level is still 100
-	 * even though higher level pokemon can be brought.
-	 */
-	readonly defaultLevel: number;
-	/**
-	 * Forces all pokemon brought in to this level. Certain Game Freak
-	 * formats will change level 1 and level 100 pokemon to level 50,
-	 * which is what this does.
-	 *
-	 * You usually want maxForcedLevel instead, which will bring level
-	 * 100 pokemon down, but not level 1 pokemon up.
-	 */
-	readonly forcedLevel?: number;
-	/**
-	 * Forces all pokemon above this level down to this level. This
-	 * will allow e.g. level 50 Hydreigon in Gen 5, which is not
-	 * normally legal because Hydreigon doesn't evolve until level
-	 * 64.
-	 */
-	readonly maxForcedLevel?: number;
-	readonly noLog: boolean;
-
-	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
-		super(data, ...moreData);
-		data = this;
-
-		this.mod = Tools.getString(data.mod) || 'gen7';
-		this.effectType = Tools.getString(data.effectType) as FormatEffectType || 'Format';
-		this.debug = !!data.debug;
-		this.rated = (data.rated !== false);
-		this.gameType = data.gameType || 'singles';
-		this.ruleset = data.ruleset || [];
-		this.baseRuleset = data.baseRuleset || [];
-		this.banlist = data.banlist || [];
-		this.unbanlist = data.unbanlist || [];
-		this.customRules = data.customRules || null;
+	constructor(data, moreData = null, moreData2 = null) {
+		super(data, moreData, moreData2);
+		/** @type {string} */
+		this.mod = Tools.getString(this.mod) || 'gen7';
+		/**
+		 * Name of the team generator algorithm, if this format uses
+		 * random/fixed teams. null if players can bring teams.
+		 * @type {string | undefined}
+		 */
+		this.team = this.team;
+		/** @type {'Format' | 'Ruleset' | 'Rule' | 'ValidatorRule'} */
+		// @ts-ignore
+		this.effectType = Tools.getString(this.effectType) || 'Format';
+		/**
+		 * Whether or not debug battle messages should be shown.
+		 * @type {boolean}
+		 */
+		this.debug = this.debug;
+		/**
+		 * Whether or not a format is played for ladder points.
+		 * @type {boolean}
+		 */
+		this.rated = this.rated;
+		/**
+		 * Game type.
+		 * @type {GameType}
+		 */
+		this.gameType = this.gameType || 'singles';
+		/**
+		 * List of rule names.
+		 * @type {string[]}
+		 */
+		this.ruleset = this.ruleset || [];
+		/**
+		 * Base list of rule names as specified in "./config/formats.js".
+		 * Used in a custom format to correctly display the altered ruleset.
+		 * @type {string[]}
+		 */
+		this.baseRuleset = this.baseRuleset || [];
+		/**
+		 * List of banned effects.
+		 * @type {string[]}
+		 */
+		this.banlist = this.banlist || [];
+		/**
+		 * List of inherited banned effects to override.
+		 * @type {string[]}
+		 */
+		this.unbanlist = this.unbanlist || [];
+		/**
+		 * List of ruleset and banlist changes in a custom format.
+		 * @type {?string[]}
+		 */
+		this.customRules = this.customRules || null;
+		/**
+		 * Table of rule names and banned effects.
+		 * @type {?RuleTable}
+		 */
 		this.ruleTable = null;
-		this.teamLength = data.teamLength || undefined;
-		this.onBegin = data.onBegin || undefined;
-		this.canUseRandomTeam = !!data.canUseRandomTeam;
-		this.requirePentagon = !!data.requirePentagon;
-		this.requirePlus = !!data.requirePlus;
-		this.maxLevel = data.maxLevel || 100;
-		this.defaultLevel = data.defaultLevel || this.maxLevel;
-		this.forcedLevel = data.forcedLevel || undefined;
-		this.maxForcedLevel = data.maxForcedLevel || undefined;
-		this.noLog = !!data.noLog;
+		/**
+		 * The number of Pokemon players can bring to battle and
+		 * the number that can actually be used.
+		 * @type {{battle?: number, validate?: [number, number]} | undefined}
+		 */
+		this.teamLength = this.teamLength;
+		/**
+		 * An optional function that runs at the start of a battle.
+		 * @type {(this: Battle) => void}
+		 */
+		this.onBegin = this.onBegin;
+
+		/**
+		 * If no team is selected, this format can generate a random team
+		 * for the player.
+		 * @type {boolean}
+		 */
+		this.canUseRandomTeam = !!this.canUseRandomTeam;
+		/**
+		 * Pokemon must be obtained from Gen 6 or later.
+		 * @type {boolean}
+		 */
+		this.requirePentagon = !!this.requirePentagon;
+		/**
+		 * Pokemon must be obtained from Gen 7 or later.
+		 * @type {boolean}
+		 */
+		this.requirePlus = !!this.requirePlus;
+		/**
+		 * Maximum possible level pokemon you can bring. Note that this is
+		 * still 100 in VGC, because you can bring level 100 pokemon,
+		 * they'll just be set to level 50. Can be above 100 in special
+		 * formats.
+		 * @type {number}
+		 */
+		this.maxLevel = this.maxLevel || 100;
+		/**
+		 * Default level of a pokemon without level specified. Mainly
+		 * relevant to Custom Game where the default level is still 100
+		 * even though higher level pokemon can be brought.
+		 * @type {number}
+		 */
+		this.defaultLevel = this.defaultLevel || this.maxLevel;
+		/**
+		 * Forces all pokemon brought in to this level. Certain Game Freak
+		 * formats will change level 1 and level 100 pokemon to level 50,
+		 * which is what you want here. You usually want maxForcedLevel
+		 * instead.
+		 * @type {number | undefined}
+		 */
+		this.forcedLevel = this.forcedLevel;
+		/**
+		 * Forces all pokemon above this level down to this level. This
+		 * will allow e.g. level 50 Hydreigon in Gen 5, which is not
+		 * normally legal because Hydreigon doesn't evolve until level
+		 * 64.
+		 * @type {number | undefined}
+		 */
+		this.maxForcedLevel = this.maxForcedLevel;
+
+		/** @type {boolean} */
+		this.noLog = !!this.noLog;
 	}
 }
 
-export class PureEffect extends BasicEffect implements Readonly<BasicEffect & PureEffectData> {
-	readonly effectType: 'Effect' | 'Weather' | 'Status';
-
-	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
-		super(data, ...moreData);
-		data = this;
-		this.effectType = (['Weather', 'Status'].includes(data.effectType) ? data.effectType : 'Effect');
+class PureEffect extends Effect {
+	/**
+	 * @param {AnyObject} data
+	 * @param {?AnyObject} [moreData]
+	 */
+	constructor(data, moreData = null) {
+		super(data, moreData);
+		/** @type {'Effect' | 'Weather' | 'Status'} */
+		this.effectType = (['Weather', 'Status'].includes(this.effectType) ? this.effectType : 'Effect');
 	}
 }
 
-export class Item extends BasicEffect implements Readonly<BasicEffect & ItemData> {
-	readonly effectType: 'Item';
+class Item extends Effect {
 	/**
-	 * A Move-like object depicting what happens when Fling is used on
-	 * this item.
+	 * @param {AnyObject} data
+	 * @param {?AnyObject} [moreData]
 	 */
-	readonly fling?: FlingData;
-	/**
-	 * If this is a Drive: The type it turns Techno Blast into.
-	 * undefined, if not a Drive.
-	 */
-	readonly onDrive?: string;
-	/**
-	 * If this is a Memory: The type it turns Multi-Attack into.
-	 * undefined, if not a Memory.
-	 */
-	readonly onMemory?: string;
-	/**
-	 * If this is a mega stone: The name (e.g. Charizard-Mega-X) of the
-	 * forme this allows transformation into.
-	 * undefined, if not a mega stone.
-	 */
-	readonly megaStone?: string;
-	/**
-	 * If this is a mega stone: The name (e.g. Charizard) of the
-	 * forme this allows transformation from.
-	 * undefined, if not a mega stone.
-	 */
-	readonly megaEvolves?: string;
-	/**
-	 * If this is a Z crystal: true if the Z Crystal is generic
-	 * (e.g. Firium Z). If species-specific, the name
-	 * (e.g. Inferno Overdrive) of the Z Move this crystal allows
-	 * the use of.
-	 * undefined, if not a Z crystal.
-	 */
-	readonly zMove?: true | string;
-	/**
-	 * If this is a generic Z crystal: The type (e.g. Fire) of the
-	 * Z Move this crystal allows the use of (e.g. Fire)
-	 * undefined, if not a generic Z crystal
-	 */
-	readonly zMoveType?: string;
-	/**
-	 * If this is a species-specific Z crystal: The name
-	 * (e.g. Play Rough) of the move this crystal requires its
-	 * holder to know to use its Z move.
-	 * undefined, if not a species-specific Z crystal
-	 */
-	readonly zMoveFrom?: string;
-	/**
-	 * If this is a species-specific Z crystal: An array of the
-	 * species of Pokemon that can use this crystal's Z move.
-	 * Note that these are the full names, e.g. 'Mimikyu-Busted'
-	 * undefined, if not a species-specific Z crystal
-	 */
-	readonly zMoveUser?: string[];
-	/** Is this item a Berry? */
-	readonly isBerry: boolean;
-	/** Whether or not this item ignores the Klutz ability. */
-	readonly ignoreKlutz: boolean;
-	/** The type the holder will change into if it is an Arceus. */
-	readonly onPlate?: string;
-	/** Is this item a Gem? */
-	readonly isGem: boolean;
-
-	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
-		super(data, ...moreData);
-		data = this;
-
-		this.fullname = `item: ${this.name}`;
+	constructor(data, moreData = null) {
+		super(data, moreData);
+		this.fullname = 'item: ' + this.name;
+		/** @type {'Item'} */
 		this.effectType = 'Item';
-		this.fling = data.fling || undefined;
-		this.onDrive = data.onDrive || undefined;
-		this.onMemory = data.onMemory || undefined;
-		this.megaStone = data.megaStone || undefined;
-		this.megaEvolves = data.megaEvolves || undefined;
-		this.zMove = data.zMove || undefined;
-		this.zMoveType = data.zMoveType || undefined;
-		this.zMoveFrom = data.zMoveFrom || undefined;
-		this.zMoveUser = data.zMoveUser || undefined;
-		this.isBerry = !!data.isBerry;
-		this.ignoreKlutz = !!data.ignoreKlutz;
-		this.onPlate = data.onPlate || undefined;
-		this.isGem = !!data.isGem;
+		/**
+		 * A Move-like object depicting what happens when Fling is used on
+		 * this item.
+		 * @type {FlingData | undefined}
+		 */
+		this.fling = this.fling;
+		/**
+		 * If this is a Drive: The type it turns Techno Blast into.
+		 * undefined, if not a Drive.
+		 * @type {string | undefined}
+		 */
+		this.onDrive = this.onDrive;
+		/**
+		 * If this is a Memory: The type it turns Multi-Attack into.
+		 * undefined, if not a Memory.
+		 * @type {string | undefined}
+		 */
+		this.onMemory = this.onMemory;
+		/**
+		 * If this is a mega stone: The name (e.g. Charizard-Mega-X) of the
+		 * forme this allows transformation into.
+		 * undefined, if not a mega stone.
+		 * @type {string | undefined}
+		 */
+		this.megaStone = this.megaStone;
+		/**
+		 * If this is a mega stone: The name (e.g. Charizard) of the
+		 * forme this allows transformation from.
+		 * undefined, if not a mega stone.
+		 * @type {string | undefined}
+		 */
+		this.megaEvolves = this.megaEvolves;
+		/**
+		 * If this is a Z crystal: true if the Z Crystal is generic
+		 * (e.g. Firium Z). If species-specific, the name
+		 * (e.g. Inferno Overdrive) of the Z Move this crystal allows
+		 * the use of.
+		 * undefined, if not a Z crystal.
+		 * @type {true | string | undefined}
+		*/
+		this.zMove = this.zMove;
+		/**
+		 * If this is a generic Z crystal: The type (e.g. Fire) of the
+		 * Z Move this crystal allows the use of (e.g. Fire)
+		 * undefined, if not a generic Z crystal
+		 * @type {string | undefined}
+		 */
+		this.zMoveType = this.zMoveType;
+		/**
+		 * If this is a species-specific Z crystal: The name
+		 * (e.g. Play Rough) of the move this crystal requires its
+		 * holder to know to use its Z move.
+		 * undefined, if not a species-specific Z crystal
+		 * @type {string | undefined}
+		 */
+		this.zMoveFrom = this.zMoveFrom;
+		/**
+		 * If this is a species-specific Z crystal: An array of the
+		 * species of Pokemon that can use this crystal's Z move.
+		 * Note that these are the full names, e.g. 'Mimikyu-Busted'
+		 * undefined, if not a species-specific Z crystal
+		 * @type {string[] | undefined}
+		 */
+		this.zMoveUser = this.zMoveUser;
+		/**
+		 * Is this item a Berry?
+		 * @type {boolean}
+		 */
+		this.isBerry = !!this.isBerry;
+
+		/**
+		 * Whether or not this item ignores the Klutz ability.
+		 * @type {boolean}
+		 */
+		this.ignoreKlutz = this.ignoreKlutz;
+
+		/**
+		 * The type the holder will change into if it is an Arceus.
+		 * @type {string}
+		 */
+		this.onPlate = this.onPlate;
+
+		/**
+		 * Is this item a Gem?
+		 * @type {boolean}
+		 */
+		this.isGem = this.isGem;
 
 		if (!this.gen) {
 			if (this.num >= 689) {
@@ -451,21 +548,28 @@ export class Item extends BasicEffect implements Readonly<BasicEffect & ItemData
 	}
 }
 
-export class Ability extends BasicEffect implements Readonly<BasicEffect & AbilityData> {
-	readonly effectType: 'Ability';
-	/** Represents how useful or detrimental this ability is. */
-	readonly rating: number;
-	/** Whether or not this ability suppresses weather. */
-	readonly suppressWeather: boolean;
-
-	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
-		super(data, ...moreData);
-		data = this;
-
-		this.fullname = `ability: ${this.name}`;
+class Ability extends Effect {
+	/**
+	 * @param {AnyObject} data
+	 * @param {?AnyObject} [moreData]
+	 */
+	constructor(data, moreData = null) {
+		super(data, moreData);
+		this.fullname = 'ability: ' + this.name;
+		/** @type {'Ability'} */
 		this.effectType = 'Ability';
-		this.suppressWeather = !!data.suppressWeather;
-		this.rating = data.rating!;
+
+		/**
+		 * Represents how useful or detrimental this ability is.
+		 * @type {number}
+		 */
+		this.rating = this.rating;
+
+		/**
+		 * Whether or not this ability suppresses weather.
+		 * @type {boolean}
+		 */
+		this.suppressWeather = !!this.suppressWeather;
 
 		if (!this.gen) {
 			if (this.num >= 192) {
@@ -483,180 +587,245 @@ export class Ability extends BasicEffect implements Readonly<BasicEffect & Abili
 	}
 }
 
-export class Template extends BasicEffect implements Readonly<BasicEffect & TemplateData & TemplateFormatsData> {
-	readonly effectType: 'Pokemon';
+class Template extends Effect {
 	/**
-	 * Species ID. Identical to ID. Note that this is the full ID, e.g.
-	 * 'basculinbluestriped'. To get the base species ID, you need to
-	 * manually read toId(template.baseSpecies).
+	 * @param {AnyObject} data
+	 * @param {?AnyObject} [moreData]
+	 * @param {?AnyObject} [moreData2]
+	 * @param {?AnyObject} [moreData3]
 	 */
-	readonly speciesid: string;
-	/**
-	 * Species. Identical to name. Note that this is the full name,
-	 * e.g. 'Basculin-Blue-Striped'. To get the base species name, see
-	 * template.baseSpecies.
-	 */
-	readonly species: string;
-	readonly name: string;
-	/**
-	 * Base species. Species, but without the forme name.
-	 */
-	readonly baseSpecies: string;
-	/**
-	 * Forme name. If the forme exists,
-	 * `template.species === template.baseSpecies + '-' + template.forme`
-	 */
-	readonly forme: string;
-	/**
-	 * Other forms. List of names of cosmetic forms. These should have
-	 * `aliases.js` aliases to this entry, but not have their own
-	 * entry in `pokedex.js`.
-	 */
-	readonly otherForms?: string[];
-	/**
-	 * Other formes. List of names of formes, appears only on the base
-	 * forme. Unlike forms, these have their own entry in `pokedex.js`.
-	 */
-	readonly otherFormes?: string[];
-	/**
-	 * Forme letter. One-letter version of the forme name. Usually the
-	 * first letter of the forme, but not always - e.g. Rotom-S is
-	 * Rotom-Fan because Rotom-F is Rotom-Frost.
-	 */
-	readonly formeLetter: string;
-	/**
-	 * Sprite ID. Basically the same as ID, but with a dash between
-	 * species and forme.
-	 */
-	readonly spriteid: string;
-	/** Abilities. */
-	readonly abilities: TemplateAbility;
-	/** Types. */
-	readonly types: string[];
-	/** Added type (used in OMs). */
-	readonly addedType?: string;
-	/** Pre-evolution. '' if nothing evolves into this Pokemon. */
-	readonly prevo: string;
-	/**
-	 * Singles Tier. The Pokemon's location in the Smogon tier system.
-	 * Do not use for LC bans.
-	 */
-	readonly tier: string;
-	/**
-	 * Doubles Tier. The Pokemon's location in the Smogon doubles tier system.
-	 * Do not use for LC bans.
-	 */
-	readonly doublesTier: string;
-	/** Evolutions. Array because many Pokemon have multiple evolutions. */
-	readonly evos: string[];
-	/** Evolution level. falsy if doesn't evolve. */
-	readonly evoLevel?: number;
-	/** Is NFE? True if this Pokemon can evolve (Mega evolution doesn't count). */
-	readonly nfe: boolean;
-	/** Egg groups. */
-	readonly eggGroups: string[];
-	/**
-	 * Gender. M = always male, F = always female, N = always
-	 * genderless, '' = sometimes male sometimes female.
-	 */
-	readonly gender: GenderName;
-	/** Gender ratio. Should add up to 1 unless genderless. */
-	readonly genderRatio: {M: number, F: number};
-	/** Required item. Do not use this directly; see requiredItems. */
-	readonly requiredItem?: string;
-	/**
-	 * Required items. Items required to be in this forme, e.g. a mega
-	 * stone, or Griseous Orb. Array because Arceus formes can hold
-	 * either a Plate or a Z-Crystal.
-	 */
-	readonly requiredItems?: string[];
-	/** Base stats. */
-	readonly baseStats: StatsTable;
-	/** Weight (in kg). */
-	readonly weightkg: number;
-	/** Height (in m). */
-	readonly heightm: number;
-	/** Color. */
-	readonly color: string;
-	/** Does this Pokemon have an unreleased hidden ability? */
-	readonly unreleasedHidden: boolean;
-	/**
-	 * Is it only possible to get the hidden ability on a male pokemon?
-	 * This is mainly relevant to Gen 5.
-	 */
-	readonly maleOnlyHidden: boolean;
-	/** Max HP. Used in the battle engine. */
-	readonly maxHP?: number;
-	/**
-	 * Keeps track of exactly how a pokemon might learn a move, in the
-	 * form moveid:sources[].
-	 */
-	readonly learnset?: {[moveid: string]: MoveSource[]};
-	/** True if the only way to get this pokemon is from events. */
-	readonly eventOnly: boolean;
-	/** List of event data for each event. */
-	readonly eventPokemon?: EventInfo[] ;
-	/** True if a pokemon is mega. */
-	readonly isMega?: boolean;
-	/** True if a pokemon is primal. */
-	readonly isPrimal?: boolean;
-	/** True if a pokemon is a forme that is only accessible in battle. */
-	readonly battleOnly?: boolean;
-
-	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
-		super(data, ...moreData);
-		data = this;
-
-		this.fullname = `pokemon: ${data.name}`;
+	constructor(data, moreData = null, moreData2 = null, moreData3 = null) {
+		super(data, moreData);
+		if (moreData2) Object.assign(this, moreData2);
+		if (moreData3) Object.assign(this, moreData3);
+		this.fullname = 'pokemon: ' + this.name;
+		/** @type {'Pokemon'} */
 		this.effectType = 'Pokemon';
-		this.speciesid = data.speciesid || this.id;
-		this.species = data.species || data.name;
-		this.name = data.species;
-		this.baseSpecies = data.baseSpecies || this.name;
-		this.forme = data.forme || '';
-		this.otherForms = data.otherForms || undefined;
-		this.otherFormes = data.otherFormes || undefined;
-		this.formeLetter = data.formeLetter || '';
-		this.spriteid = data.spriteid ||
-			(toId(this.baseSpecies) + (this.baseSpecies !== this.name ? `-${toId(this.forme)}` : ''));
-		this.abilities = data.abilities || {0: ""};
-		this.types = data.types!;
-		this.addedType = data.addedType || undefined;
-		this.prevo = data.prevo || '';
-		this.tier = data.tier || '';
-		this.doublesTier = data.doublesTier || '';
-		this.evos = data.evos || [];
-		this.evoLevel = data.evoLevel || undefined;
+
+		/**
+		 * Species ID. Identical to ID. Note that this is the full ID, e.g.
+		 * 'basculinbluestriped'. To get the base species ID, you need to
+		 * manually read toId(template.baseSpecies).
+		 * @type {string}
+		 */
+		this.speciesid = this.speciesid || this.id;
+
+		/**
+		 * Species. Identical to name. Note that this is the full name,
+		 * e.g. 'Basculin-Blue-Striped'. To get the base species name, see
+		 * template.baseSpecies.
+		 * @type {string}
+		 */
+		this.species = this.species || this.name;
+		this.name = this.species;
+
+		/**
+		 * Base species. Species, but without the forme name.
+		 * @type {string}
+		 */
+		this.baseSpecies = this.baseSpecies || this.name;
+
+		/**
+		 * Forme name. If the forme exists,
+		 * `template.species === template.baseSpecies + '-' + template.forme`
+		 * @type {string}
+		 */
+		this.forme = this.forme || '';
+
+		/**
+		 * Other forms. List of names of cosmetic forms. These should have
+		 * `aliases.js` aliases to this entry, but not have their own
+		 * entry in `pokedex.js`.
+		 * @type {string[] | undefined}
+		 */
+		this.otherForms = this.otherForms;
+
+		/**
+		 * Other formes. List of names of formes, appears only on the base
+		 * forme. Unlike forms, these have their own entry in `pokedex.js`.
+		 * @type {string[] | undefined}
+		 */
+		this.otherFormes = this.otherFormes;
+
+		/**
+		 * Forme letter. One-letter version of the forme name. Usually the
+		 * first letter of the forme, but not always - e.g. Rotom-S is
+		 * Rotom-Fan because Rotom-F is Rotom-Frost.
+		 * @type {string}
+		 */
+		this.formeLetter = this.formeLetter || '';
+
+		/**
+		 * Sprite ID. Basically the same as ID, but with a dash between
+		 * species and forme.
+		 * @type {string}
+		 */
+		this.spriteid = this.spriteid || (toId(this.baseSpecies) + (this.baseSpecies !== this.name ? '-' + toId(this.forme) : ''));
+
+		/**
+		 * Abilities
+		 * @type {TemplateAbility}
+		 */
+		this.abilities = this.abilities || {0: ""};
+
+		/**
+		 * Types
+		 * @type {string[]}
+		 */
+		this.types = this.types;
+
+		/**
+		 * Added type (used in OMs)
+		 * @type {string | undefined}
+		 */
+		this.addedType = this.addedType;
+
+		/**
+		 * Pre-evolution. '' if nothing evolves into this Pokemon.
+		 * @type {string}
+		 */
+		this.prevo = this.prevo || '';
+
+		/**
+		 * Singles Tier. The Pokemon's location in the Smogon tier system.
+		 * Do not use for LC bans.
+		 * @type {string}
+		 */
+		this.tier = this.tier || '';
+
+		/**
+		 * Doubles Tier. The Pokemon's location in the Smogon doubles tier system.
+		 * Do not use for LC bans.
+		 * @type {string}
+		 */
+		this.doublesTier = this.doublesTier || '';
+
+		/**
+		 * Evolutions. Array because many Pokemon have multiple evolutions.
+		 * @type {string[]}
+		 */
+		this.evos = this.evos || [];
+
+		/**
+		 * Evolution level. falsy if doesn't evolve
+		 * @type {number | undefined}
+		 */
+		this.evoLevel = this.evoLevel;
+
+		/**
+		 * Is NFE? True if this Pokemon can evolve (Mega evolution doesn't
+		 * count).
+		 * @type {boolean}
+		 */
 		this.nfe = !!this.evos.length;
-		this.eggGroups = data.eggGroups || [];
-		this.gender = data.gender || '';
-		this.genderRatio = data.genderRatio || (this.gender === 'M' ? {M: 1, F: 0} :
+
+		/**
+		 * Egg groups.
+		 * @type {string[]}
+		 */
+		this.eggGroups = this.eggGroups || [];
+
+		/**
+		 * Gender. M = always male, F = always female, N = always
+		 * genderless, '' = sometimes male sometimes female.
+		 * @type {GenderName}
+		 */
+		this.gender = this.gender || '';
+
+		/**
+		 * Gender ratio. Should add up to 1 unless genderless.
+		 * @type {{M: number, F: number}}
+		 */
+		this.genderRatio = this.genderRatio || (this.gender === 'M' ? {M: 1, F: 0} :
 			this.gender === 'F' ? {M: 0, F: 1} :
 				this.gender === 'N' ? {M: 0, F: 0} :
 					{M: 0.5, F: 0.5});
-		this.requiredItem = data.requiredItem || undefined;
-		this.requiredItems = this.requiredItems || (this.requiredItem ? [this.requiredItem] : undefined);
-		this.baseStats = data.baseStats!;
-		this.weightkg = data.weightkg!;
-		this.heightm = data.heightm!;
-		this.color = data.color || '';
-		this.unreleasedHidden = !!data.unreleasedHidden;
-		this.maleOnlyHidden = !!data.maleOnlyHidden;
-		this.maxHP = data.maxHP || undefined;
-		this.learnset = data.learnset || undefined;
-		this.eventOnly = !!data.eventOnly;
-		this.eventPokemon = data.eventPokemon || undefined;
-		this.isMega = !!(this.forme && ['Mega', 'Mega-X', 'Mega-Y'].includes(this.forme)) || undefined;
-		this.battleOnly = !!data.battleOnly || !!this.isMega || undefined;
 
-		if (!this.gen && this.num >= 1) {
+		/**
+		 * Required item. Do not use this directly; see requiredItems.
+		 * @type {string | undefined}
+		 */
+		this.requiredItem = this.requiredItem;
+
+		/**
+		 * Required items. Items required to be in this forme, e.g. a mega
+		 * stone, or Griseous Orb. Array because Arceus formes can hold
+		 * either a Plate or a Z-Crystal.
+		 * @type {string[] | undefined}
+		 */
+		this.requiredItems = this.requiredItems || (this.requiredItem ? [this.requiredItem] : undefined);
+
+		/**
+		 * Base stats
+		 * @type {StatsTable}
+		 */
+		this.baseStats = this.baseStats;
+
+		/**
+		 * Weight (in kg)
+		 * @type {number}
+		 */
+		this.weightkg = this.weightkg;
+
+		/**
+		 * Height (in m)
+		 * @type {number}
+		 */
+		this.heightm = this.heightm;
+
+		/**
+		 * Color
+		 * @type {string}
+		 */
+		this.color = this.color || '';
+
+		/**
+		 * Does this Pokemon have an unreleased hidden ability?
+		 * @type {boolean}
+		 */
+		this.unreleasedHidden = !!this.unreleasedHidden;
+
+		/**
+		 * Is it only possible to get the hidden ability on a male pokemon?
+		 * This is mainly relevant to Gen 5.
+		 * @type {boolean}
+		 */
+		this.maleOnlyHidden = !!this.maleOnlyHidden;
+
+		/**
+		 * Max HP. Used in the battle engine
+		 * @type {number | undefined}
+		 */
+		this.maxHP = this.maxHP;
+
+		/**
+		 * Keeps track of exactly how a pokemon might learn a move, in the form moveid:sources[]
+		 * @type {{[moveid: string]: MoveSource[]} | undefined}
+		 */
+		this.learnset = this.learnset;
+		/**
+		 * True if the only way to get this pokemon is from events.
+		 * @type {boolean}
+		 */
+		this.eventOnly = !!this.eventOnly;
+		/**
+		 * List of event data for each event.
+		 * @type {EventInfo[] | undefined}
+		 */
+		this.eventPokemon = this.eventPokemon;
+
+		if (!this.gen) {
 			if (this.num >= 722 || this.forme.startsWith('Alola')) {
 				this.gen = 7;
+			} else if (this.forme && ['Mega', 'Mega-X', 'Mega-Y'].includes(this.forme)) {
+				this.gen = 6;
+				this.isMega = true;
+				this.battleOnly = true;
 			} else if (this.forme === 'Primal') {
 				this.gen = 6;
 				this.isPrimal = true;
 				this.battleOnly = true;
-			} else if (this.num >= 650 || this.isMega) {
+			} else if (this.num >= 650) {
 				this.gen = 6;
 			} else if (this.num >= 494) {
 				this.gen = 5;
@@ -666,173 +835,288 @@ export class Template extends BasicEffect implements Readonly<BasicEffect & Temp
 				this.gen = 3;
 			} else if (this.num >= 152) {
 				this.gen = 2;
-			} else {
+			} else if (this.num >= 1) {
 				this.gen = 1;
 			}
 		}
 	}
 }
 
-/** Possible move flags. */
-interface MoveFlags {
-	authentic?: 1; // Ignores a target's substitute.
-	bite?: 1; // Power is multiplied by 1.5 when used by a Pokemon with the Ability Strong Jaw.
-	bullet?: 1; // Has no effect on Pokemon with the Ability Bulletproof.
-	charge?: 1; // The user is unable to make a move between turns.
-	contact?: 1; // Makes contact.
-	dance?: 1; // When used by a Pokemon, other Pokemon with the Ability Dancer can attempt to execute the same move.
-	defrost?: 1; // Thaws the user if executed successfully while the user is frozen.
-	distance?: 1; // Can target a Pokemon positioned anywhere in a Triple Battle.
-	gravity?: 1; // Prevented from being executed or selected during Gravity's effect.
-	heal?: 1; // Prevented from being executed or selected during Heal Block's effect.
-	mirror?: 1; // Can be copied by Mirror Move.
-	mystery?: 1; // Unknown effect.
-	nonsky?: 1; // Prevented from being executed or selected in a Sky Battle.
-	powder?: 1; // Has no effect on Pokemon which are Grass-type, have the Ability Overcoat, or hold Safety Goggles.
-	protect?: 1; // Blocked by Detect, Protect, Spiky Shield, and if not a Status move, King's Shield.
-	pulse?: 1; // Power is multiplied by 1.5 when used by a Pokemon with the Ability Mega Launcher.
-	punch?: 1; // Power is multiplied by 1.2 when used by a Pokemon with the Ability Iron Fist.
-	recharge?: 1; // If this move is successful, the user must recharge on the following turn and cannot make a move.
-	reflectable?: 1; // Bounced back to the original user by Magic Coat or the Ability Magic Bounce.
-	snatch?: 1; // Can be stolen from the original user and instead used by another Pokemon using Snatch.
-	sound?: 1; // Has no effect on Pokemon with the Ability Soundproof.
-}
-
-type MoveCategory = 'Physical' | 'Special' | 'Status';
-
-export class Move extends BasicEffect implements Readonly<BasicEffect & MoveData> {
-	readonly effectType: 'Move';
-	/** Move type. */
-	readonly type: string;
-	/** Move target. */
-	readonly target: string;
-	/** Move base power. */
-	readonly basePower: number;
-	/** Move base accuracy. True denotes a move that always hits. */
-	readonly accuracy: true | number;
-	/** Critical hit ratio. Defaults to 1. */
-	readonly critRatio: number;
-	/** Will this move always or never be a critical hit? */
-	readonly willCrit?: boolean;
-	/** Can this move OHKO foes? */
-	readonly ohko?: boolean | string;
+/**
+ * An object containing possible move flags.
+ *
+ * @typedef {Object} MoveFlags
+ * @property {1} [authentic] - Ignores a target's substitute.
+ * @property {1} [bite] - Power is multiplied by 1.5 when used by a Pokemon with the Ability Strong Jaw.
+ * @property {1} [bullet] - Has no effect on Pokemon with the Ability Bulletproof.
+ * @property {1} [charge] - The user is unable to make a move between turns.
+ * @property {1} [contact] - Makes contact.
+ * @property {1} [dance] - When used by a Pokemon, other Pokemon with the Ability Dancer can attempt to execute the same move.
+ * @property {1} [defrost] - Thaws the user if executed successfully while the user is frozen.
+ * @property {1} [distance] - Can target a Pokemon positioned anywhere in a Triple Battle.
+ * @property {1} [gravity] - Prevented from being executed or selected during Gravity's effect.
+ * @property {1} [heal] - Prevented from being executed or selected during Heal Block's effect.
+ * @property {1} [mirror] - Can be copied by Mirror Move.
+ * @property {1} [mystery] - Unknown effect.
+ * @property {1} [nonsky] - Prevented from being executed or selected in a Sky Battle.
+ * @property {1} [powder] - Has no effect on Grass-type Pokemon, Pokemon with the Ability Overcoat, and Pokemon holding Safety Goggles.
+ * @property {1} [protect] - Blocked by Detect, Protect, Spiky Shield, and if not a Status move, King's Shield.
+ * @property {1} [pulse] - Power is multiplied by 1.5 when used by a Pokemon with the Ability Mega Launcher.
+ * @property {1} [punch] - Power is multiplied by 1.2 when used by a Pokemon with the Ability Iron Fist.
+ * @property {1} [recharge] - If this move is successful, the user must recharge on the following turn and cannot make a move.
+ * @property {1} [reflectable] - Bounced back to the original user by Magic Coat or the Ability Magic Bounce.
+ * @property {1} [snatch] - Can be stolen from the original user and instead used by another Pokemon using Snatch.
+ * @property {1} [sound] - Has no effect on Pokemon with the Ability Soundproof.
+ */
+class Move extends Effect {
 	/**
-	 * Base move type. This is the move type as specified by the games,
-	 * tracked because it often differs from the real move type.
+	 * @param {AnyObject} data
+	 * @param {?AnyObject} [moreData]
 	 */
-	readonly baseMoveType: string;
-	/**
-	 * Secondary effect. You usually don't want to access this
-	 * directly; but through the secondaries array.
-	 */
-	readonly secondary: SecondaryEffect | null;
-	/**
-	 * Secondary effects. An array because there can be more than one
-	 * (for instance, Fire Fang has both a burn and a flinch
-	 * secondary).
-	 */
-	readonly secondaries: SecondaryEffect[] | null;
-	/**
-	 * Move priority. Higher priorities go before lower priorities,
-	 * trumping the Speed stat.
-	 */
-	readonly priority: number;
-	/** Move category. */
-	readonly category: MoveCategory;
-	/**
-	 * Category that changes which defense to use when calculating
-	 * move damage.
-	 */
-	readonly defensiveCategory?: MoveCategory;
-	/** Whether or not this move uses the target's boosts. */
-	readonly useTargetOffensive: boolean;
-	/** Whether or not this move uses the user's boosts. */
-	readonly useSourceDefensive: boolean;
-	/** Whether or not this move ignores negative attack boosts. */
-	readonly ignoreNegativeOffensive: boolean;
-	/** Whether or not this move ignores positive defense boosts. */
-	readonly ignorePositiveDefensive: boolean;
-	/** Whether or not this move ignores attack boosts. */
-	readonly ignoreOffensive: boolean;
-	/** Whether or not this move ignores defense boosts. */
-	readonly ignoreDefensive: boolean;
-	/**
-	 * Whether or not this move ignores type immunities. Defaults to
-	 * true for Status moves and false for Physical/Special moves.
-	 */
-	readonly ignoreImmunity: AnyObject | boolean;
-	/** Base move PP. */
-	readonly pp: number;
-	/** Whether or not this move can receive PP boosts. */
-	readonly noPPBoosts: boolean;
-	/** Is this move a Z-Move? */
-	readonly isZ: boolean | string;
-	readonly flags: MoveFlags;
-	/** Whether or not the user must switch after using this move. */
-	readonly selfSwitch?: string | true;
-	/** Move target only used by Pressure. */
-	readonly pressureTarget: string;
-	/** Move target used if the user is not a Ghost type (for Curse). */
-	readonly nonGhostTarget: string;
-	/** Whether or not the move ignores abilities. */
-	readonly ignoreAbility: boolean;
-	/**
-	 * Move damage against the current target
-	 * false = move will always fail with "But it failed!"
-	 * null = move will always silently fail
-	 * undefined = move does not deal fixed damage
-	 */
-	readonly damage: number | 'level' | false | null;
-	/** Whether or not this move hit multiple targets. */
-	readonly spreadHit: boolean;
-	/** Modifier that affects damage when multiple targets are hit. */
-	readonly spreadModifier?: number;
-	/**  Modifier that affects damage when this move is a critical hit. */
-	readonly critModifier?: number;
-	/** Forces the move to get STAB even if the type doesn't match. */
-	readonly forceSTAB: boolean;
-	/** True if it can't be copied with Sketch. */
-	readonly noSketch: boolean;
-	/** STAB multiplier (can be modified by other effects) (default 1.5). */
-	readonly stab?: number;
-
-	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
-		super(data, ...moreData);
-		data = this;
-
-		this.fullname = `move: ${this.name}`;
+	constructor(data, moreData = null) {
+		super(data, moreData);
+		this.fullname = 'move: ' + this.name;
+		/** @type {'Move'} */
 		this.effectType = 'Move';
-		this.type = Tools.getString(data.type);
-		this.target = Tools.getString(data.target);
-		this.basePower = Number(data.basePower!);
-		this.accuracy = data.accuracy!;
-		this.critRatio = Number(data.critRatio) || 1;
-		this.baseMoveType = Tools.getString(data.baseMoveType) || this.type;
-		this.secondary = data.secondary || null;
-		this.secondaries = data.secondaries || (this.secondary && [this.secondary]) || null;
-		this.priority = Number(data.priority) || 0;
-		this.category = data.category!;
-		this.defensiveCategory = data.defensiveCategory || undefined;
-		this.useTargetOffensive = !!data.useTargetOffensive;
-		this.useSourceDefensive = !!data.useSourceDefensive;
-		this.ignoreNegativeOffensive = !!data.ignoreNegativeOffensive;
-		this.ignorePositiveDefensive = !!data.ignorePositiveDefensive;
-		this.ignoreOffensive = !!data.ignoreOffensive;
-		this.ignoreDefensive = !!data.ignoreDefensive;
-		this.ignoreImmunity = (data.ignoreImmunity !== undefined ? data.ignoreImmunity : this.category === 'Status');
-		this.pp = Number(data.pp!);
-		this.noPPBoosts = !!data.noPPBoosts;
-		this.isZ = data.isZ || false;
-		this.flags = data.flags || {};
-		this.selfSwitch = data.selfSwitch || undefined;
-		this.pressureTarget = data.pressureTarget || '';
-		this.nonGhostTarget = data.nonGhostTarget || '';
-		this.ignoreAbility = data.ignoreAbility || false;
-		this.damage = data.damage!;
-		this.spreadHit = data.spreadHit || false;
-		this.forceSTAB = !!data.forceSTAB;
-		this.noSketch = !!data.noSketch;
-		this.stab = data.stab || undefined;
+
+		/**
+		 * Move type.
+		 * @type {string}
+		 */
+		this.type = Tools.getString(this.type);
+
+		/**
+		 * Move target.
+		 * @type {string}
+		 */
+		this.target = Tools.getString(this.target);
+
+		/**
+		 * Move base power.
+		 * @type {number}
+		 */
+		this.basePower = this.basePower;
+
+		/**
+		 * Move base accuracy. True denotes a move that always hits
+		 * @type {true | number}
+		 */
+		this.accuracy = this.accuracy;
+
+		/**
+		 * Critical hit ratio. Defaults to 1.
+		 * @type {number}
+		 */
+		this.critRatio = Number(this.critRatio) || 1;
+
+		/**
+		 * Will this move always be a critical hit?
+		 * @type {boolean}
+		 */
+		this.willCrit = this.willCrit;
+
+		/**
+		 * Is this move a critical hit?
+		 * @type {boolean}
+		 */
+		this.crit = this.crit;
+
+		/**
+		 * Can this move OHKO foes?
+		 * @type {boolean | string}
+		 */
+		this.ohko = this.ohko;
+
+		/**
+		 * Base move type. This is the move type as specified by the games,
+		 * tracked because it often differs from the real move type.
+		 * @type {string}
+		 */
+		this.baseMoveType = Tools.getString(this.baseMoveType) || this.type;
+
+		/**
+		 * Secondary effect. You usually don't want to access this
+		 * directly; but through the secondaries array.
+		 * @type {SecondaryEffect | null}
+		 */
+		this.secondary = this.secondary || null;
+
+		/**
+		 * Secondary effects. An array because there can be more than one
+		 * (for instance, Fire Fang has both a burn and a flinch
+		 * secondary).
+		 * @type {SecondaryEffect[] | null}
+		 */
+		this.secondaries = this.secondaries || (this.secondary && [this.secondary]) || null;
+
+		/**
+		 * Move priority. Higher priorities go before lower priorities,
+		 * trumping the Speed stat.
+		 * @type {number}
+		 */
+		this.priority = Number(this.priority) || 0;
+
+		/**
+		 * Move category
+		 * @type {'Physical' | 'Special' | 'Status'}
+		 */
+		this.category = this.category;
+
+		/**
+		 * Category that changes which defense to use when calculating
+		 * move damage.
+		 * @type {'Physical' | 'Special' | 'Status' | undefined}
+		 */
+		this.defensiveCategory = this.defensiveCategory;
+
+		/**
+		 * Whether or not this move uses the target's boosts
+		 * @type {boolean}
+		 */
+		this.useTargetOffensive = this.useTargetOffensive;
+
+		/**
+		 * Whether or not this move uses the user's boosts
+		 * @type {boolean}
+		 */
+		this.useSourceDefensive = this.useSourceDefensive;
+
+		/**
+		 * Whether or not this move ignores negative attack boosts
+		 * @type {boolean}
+		 */
+		this.ignoreNegativeOffensive = this.ignoreNegativeOffensive;
+
+		/**
+		 * Whether or not this move ignores positive defense boosts
+		 * @type {boolean}
+		 */
+		this.ignorePositiveDefensive = this.ignorePositiveDefensive;
+
+		/**
+		 * Whether or not this move ignores attack boosts
+		 * @type {boolean}
+		 */
+		this.ignoreOffensive = this.ignoreOffensive;
+
+		/**
+		 * Whether or not this move ignores defense boosts
+		 * @type {boolean}
+		 */
+		this.ignoreDefensive = this.ignoreDefensive;
+
+		/**
+		 * Whether or not this move ignores type immunities. Defaults to
+		 * true for Status moves and false for Physical/Special moves.
+		 * @type {AnyObject | boolean}
+		 * @readonly
+		 */
+		this.ignoreImmunity = (this.ignoreImmunity !== undefined ? this.ignoreImmunity : this.category === 'Status');
+
+		/**
+		 * Base move PP.
+		 * @type {number}
+		 */
+		this.pp = this.pp;
+
+		/**
+		 * Whether or not this move can receive PP boosts.
+		 * @type {boolean}
+		 */
+		this.noPPBoosts = this.noPPBoosts;
+
+		/**
+		 * Is this move a Z-Move?
+		 * @type {boolean | string | undefined}
+		 */
+		this.isZ = this.isZ;
+
+		/**
+		 * Whether or not this move is a Z-Move that broke protect
+		 * (affects damage calculation).
+		 * @type {boolean}
+		 */
+		this.zBrokeProtect = this.zBrokeProtect;
+
+		/**
+		 * @type {MoveFlags}
+		 * @readonly
+		 */
+		this.flags = this.flags || {};
+
+		/**
+		 * Whether or not the user must switch after using this move.
+		 * @type {string | boolean}
+		 */
+		this.selfSwitch = this.selfSwitch;
+
+		/**
+		 * Move target only used by Pressure
+		 * @type {string}
+		 */
+		this.pressureTarget = this.pressureTarget || '';
+
+		/**
+		 * Move target used if the user is not a Ghost type
+		 * @type {string}
+		 */
+		this.nonGhostTarget = this.nonGhostTarget || '';
+
+		/**
+		 * Whether or not the move ignores abilities
+		 * @type {boolean}
+		 */
+		this.ignoreAbility = this.ignoreAbility;
+
+		/**
+		 * Move damage against the current target
+		 * @type {string | number | boolean}
+		 */
+		this.damage = this.damage;
+
+		/**
+		 * Whether or not this move hit multiple targets
+		 * @type {boolean}
+		 */
+		this.spreadHit = this.spreadHit;
+
+		/**
+		 * Modifier that affects damage when multiple targets
+		 * are hit
+		 * @type {number | undefined}
+		 */
+		this.spreadModifier = this.spreadModifier;
+
+		/**
+		 * Modifier that affects damage when this move is
+		 * a critical hit
+		 * @type {number | undefined}
+		 */
+		this.critModifier = this.critModifier;
+
+		/**
+		 * Damage modifier based on the user's types
+		 * @type {number}
+		 */
+		this.typeMod = this.typeMod || 0;
+
+		/**
+		 * Whether or not this move gets STAB
+		 * @type {boolean}
+		 */
+		this.hasSTAB = this.hasSTAB;
+
+		/**
+		 * True if it can't be copied with Sketch
+		 * @type {boolean}
+		 */
+		this.noSketch = !!this.noSketch;
+
+		/**
+		 * STAB (can be modified by other effects)
+		 * @type {number | undefined}
+		 */
+		this.stab = this.stab;
 
 		if (!this.gen) {
 			if (this.num >= 622) {
@@ -854,216 +1138,193 @@ export class Move extends BasicEffect implements Readonly<BasicEffect & MoveData
 	}
 }
 
-export class ActiveMove extends Move implements BasicEffect, MoveData {
-	readonly effectType: 'Move' = 'Move';
-	hit: number;
-	moveHitData: MoveHitData;
-	ability?: Ability;
-	aerilateBoosted?: boolean;
-	allies?: Pokemon[];
-	auraBooster?: Pokemon;
-	causedCrashDamage?: boolean;
-	forceStatus?: string;
-	galvanizeBoosted?: boolean;
-	hasAuraBreak?: boolean;
-	hasBounced?: boolean;
-	hasSheerForce?: boolean;
-	isExternal?: boolean;
-	lastHit?: boolean;
-	magnitude?: number;
-	negateSecondary?: boolean;
-	normalizeBoosted?: boolean;
-	pixilateBoosted?: boolean;
-	pranksterBoosted?: boolean;
-	refrigerateBoosted?: boolean;
-	selfDropped?: boolean;
-	stab?: number;
-	statusRoll?: string;
-	totalDamage?: number | false;
-	willChangeForme?: boolean;
+class TypeInfo {
 	/**
-	 * Has this move been boosted by a Z-crystal? Usually the same as
-	 * `isZ`, but hacked moves will have this be `false` and `isZ` be
-	 * truthy.
+	 * @param {AnyObject} data
+	 * @param {?AnyObject} [moreData]
+	 * @param {?AnyObject} [moreData2]
 	 */
-	isZPowered?: boolean;
-
-	constructor(data: AnyObject, ...moreData: AnyObject[]) {
-		super(data, ...moreData);
-
-		this.hit = 0;
-		this.moveHitData = {crit: {}, typeMod: {}, zBrokeProtect: {}};
-	}
-}
-
-type TypeInfoEffectType = 'Type' | 'EffectType';
-
-export class TypeInfo implements Readonly<TypeData> {
-	/**
-	 * ID. This will be a lowercase version of the name with all the
-	 * non-alphanumeric characters removed. e.g. 'flying'
-	 */
-	readonly id: string;
-	/** Name. e.g. 'Flying' */
-	readonly name: string;
-	/** Effect type. */
-	readonly effectType: TypeInfoEffectType;
-	/**
-	 * Does it exist? For historical reasons, when you use an accessor
-	 * for an effect that doesn't exist, you get a dummy effect that
-	 * doesn't do anything, and this field set to false.
-	 */
-	readonly exists: boolean;
-	/**
-	 * The generation of Pokemon game this was INTRODUCED (NOT
-	 * necessarily the current gen being simulated.) Not all effects
-	 * track generation; this will be 0 if not known.
-	 */
-	readonly gen: number;
-	/**
-	 * Type chart, attackingTypeName:result, effectid:result
-	 * result is: 0 = normal, 1 = weakness, 2 = resistance, 3 = immunity
-	 */
-	readonly damageTaken: {[attackingTypeNameOrEffectid: string]: number};
-	/** The IVs to get this Type Hidden Power (in gen 3 and later) */
-	readonly HPivs: SparseStatsTable;
-	/** The DVs to get this Type Hidden Power (in gen 2). */
-	readonly HPdvs: SparseStatsTable;
-
-	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
+	constructor(data, moreData = null, moreData2 = null) {
+		/**
+		 * ID. This will be a lowercase version of the name with all the
+		 * non-alphanumeric characters removed. e.g. 'flying'
+		 * @type {string}
+		 */
+		this.id = '';
+		/**
+		 * Name. e.g. 'Flying'
+		 * @type {string}
+		 */
+		this.name = '';
+		/**
+		 * Effect type.
+		 * @type {'Type' | 'EffectType'}
+		 */
+		this.effectType = 'Type';
+		/**
+		 * Does it exist? For historical reasons, when you use an accessor
+		 * for an effect that doesn't exist, you get a dummy effect that
+		 * doesn't do anything, and this field set to false.
+		 * @type {boolean}
+		 */
 		this.exists = true;
-		data = combine(this, data, ...moreData);
+		/**
+		 * The generation of Pokemon game this was INTRODUCED (NOT
+		 * necessarily the current gen being simulated.) Not all effects
+		 * track generation; this will be 0 if not known.
+		 * @type {number}
+		 */
+		this.gen = 0;
+		/**
+		 * Type chart, attackingTypeName:result, effectid:result
+		 * result is: 0 = normal, 1 = weakness, 2 = resistance, 3 = immunity
+		 * @type {{[attackingTypeNameOrEffectid: string]: number}}
+		 */
+		this.damageTaken = {};
+		/**
+		 * The IVs to get this Type Hidden Power (in gen 3 and later)
+		 * @type {SparseStatsTable}
+		 */
+		this.HPivs = {};
+		/**
+		 * The DVs to get this Type Hidden Power (in gen 2)
+		 * @type {SparseStatsTable}
+		 */
+		this.HPdvs = {};
 
-		this.id = data.id || '';
-		this.name = Tools.getString(data.name).trim();
-		this.effectType = Tools.getString(data.effectType) as TypeInfoEffectType || 'Type';
+		Object.assign(this, data);
+		if (moreData) Object.assign(this, moreData);
+		if (moreData2) Object.assign(this, moreData2);
+		this.name = Tools.getString(this.name).trim();
 		this.exists = !!(this.exists && this.id);
-		this.gen = data.gen || 0;
-		this.damageTaken = data.damageTaken || {};
-		this.HPivs = data.HPivs || {};
-		this.HPdvs = data.HPdvs || {};
 	}
-
 	toString() {
 		return this.name;
 	}
 }
 
-function combine(obj: AnyObject, ...data: (AnyObject | null)[]): AnyObject {
-	for (const d of data) {
-		if (d) Object.assign(obj, d);
-	}
-	return obj;
-}
-
-// export class PokemonSet {
+// class PokemonSet {
 // 	/**
-// 	 * The Pokemon's set's nickname, which is identical to its base
-// 	 * species if not specified by the player, e.g. "Minior".
+// 	 * @param {Partial<PokemonSet>} data
 // 	 */
-// 	name: string;
-// 	/**
-// 	 * The Pokemon's species, e.g. "Minior-Red".
-// 	 * This should always be converted to an id before use.
-// 	 */
-// 	species: string;
-// 	/**
-// 	 * The Pokemon's set's item. This can be an id, e.g. "whiteherb"
-// 	 * or a full name, e.g. "White Herb".
-// 	 * This should always be converted to an id before use.
-// 	 */
-// 	item: string;
-// 	/**
-// 	 * The Pokemon's set's ability. This can be an id, e.g. "shieldsdown"
-// 	 * or a full name, e.g. "Shields Down".
-// 	 * This should always be converted to an id before use.
-// 	 */
-// 	ability: string;
-// 	/**
-// 	 * An array of the Pokemon's set's moves. Each move can be an id,
-// 	 * e.g. "shellsmash" or a full name, e.g. "Shell Smash"
-// 	 * These should always be converted to ids before use.
-// 	 */
-// 	moves: string[];
-// 	/**
-// 	 * The Pokemon's set's nature. This can be an id, e.g. "adamant"
-// 	 * or a full name, e.g. "Adamant".
-// 	 * This should always be converted to an id before use.
-// 	 */
-// 	nature: string;
-// 	/**
-// 	 * The Pokemon's set's gender.
-// 	 */
-// 	gender: GenderName;
-// 	/**
-// 	 * The Pokemon's set's effort values, used in stat calculation.
-// 	 * These must be between 0 and 255, inclusive.
-// 	 */
-// 	evs: StatsTable;
-// 	/**
-// 	 * The Pokemon's individual values, used in stat calculation.
-// 	 * These must be between 0 and 31, inclusive.
-// 	 * These are also used as DVs, or determinant values, in Gens
-// 	 * 1 and 2, which are represented as even numbers from 0 to 30.
-// 	 * From Gen 2 and on, IVs/DVs are used to determine Hidden Power's
-// 	 * type, although in Gen 7 a Pokemon may be legally altered such
-// 	 * that its stats are calculated as if these values were 31 via
-// 	 * Bottlecaps. Currently, PS handles this by considering any
-// 	 * IV of 31 in Gen 7 to count as either even or odd for the purpose
-// 	 * of validating a Hidden Power type, though restrictions on
-// 	 * possible IVs for event-only Pokemon are still considered.
-// 	 */
-// 	ivs: StatsTable;
-// 	/**
-// 	 * The Pokemon's level. This is usually between 1 and 100, inclusive,
-// 	 * but the simulator supports levels up to 9999 for testing purposes.
-// 	 */
-// 	level: number;
-// 	/**
-// 	 * Whether the Pokemon is shiny or not. While having no direct
-// 	 * competitive effect except in a few OMs, certain Pokemon cannot
-// 	 * be legally obtained as shiny, either as a whole or with certain
-// 	 * event-only abilities or moves.
-// 	 */
-// 	shiny?: boolean;
-// 	/**
-// 	 * The Pokemon's set's happiness value. This is used only for
-// 	 * calculating the base power of the moves Return and Frustration.
-// 	 * This value must be between 0 and 255, inclusive.
-// 	 */
-// 	happiness: number;
-// 	/**
-// 	 * The Pokemon's set's Hidden Power type. This value is intended
-// 	 * to be used to manually set a set's HP type in Gen 7 where
-// 	 * its IVs do not necessarily reflect the user's intended type.
-// 	 * TODO: actually support this in the teambuilder.
-// 	 */
-// 	hpType?: string;
-// 	/**
-// 	 * The pokeball this Pokemon is in. Like shininess, this property
-// 	 * has no direct competitive effects, but has implications for
-// 	 * event legality. For example, any Rayquaza that knows V-Create
-// 	 * must be sent out from a Cherish Ball.
-// 	 * TODO: actually support this in the validator, switching animations,
-// 	 * and the teambuilder.
-// 	 */
-// 	pokeball?: string;
-//
-// 	constructor(data: Partial<PokemonSet>) {
+// 	constructor(data) {
+// 		/**
+// 		 * The Pokemon's set's nickname, which is identical to its base
+// 		 * species if not specified by the player, e.g. "Minior".
+// 		 * @type {string}
+// 		 */
 // 		this.name = '';
+// 		/**
+// 		 * The Pokemon's species, e.g. "Minior-Red".
+// 		 * This should always be converted to an id before use.
+// 		 * @type {string}
+// 		 */
 // 		this.species = '';
+// 		/**
+// 		 * The Pokemon's set's item. This can be an id, e.g. "whiteherb"
+// 		 * or a full name, e.g. "White Herb".
+// 		 * This should always be converted to an id before use.
+// 		 * @type {string}
+// 		 */
 // 		this.item = '';
+// 		/**
+// 		 * The Pokemon's set's ability. This can be an id, e.g. "shieldsdown"
+// 		 * or a full name, e.g. "Shields Down".
+// 		 * This should always be converted to an id before use.
+// 		 * @type {string}
+// 		 */
 // 		this.ability = 'noability';
+// 		/**
+// 		 * An array of the Pokemon's set's moves. Each move can be an id,
+// 		 * e.g. "shellsmash" or a full name, e.g. "Shell Smash"
+// 		 * These should always be converted to ids before use.
+// 		 * @type {string[]}
+// 		 */
 // 		this.moves = [];
+// 		/**
+// 		 * The Pokemon's set's nature. This can be an id, e.g. "adamant"
+// 		 * or a full name, e.g. "Adamant".
+// 		 * This should always be converted to an id before use.
+// 		 * @type {string}
+// 		 */
 // 		this.nature = '';
+// 		/**
+// 		 * The Pokemon's set's gender.
+// 		 * @type {GenderName}
+// 		 */
 // 		this.gender = '';
+// 		/**
+// 		 * The Pokemon's set's effort values, used in stat calculation.
+// 		 * These must be between 0 and 255, inclusive.
+// 		 * @type {StatsTable}
+// 		 */
 // 		this.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+// 		/**
+// 		 * The Pokemon's individual values, used in stat calculation.
+// 		 * These must be between 0 and 31, inclusive.
+// 		 * These are also used as DVs, or determinant values, in Gens
+// 		 * 1 and 2, which are represented as even numbers from 0 to 30.
+// 		 * From Gen 2 and on, IVs/DVs are used to determine Hidden Power's
+// 		 * type, although in Gen 7 a Pokemon may be legally altered such
+// 		 * that its stats are calculated as if these values were 31 via
+// 		 * Bottlecaps. Currently, PS handles this by considering any
+// 		 * IV of 31 in Gen 7 to count as either even or odd for the purpose
+// 		 * of validating a Hidden Power type, though restrictions on
+// 		 * possible IVs for event-only Pokemon are still considered.
+// 		 * @type {StatsTable}
+// 		 */
 // 		this.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+// 		/**
+// 		 * The Pokemon's level. This is usually between 1 and 100, inclusive,
+// 		 * but the simulator supports levels up to 9999 for testing purposes.
+// 		 * @type {number}
+// 		 */
 // 		this.level = 100;
+// 		/**
+// 		 * Whether the Pokemon is shiny or not. While having no direct
+// 		 * competitive effect except in a few OMs, certain Pokemon cannot
+// 		 * be legally obtained as shiny, either as a whole or with certain
+// 		 * event-only abilities or moves.
+// 		 * @type {boolean | undefined}
+// 		 */
 // 		this.shiny = undefined;
+// 		/**
+// 		 * The Pokemon's set's happiness value. This is used only for
+// 		 * calculating the base power of the moves Return and Frustration.
+// 		 * This value must be between 0 and 255, inclusive.
+// 		 * @type {number | undefined}
+// 		 */
 // 		this.happiness = 255; // :)
+// 		/**
+// 		 * The Pokemon's set's Hidden Power type. This value is intended
+// 		 * to be used to manually set a set's HP type in Gen 7 where
+// 		 * its IVs do not necessarily reflect the user's intended type.
+// 		 * TODO: actually support this in the teambuilder.
+// 		 * @type {string | undefined}
+// 		 */
 // 		this.hpType = undefined;
+// 		/**
+// 		 * The pokeball this Pokemon is in. Like shininess, this property
+// 		 * has no direct competitive effects, but has implications for
+// 		 * event legality. For example, any Rayquaza that knows V-Create
+// 		 * must be sent out from a Cherish Ball.
+// 		 * TODO: actually support this in the validator, switching animations,
+// 		 * and the teambuilder.
+// 		 * @type {string | undefined}
+// 		 */
 // 		this.pokeball = undefined;
 // 		Object.assign(this, data);
 // 	}
 // }
+
+exports.Tools = Tools;
+exports.Effect = Effect;
+exports.PureEffect = PureEffect;
+exports.RuleTable = RuleTable;
+exports.Format = Format;
+exports.Item = Item;
+exports.Template = Template;
+exports.Move = Move;
+exports.Ability = Ability;
+exports.TypeInfo = TypeInfo;
+//exports.PokemonSet = PokemonSet;
