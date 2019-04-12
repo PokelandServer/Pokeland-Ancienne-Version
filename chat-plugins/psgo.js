@@ -12,12 +12,12 @@ const cards = require('./card-data.js');
 let color = require('../config/color');
  
 const colors = {
-    Mythic: '#D82A2A',
-    Legendary: '#E8AB03',
-    Epic: '#73DF14',
-    Rare: '#2DD1B6',
-    Uncommon: '#2D3ED1',
-    Common: '#000',
+    Mythic: '#ebf967',
+    Legendary: '#f967e5',
+    Epic: '#e367f9',
+    Rare: '#f9c467',
+    Uncommon: '#67b4f9',
+    Common: '#5dff93',
 };
  
 const shop = [
