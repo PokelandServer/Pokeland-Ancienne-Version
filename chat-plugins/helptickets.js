@@ -390,11 +390,11 @@ const pages = {
 			const isStaff = user.can('lock');
 			if (!query.length) query = [''];
 			const pages = {
-				report: `I want to report someone`,
-				harassment: `Someone is harassing me`,
-				inap: `Someone is being inappropriate`,
-				timerstalling: `Someone is timerstalling`,
-				staff: `I want to report a staff member`,
+				report: `J'aimerais report quelqu'un`,
+				harassment: `Quelqu'un me harcèle`,
+				inap: `Quelqu'un tient des propos innapropriés`,
+				timerstalling: `Quelqu'un me timestall`,
+				staff: `J'aimerais report un membre du staff`,
 
 				appeal: `I want to appeal a punishment`,
 				permalock: `I want to appeal my permalock`,
