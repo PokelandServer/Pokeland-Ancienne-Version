@@ -411,7 +411,7 @@ const pages = {
 				password: `J'ai perdu mon mot de passe`,
 				other: `Toujours Autre`,
 
-				confirmpmharassment: `Report un harcèlement un messages privés`,
+				confirmpmharassment: `Report un harcèlement en messages privés`,
 				confirmbattleharassment: `Report un harcèlement dans un combat (battle showdown)`,
 				confirmchatharassment: `Report un harcèlement dans une room de chat`,
 				confirminap: `Report un contenu innaproprié`,
