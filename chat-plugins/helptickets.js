@@ -309,7 +309,7 @@ function checkTicketBanned(user) {
 	let ticket = ticketBans[user.userid];
 	if (ticket) {
 		if (ticket.expires > Date.now()) {
-			return `You are banned from creating tickets${toId(ticket.banned) !== user.userid ? `, because you have the same IP as ${ticket.banned}.` : `.`}${ticket.reason ? ` Reason: ${ticket.reason}` : ``}`;
+			return `Vous ne pouvez pas créer de ticket${toId(ticket.banned) !== user.userid ? `, car vous avez la même IP que ${ticket.banned}.` : `.`}${ticket.reason ? ` Reason: ${ticket.reason}` : ``}`;
 		} else {
 			delete tickets[ticket.userid];
 			writeTickets();
@@ -366,7 +366,7 @@ const pages = {
 	help: {
 		request(query, user, connection) {
 			if (!user.named) return Rooms.RETRY_AFTER_LOGIN;
-			let buf = `|title|Request Help\n|pagehtml|<div class="pad"><h2>Request help from global staff</h2>`;
+			let buf = `|title|Demander de l'aide\n|pagehtml|<div class="pad"><h2>Demandez l'aide du Global Staff</h2>`;
 
 			let banMsg = checkTicketBanned(user);
 			if (banMsg) return connection.popup(banMsg);
@@ -381,7 +381,7 @@ const pages = {
 					writeTickets();
 				} else {
 					if (!helpRoom.auth[user.userid]) helpRoom.auth[user.userid] = '+';
-					connection.popup(`You already have a Help ticket.`);
+					connection.popup(`Vous avez déjà un ticket.`);
 					user.joinRoom(`help-${ticket.userid}`);
 					return `|deinit`;
 				}
@@ -401,7 +401,7 @@ const pages = {
 				lock: `J'aimerais faire opposition à mon lock`,
 				ip: `Je suis lock car je possède la même IP que quelqu'un que je ne connais pas`,
 				semilock: `Je ne peux pas parler dans le chat à cause de mon fournisseur d'accès internet`,
-				hostfilter: `I'm locked because of #hostfilter`,
+				hostfilter: `Je suis bloqué à cause du #hostfilter`,
 				hasautoconfirmed: `Oui, j'ai un compte autoconfirmed`,
 				lacksautoconfirmed: `Non, je n'ai pas de compte autoconfirmed`,
 				appealother: `J'aimerais faire opposition à mon roomban/blacklist`,
@@ -409,7 +409,7 @@ const pages = {
 				misc: `Autre`,
 				ticket: `J'ai l'impression que mon dernier ticket n'a pas été clos`,
 				password: `J'ai perdu mon mot de passe`,
-				other: `Toujours Autre`,
+				other: `Autre`,
 
 				confirmpmharassment: `Report un harcèlement en messages privés`,
 				confirmbattleharassment: `Report un harcèlement dans un combat (battle showdown)`,
@@ -424,11 +424,11 @@ const pages = {
 				confirmipappeal: `Faire opposition à mon lock par IP`,
 				confirmappealsemi: `Faire opposition à mon lock par fournisseur d'accès internet`,
 				confirmticket: `Report le dernier ticket`,
-				confirmother: `Appelerun membre du Globzl Staff`,
+				confirmother: `Appeler un membre du Global Staff`,
 			};
 			const ticketTitles = {
-				pmharassment: `PM Harassment`,
-				battleharassment: `Battle Harassment`,
+				pmharassment: `Harcèlement en pm`,
+				battleharassment: `Harcèlement en battle`,
 				chatharassment: `Harcèlement dans une chatroom`,
 				inap: `Contenu innaproprié`,
 				inapname: `Pseudo innaproprié`,
@@ -447,15 +447,15 @@ const pages = {
 				if (page && page in pages && !page.startsWith('confirm')) {
 					let prevPageLink = query.slice(0, i).join('-');
 					if (prevPageLink) prevPageLink = `-${prevPageLink}`;
-					buf += `<p><a href="/view-help-request${prevPageLink}" target="replace"><button class="button">Back</button></a> <button class="button disabled" disabled>${pages[page]}</button></p>`;
+					buf += `<p><a href="/view-help-request${prevPageLink}" target="replace"><button class="button">Retour</button></a> <button class="button disabled" disabled>${pages[page]}</button></p>`;
 				}
 				switch (page) {
 				case '':
-					buf += `<p><b>What's going on?</b></p>`;
+					buf += `<p><b>Que ce passe t'il</b></p>`;
 					if (isStaff) {
 						buf += `<p class="message-error">Global staff cannot make Help requests. This form is only for reference.</p>`;
 					} else {
-						buf += `<p class="message-error">Abuse of Help requests can result in a punishment.</p>`;
+						buf += `<p class="message-error">Abuser des tickets peut impliquer des sentences.</p>`;
 					}
 					if (!isLast) break;
 					buf += `<p><Button>report</Button></p>`;
@@ -463,15 +463,15 @@ const pages = {
 					buf += `<p><Button>misc</Button></p>`;
 					break;
 				case 'report':
-					buf += `<p><b>What do you want to report someone for?</b></p>`;
+					buf += `<p><b>Pourquoi voulez-vous report quelqu'un?</b></p>`;
 					if (!isLast) break;
 					buf += `<p><Button>harassment</Button></p>`;
 					buf += `<p><Button>inap</Button></p>`;
 					buf += `<p><Button>timerstalling</Button></p>`;
 					break;
 				case 'harassment':
-					buf += `<p>If someone is harassing you, click the appropriate button below and a global staff member will take a look. Consider using <code>/ignore [username]</code> if it's minor instead.</p>`;
-					buf += `<p>If you are reporting harassment in a battle, please save a replay of the battle.</p>`;
+					buf += `<p>Si quelqu'un vous harcèle, cliquez sur le bouton approprié et un membre du Global Staff y prêtera attention. Utilisez <code>/ignore [username]</code> si c'est un problème mineur.</p>`;
+					buf += `<p>Si vous souhaitez report quelqu'un pour harcèlement dans un combat, assurez vous de posséder un replay du match</p>`;
 					if (!isLast) break;
 					buf += `<p><Button>confirmpmharassment</Button> <Button>confirmbattleharassment</Button> <Button>confirmchatharassment</Button></p>`;
 					break;
@@ -577,8 +577,8 @@ const pages = {
 					break;
 				default:
 					if (!page.startsWith('confirm')) break;
-					buf += `<p><b>Are you sure you want to submit a ${ticketTitles[page.slice(7)]} report?</b></p>`;
-					buf += `<p><button class="button notifying" name="send" value="/helpticket submit ${ticketTitles[page.slice(7)]}">Yes, Contact global staff</button> <a href="/view-help-request-${query.slice(0, i).join('-')}" target="replace"><button class="button">No, cancel</button></a></p>`;
+					buf += `<p><b>Etes-vous sûr de vouloir soumettre un ${ticketTitles[page.slice(7)]} report?</b></p>`;
+					buf += `<p><button class="button notifying" name="send" value="/helpticket submit ${ticketTitles[page.slice(7)]}">Oui, contacter un membre du Global Staff</button> <a href="/view-help-request-${query.slice(0, i).join('-')}" target="replace"><button class="button">Non</button></a></p>`;
 					break;
 				}
 			}
