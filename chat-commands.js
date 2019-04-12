@@ -2659,10 +2659,10 @@ return false;
 				return this.errorReply("Your hot-patch command was unrecognized.");
 			}
 		} catch (e) {
-			Rooms.global.notifyRooms(['development', 'staff', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target} - but something failed while trying to hot-patch.`);
+			Rooms.global.notifyRooms(['development', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target} - but something failed while trying to hot-patch.`);
 			return this.errorReply(`Something failed while trying to hot-patch ${target}: \n${e.stack}`);
 		}
-		Rooms.global.notifyRooms(['development', 'staff', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target}`);
+		Rooms.global.notifyRooms(['development', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target}`);
 	},
 	hotpatchhelp: [
 		`Hot-patching the game engine allows you to update parts of Showdown without interrupting currently-running battles. Requires: ~`,
