@@ -366,7 +366,7 @@ const pages = {
 	help: {
 		request(query, user, connection) {
 			if (!user.named) return Rooms.RETRY_AFTER_LOGIN;
-			let buf = `|title|Demander de l'aide\n|pagehtml|<div class="pad"><h2>Demandez l'aide du Global Staff</h2>`;
+			let buf = `|title|Request Help\n|pagehtml|<div class="pad"><h2>Request help from global staff</h2>`;
 
 			let banMsg = checkTicketBanned(user);
 			if (banMsg) return connection.popup(banMsg);
