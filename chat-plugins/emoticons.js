@@ -1,5 +1,6 @@
 'use strict';
 
+
 const color = require('../config/color');
 let demFeels = function () {};
 demFeels.getEmotes = function () {
