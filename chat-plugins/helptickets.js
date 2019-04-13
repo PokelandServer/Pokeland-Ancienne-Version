@@ -309,7 +309,7 @@ function checkTicketBanned(user) {
 	let ticket = ticketBans[user.userid];
 	if (ticket) {
 		if (ticket.expires > Date.now()) {
-			return `Vous ne pouvez pas créer de ticket${toId(ticket.banned) !== user.userid ? `, car vous avez la même IP que ${ticket.banned}.` : `.`}${ticket.reason ? ` Reason: ${ticket.reason}` : ``}`;
+			return `You are banned from creating tickets${toId(ticket.banned) !== user.userid ? `, because you have the same IP as ${ticket.banned}.` : `.`}${ticket.reason ? ` Reason: ${ticket.reason}` : ``}`;
 		} else {
 			delete tickets[ticket.userid];
 			writeTickets();
@@ -381,7 +381,7 @@ const pages = {
 					writeTickets();
 				} else {
 					if (!helpRoom.auth[user.userid]) helpRoom.auth[user.userid] = '+';
-					connection.popup(`Vous avez déjà un ticket.`);
+					connection.popup(`You already have a Help ticket.`);
 					user.joinRoom(`help-${ticket.userid}`);
 					return `|deinit`;
 				}
@@ -401,7 +401,7 @@ const pages = {
 				lock: `J'aimerais faire opposition à mon lock`,
 				ip: `Je suis lock car je possède la même IP que quelqu'un que je ne connais pas`,
 				semilock: `Je ne peux pas parler dans le chat à cause de mon fournisseur d'accès internet`,
-				hostfilter: `Je suis bloqué à cause du #hostfilter`,
+				hostfilter: `I'm locked because of #hostfilter`,
 				hasautoconfirmed: `Oui, j'ai un compte autoconfirmed`,
 				lacksautoconfirmed: `Non, je n'ai pas de compte autoconfirmed`,
 				appealother: `J'aimerais faire opposition à mon roomban/blacklist`,
@@ -409,7 +409,7 @@ const pages = {
 				misc: `Autre`,
 				ticket: `J'ai l'impression que mon dernier ticket n'a pas été clos`,
 				password: `J'ai perdu mon mot de passe`,
-				other: `Autre`,
+				other: `Toujours Autre`,
 
 				confirmpmharassment: `Report un harcèlement en messages privés`,
 				confirmbattleharassment: `Report un harcèlement dans un combat (battle showdown)`,
@@ -424,11 +424,11 @@ const pages = {
 				confirmipappeal: `Faire opposition à mon lock par IP`,
 				confirmappealsemi: `Faire opposition à mon lock par fournisseur d'accès internet`,
 				confirmticket: `Report le dernier ticket`,
-				confirmother: `Appeler un membre du Global Staff`,
+				confirmother: `Appelerun membre du Globzl Staff`,
 			};
 			const ticketTitles = {
-				pmharassment: `Harcèlement en pm`,
-				battleharassment: `Harcèlement en battle`,
+				pmharassment: `PM Harassment`,
+				battleharassment: `Battle Harassment`,
 				chatharassment: `Harcèlement dans une chatroom`,
 				inap: `Contenu innaproprié`,
 				inapname: `Pseudo innaproprié`,
@@ -447,15 +447,15 @@ const pages = {
 				if (page && page in pages && !page.startsWith('confirm')) {
 					let prevPageLink = query.slice(0, i).join('-');
 					if (prevPageLink) prevPageLink = `-${prevPageLink}`;
-					buf += `<p><a href="/view-help-request${prevPageLink}" target="replace"><button class="button">Retour</button></a> <button class="button disabled" disabled>${pages[page]}</button></p>`;
+					buf += `<p><a href="/view-help-request${prevPageLink}" target="replace"><button class="button">Back</button></a> <button class="button disabled" disabled>${pages[page]}</button></p>`;
 				}
 				switch (page) {
 				case '':
-					buf += `<p><b>Que se passe-t-il ?</b></p>`;
+					buf += `<p><b>What's going on?</b></p>`;
 					if (isStaff) {
 						buf += `<p class="message-error">Global staff cannot make Help requests. This form is only for reference.</p>`;
 					} else {
-						buf += `<p class="message-error">Abuser des tickets peut impliquer des sentences.</p>`;
+						buf += `<p class="message-error">Abuse of Help requests can result in a punishment.</p>`;
 					}
 					if (!isLast) break;
 					buf += `<p><Button>report</Button></p>`;
@@ -463,15 +463,15 @@ const pages = {
 					buf += `<p><Button>misc</Button></p>`;
 					break;
 				case 'report':
-					buf += `<p><b>Pourquoi voulez-vous report quelqu'un?</b></p>`;
+					buf += `<p><b>What do you want to report someone for?</b></p>`;
 					if (!isLast) break;
 					buf += `<p><Button>harassment</Button></p>`;
 					buf += `<p><Button>inap</Button></p>`;
 					buf += `<p><Button>timerstalling</Button></p>`;
 					break;
 				case 'harassment':
-					buf += `<p>Si quelqu'un vous harcèle, cliquez sur le bouton approprié et un membre du Global Staff y prêtera attention. Utilisez <code>/ignore [username]</code> si c'est un problème mineur.</p>`;
-					buf += `<p>Si vous souhaitez report quelqu'un pour harcèlement dans un combat, assurez vous de posséder un replay du match</p>`;
+					buf += `<p>If someone is harassing you, click the appropriate button below and a global staff member will take a look. Consider using <code>/ignore [username]</code> if it's minor instead.</p>`;
+					buf += `<p>If you are reporting harassment in a battle, please save a replay of the battle.</p>`;
 					if (!isLast) break;
 					buf += `<p><Button>confirmpmharassment</Button> <Button>confirmbattleharassment</Button> <Button>confirmchatharassment</Button></p>`;
 					break;
@@ -553,7 +553,7 @@ const pages = {
 					buf += `<p>Please PM the staff member who punished you. If you don't know who punished you, ask another room staff member; they will redirect you to the correct user. If you are banned or blacklisted from the room, use <code>/roomauth [name of room]</code> to get a list of room staff members. Bold names are online.</p>`;
 					break;
 				case 'misc':
-					buf += `<p><b>Peut-être qu'une de ces options pourrait vous aider ?</b></p>`;
+					buf += `<p><b>Maybe one of these options will be helpful?</b></p>`;
 					if (!isLast) break;
 					if (ticket || isStaff) {
 						buf += `<p><Button>ticket</Button></p>`;
@@ -571,14 +571,14 @@ const pages = {
 					buf += `<p><a class="button" href="https://www.smogon.com/forums/forums/other-admin-requests.346/">Request a password reset</a></p>`;
 					break;
 				case 'other':
-					buf += `<p>Si votre problème n'est pas traité suite à votre ticket, cliquez sur le bouton ci-dessous pour demander une réponse globale. S'il vous plaît soyez prêt à expliquer la situation.</p>`;
+					buf += `<p>If your issue is not handled above, click the button below to ask for a global. Please be ready to explain the situation.</p>`;
 					if (!isLast) break;
 					buf += `<p><Button>confirmother</Button></p>`;
 					break;
 				default:
 					if (!page.startsWith('confirm')) break;
-					buf += `<p><b>Êtes-vous sûr de vouloir soumettre un ${ticketTitles[page.slice(7)]} ?</b></p>`;
-					buf += `<p><button class="button notifying" name="send" value="/helpticket submit ${ticketTitles[page.slice(7)]}">Oui, contacter un membre du Global Staff</button> <a href="/view-help-request-${query.slice(0, i).join('-')}" target="replace"><button class="button">Non</button></a></p>`;
+					buf += `<p><b>Are you sure you want to submit a ${ticketTitles[page.slice(7)]} report?</b></p>`;
+					buf += `<p><button class="button notifying" name="send" value="/helpticket submit ${ticketTitles[page.slice(7)]}">Yes, Contact global staff</button> <a href="/view-help-request-${query.slice(0, i).join('-')}" target="replace"><button class="button">No, cancel</button></a></p>`;
 					break;
 				}
 			}
