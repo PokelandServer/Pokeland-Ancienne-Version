@@ -88,11 +88,11 @@ if (typeof demFeels.extendEmotes === 'function') {
 		'feelsexy': 'https://cdn.betterttv.net/emote/56396c857e538de14bd747a5/2x',
 		'feelsbdoge':'http://i.imgur.com/N940pnA.png',
 		'feelscute':'http://i.skyrock.net/9664/59399664/pics/2465538933_1.gif',
-		'feelsrage':'http://i.imgur.com/O7siCMA.gif',
-        'feelspeks':'http://inspiresara.com/wp-content/uploads/2015/04/Peanut-butter-jelly-time.gif',
-        'feelsghost':'http://66.media.tumblr.com/720e98367dd0e798df50c666b8a82d67/tumblr_nwgd1gAUTH1undzuio1_1280.gif',
-        'feelsjesus':'http://imgur.com/Gid6Zjy.png',
-        'feelspika':'http://i.imgur.com/mBq3BAW.png',
+	'feelsrage':'http://i.imgur.com/O7siCMA.gif',
+   'feelspeks':'http://inspiresara.com/wp-content/uploads/2015/04/Peanut-butter-jelly-time.gif',
+   'feelsghost':'http://66.media.tumblr.com/720e98367dd0e798df50c666b8a82d67/tumblr_nwgd1gAUTH1undzuio1_1280.gif',
+   'feelsjesus':'http://imgur.com/Gid6Zjy.png',
+   'feelspika':'http://i.imgur.com/mBq3BAW.png',
 	'poubheil':'http://i.imgur.com/rghiV9b.png',
 	':pouce:': 'http://i.imgur.com/FB78VjU.jpg',
 	':darkrai:':'http://orig07.deviantart.net/fa6d/f/2011/255/e/b/darkrai_sprite_gif_by_infernonick-d49nizb.gif',
@@ -271,7 +271,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	':crying:': 'https://cdn.discordapp.com/emojis/483733722667941946.png?v=1',
 	':issouka:':'https://risibank.fr/cache/stickers/d578/57867-full.png',
 	':yeaok:' : 'https://cdn.discordapp.com/emojis/338908474027016194.png?v=1',
-		':sueur:' : 'http://image.noelshack.com/fichiers/2017/30/4/1501186885-risitasueurbestreup.png',
+	':sueur:' : 'http://image.noelshack.com/fichiers/2017/30/4/1501186885-risitasueurbestreup.png',
 	':ANGERY:' : 'https://cdn.discordapp.com/emojis/395628368596434945.png?v=1',
 	':thenkeng:' : 'https://cdn.discordapp.com/emojis/481391176818360321.png?v=1',
 	':thinking' : 'https://discordapp.com/assets/53ef346458017da2062aca5c7955946b.svg',
@@ -279,9 +279,9 @@ if (typeof demFeels.extendEmotes === 'function') {
 	':wailord:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019805-tinyfloatingwhale.gif',
 	':onion:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019812-d91.gif',
 	'#000s' : 'https://i.imgur.com/kJppajQ.jpg',
-		'feelshmm' : 'https://i.imgur.com/zMKFtnB.gif',
-		'feelshiver' : 'https://i.imgur.com/OUdKETM.gif',
-		':perfect:' : 'https://image.noelshack.com/fichiers/2019/15/6/1555184181-d-convertimage-convertimage.jpg',
+	'feelshmm' : 'https://i.imgur.com/zMKFtnB.gif',
+	'feelshiver' : 'https://i.imgur.com/OUdKETM.gif',
+	':perfect:' : 'https://image.noelshack.com/fichiers/2019/15/6/1555184181-d-convertimage-convertimage.jpg',
 	});
 }
 
@@ -357,8 +357,8 @@ function create_table() {
 		emotes_list.push("<td style='padding: 5px; font-size: 11px;box-shadow:0px 0px 2px 2px rgba(0, 0, 0, 0.15) inset; border-radius: 5px;'>" + "<img src='" + emotes[emotes_name[i]] + "'' title='" + emotes_name[i] + "' height='30' width='30' style='vertical-align: middle;  padding-right: 5px;' />" + emotes_name[i] + "</td>");
 	}
 
-	for (let i = 0; i < len; i += 5) {
-		let emoteOutput = [emotes_list[i], emotes_list[i + 1], emotes_list[i + 2], emotes_list[i + 3], emotes_list[i + 4]];
+	for (let i = 0; i < len; i += 4) {
+		let emoteOutput = [emotes_list[i], emotes_list[i + 1], emotes_list[i + 2], emotes_list[i + 3]];
 		if (i < len) emotes_group_list.push("<tr>" + emoteOutput.join('') + "</tr>");
 	}
 
