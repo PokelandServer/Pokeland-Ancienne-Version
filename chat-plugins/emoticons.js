@@ -18,7 +18,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	// example extending emotes
 	demFeels.extendEmotes({
 		'feelshiver' : 'https://i.imgur.com/OUdKETM.gif',
-				'feelspute':'http://puu.sh/tlVlA/94b278251b.jpg',
+		'feelspute':'http://puu.sh/tlVlA/94b278251b.jpg',
 		'feelslsd':'http://i0.kym-cdn.com/photos/images/original/000/105/986/130014911356.gif',
 		'feelsmaki':'http://image.prntscr.com/image/ad2511dd39e644f89c582653a1e21414.png',
 		'feelskawaii':'https://s-media-cache-ak0.pinimg.com/originals/1c/fb/d0/1cfbd086d1b9cd45f3de21e6c42ee1e5.gif',
@@ -352,19 +352,19 @@ function create_table() {
 	let len = emotes_name.length;
 
 	for (let i = 0; i < len; i++) {
-		emotes_list.push("<td style='padding: 5px; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5) inset; border-radius: 5px;'>" + "<img src='" + emotes[emotes_name[i]] + "'' title='" + emotes_name[i] + "' height='50' width='50' style='vertical-align: middle;  padding-right: 5px;' />" + emotes_name[i] + "</td>");
+		emotes_list.push("<td style='padding: 5px; font-size: 11px;box-shadow:0px 0px 2px 2px rgba(0, 0, 0, 0.15) inset; border-radius: 5px;'>" + "<img src='" + emotes[emotes_name[i]] + "'' title='" + emotes_name[i] + "' height='30' width='30' style='vertical-align: middle;  padding-right: 5px;' />" + emotes_name[i] + "</td>");
 	}
 
-	for (let i = 0; i < len; i += 4) {
-		let emoteOutput = [emotes_list[i], emotes_list[i + 1], emotes_list[i + 2], emotes_list[i + 3]];
+	for (let i = 0; i < len; i += 5) {
+		let emoteOutput = [emotes_list[i], emotes_list[i + 1], emotes_list[i + 2], emotes_list[i + 3], emotes_list[i + 4]];
 		if (i < len) emotes_group_list.push("<tr>" + emoteOutput.join('') + "</tr>");
 	}
 
 	return (
 		"<div class='infobox'>" +
-		"<div style='max-height: 300px; overflow-y: scroll; padding:0px'><table style='background: rgba(245, 245, 245, 0.05);padding: 0px;' width='100%'>" +
+		"<details><summary><strong>Emotes</strong></summary><div style='max-height: 300px; overflow-y: scroll; padding:0px'><table style='background: rgba(245, 245, 245, 0.05);padding: 0px;' width='100%'>" +
 		emotes_group_list.join("") +
-		"</table></div></div>"
+		"</table></details></div></div>"
 	);
 }
 
