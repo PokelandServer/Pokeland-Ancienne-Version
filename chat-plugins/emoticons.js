@@ -281,6 +281,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	'#000s' : 'https://i.imgur.com/kJppajQ.jpg',
 		'feelshmm' : 'https://i.imgur.com/zMKFtnB.gif',
 		'feelshiver' : 'https://i.imgur.com/OUdKETM.gif',
+		':perfect:' : 'https://image.noelshack.com/fichiers/2019/15/6/1555184181-d-convertimage-convertimage.jpg',
 	});
 }
 
