@@ -451,7 +451,7 @@ const pages = {
 				}
 				switch (page) {
 				case '':
-					buf += `<p><b>Que ce passe t'il</b></p>`;
+					buf += `<p><b>Que se passe-t-il ?</b></p>`;
 					if (isStaff) {
 						buf += `<p class="message-error">Global staff cannot make Help requests. This form is only for reference.</p>`;
 					} else {
@@ -553,7 +553,7 @@ const pages = {
 					buf += `<p>Please PM the staff member who punished you. If you don't know who punished you, ask another room staff member; they will redirect you to the correct user. If you are banned or blacklisted from the room, use <code>/roomauth [name of room]</code> to get a list of room staff members. Bold names are online.</p>`;
 					break;
 				case 'misc':
-					buf += `<p><b>Maybe one of these options will be helpful?</b></p>`;
+					buf += `<p><b>Peut-être qu'une de ces options pourrait vous aider ?</b></p>`;
 					if (!isLast) break;
 					if (ticket || isStaff) {
 						buf += `<p><Button>ticket</Button></p>`;
@@ -571,13 +571,13 @@ const pages = {
 					buf += `<p><a class="button" href="https://www.smogon.com/forums/forums/other-admin-requests.346/">Request a password reset</a></p>`;
 					break;
 				case 'other':
-					buf += `<p>If your issue is not handled above, click the button below to ask for a global. Please be ready to explain the situation.</p>`;
+					buf += `<p>Si votre problème n'est pas traité suite à votre ticket, cliquez sur le bouton ci-dessous pour demander une réponse globale. S'il vous plaît soyez prêt à expliquer la situation.</p>`;
 					if (!isLast) break;
 					buf += `<p><Button>confirmother</Button></p>`;
 					break;
 				default:
 					if (!page.startsWith('confirm')) break;
-					buf += `<p><b>Etes-vous sûr de vouloir soumettre un ${ticketTitles[page.slice(7)]} report?</b></p>`;
+					buf += `<p><b>Êtes-vous sûr de vouloir soumettre un ${ticketTitles[page.slice(7)]} ?</b></p>`;
 					buf += `<p><button class="button notifying" name="send" value="/helpticket submit ${ticketTitles[page.slice(7)]}">Oui, contacter un membre du Global Staff</button> <a href="/view-help-request-${query.slice(0, i).join('-')}" target="replace"><button class="button">Non</button></a></p>`;
 					break;
 				}
