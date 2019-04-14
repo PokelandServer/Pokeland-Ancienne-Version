@@ -287,7 +287,7 @@ exports.commands = {
 	live: function (target, room, user) {
 		if (!this.runBroadcast()) return;
 		this.sendReplyBox(
-'<img src="https://image.noelshack.com/fichiers/2019/12/6/1553345949-semainier-distrib-vextal.png" width="500" height="500">'
+'<img src="https://image.noelshack.com/fichiers/2019/15/7/1555245808-semainier-640.png" width="640" height="360">'
 		);
 	},
 		'!galeries': true,
