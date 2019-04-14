@@ -275,7 +275,7 @@ if (typeof demFeels.extendEmotes === 'function') {
 	':ANGERY:' : 'https://cdn.discordapp.com/emojis/395628368596434945.png?v=1',
 	':thenkeng:' : 'https://cdn.discordapp.com/emojis/481391176818360321.png?v=1',
 	':thinking' : 'https://discordapp.com/assets/53ef346458017da2062aca5c7955946b.svg',
-	'#UWR' : 'https://image.noelshack.com/fichiers/2019/15/7/1555241314-pp.png',
+	'#UWR' : 'http://51.38.238.97:8000/avatars/unwailordrandom.png',
 	':wailord:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019805-tinyfloatingwhale.gif',
 	':onion:' : 'http://image.noelshack.com/fichiers/2018/44/3/1541019812-d91.gif',
 	'#000s' : 'https://i.imgur.com/kJppajQ.jpg',
