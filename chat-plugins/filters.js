@@ -92,7 +92,7 @@ Chat.namefilter = function (name, user) {
 				user.locked = '#hostfilter';
 				user.updateIdentity();
 				user.popup("|modal|Tu as été automatiquement lock ! Car tu utilises un proxy ! Si tu veux être unlock désactive-le !");
-				Monitor.log("[ProxyMonitor] " + name + " (" + ip + ") a était automatiquement lock et déconnecté. (" + host + ")");
+				//Monitor.log("[ProxyMonitor] " + name + " (" + ip + ") a était automatiquement lock et déconnecté. (" + host + ")");
 				return;
 			}
 		});
