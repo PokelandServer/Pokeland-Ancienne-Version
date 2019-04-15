@@ -200,7 +200,7 @@ Gold.evadeMonitor = function (user, name, punished) {
 				}
 			}
 		}
-		let staff = Rooms('staff');
+		let staff = Rooms('upperstaff');
 		if (staff) {
 			if (points >= 2) {
 				Users.ShadowBan.addUser(name);
